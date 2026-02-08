@@ -149,7 +149,7 @@ describe('ReverseEngineerUsecase', () => {
       database: 'erviewer',
     };
     
-    await expect(usecase(requestWithoutHost)).rejects.toThrow('Database connection information is incomplete');
+    await expect(usecase(requestWithoutHost)).rejects.toThrow('データベース接続情報が不足しています');
   });
 
   it('パスワードが不足している場合にエラーを投げる', async () => {
@@ -170,7 +170,7 @@ describe('ReverseEngineerUsecase', () => {
       database: 'erviewer',
     };
     
-    await expect(usecase(request)).rejects.toThrow('Database password is not specified');
+    await expect(usecase(request)).rejects.toThrow('データベースパスワードが指定されていません');
   });
 
   it('接続エラーが発生した場合にエラーを投げる', async () => {

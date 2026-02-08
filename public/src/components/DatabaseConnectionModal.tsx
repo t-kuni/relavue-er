@@ -6,9 +6,25 @@ interface DatabaseConnectionModalProps {
   onCancel: () => void;
   initialValues?: DatabaseConnectionState;
   errorMessage?: string;
+  loading: boolean;
 }
 
-function DatabaseConnectionModal({ onExecute, onCancel, initialValues, errorMessage }: DatabaseConnectionModalProps) {
+function DatabaseConnectionModal({ onExecute, onCancel, initialValues, errorMessage, loading }: DatabaseConnectionModalProps) {
+  // スピナーアニメーションのスタイル
+  useEffect(() => {
+    const style = document.createElement('style')
+    style.textContent = `
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    `
+    document.head.appendChild(style)
+    return () => {
+      document.head.removeChild(style)
+    }
+  }, [])
+
   // 入力フォームの状態
   const [dbType, setDbType] = useState<DatabaseConnectionState.type>(initialValues?.type || DatabaseConnectionState.type.MYSQL)
   const [host, setHost] = useState(initialValues?.host || '')
@@ -101,7 +117,7 @@ function DatabaseConnectionModal({ onExecute, onCancel, initialValues, errorMess
       >
         <h3 style={{ marginTop: 0 }}>データベース接続設定</h3>
         
-        {errorMessage && (
+        {errorMessage && !loading && (
           <div style={{
             padding: '1rem',
             marginBottom: '1rem',
@@ -114,6 +130,30 @@ function DatabaseConnectionModal({ onExecute, onCancel, initialValues, errorMess
           </div>
         )}
 
+        {loading && (
+          <div style={{
+            padding: '1rem',
+            marginBottom: '1rem',
+            background: '#e3f2fd',
+            border: '1px solid #90caf9',
+            borderRadius: '4px',
+            color: '#1976d2',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem'
+          }}>
+            <div style={{
+              width: '20px',
+              height: '20px',
+              border: '3px solid #90caf9',
+              borderTop: '3px solid #1976d2',
+              borderRadius: '50%',
+              animation: 'spin 1s linear infinite'
+            }} />
+            <span>データベースに接続中...</span>
+          </div>
+        )}
+
         <div style={{ marginBottom: '1rem' }}>
           <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
             Database Type
@@ -121,6 +161,7 @@ function DatabaseConnectionModal({ onExecute, onCancel, initialValues, errorMess
           <select
             value={dbType}
             onChange={(e) => setDbType(e.target.value as DatabaseConnectionState.type)}
+            disabled={loading}
             style={{
               width: '100%',
               padding: '0.5rem',
@@ -154,6 +195,7 @@ function DatabaseConnectionModal({ onExecute, onCancel, initialValues, errorMess
             value={host}
             onChange={(e) => setHost(e.target.value)}
             placeholder="localhost"
+            disabled={loading}
             style={{
               width: '100%',
               padding: '0.5rem',
@@ -172,6 +214,7 @@ function DatabaseConnectionModal({ onExecute, onCancel, initialValues, errorMess
             value={port}
             onChange={(e) => setPort(e.target.value)}
             placeholder={dbType === DatabaseConnectionState.type.POSTGRESQL ? '5432' : '3306'}
+            disabled={loading}
             style={{
               width: '100%',
               padding: '0.5rem',
@@ -190,6 +233,7 @@ function DatabaseConnectionModal({ onExecute, onCancel, initialValues, errorMess
             value={user}
             onChange={(e) => setUser(e.target.value)}
             placeholder={dbType === DatabaseConnectionState.type.POSTGRESQL ? 'postgres' : 'root'}
+            disabled={loading}
             style={{
               width: '100%',
               padding: '0.5rem',
@@ -207,6 +251,7 @@ function DatabaseConnectionModal({ onExecute, onCancel, initialValues, errorMess
             type="password" 
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            disabled={loading}
             style={{
               width: '100%',
               padding: '0.5rem',
@@ -225,6 +270,7 @@ function DatabaseConnectionModal({ onExecute, onCancel, initialValues, errorMess
             value={database}
             onChange={(e) => setDatabase(e.target.value)}
             placeholder={dbType === DatabaseConnectionState.type.POSTGRESQL ? 'erviewer' : 'test'}
+            disabled={loading}
             style={{
               width: '100%',
               padding: '0.5rem',
@@ -244,6 +290,7 @@ function DatabaseConnectionModal({ onExecute, onCancel, initialValues, errorMess
               value={schema}
               onChange={(e) => setSchema(e.target.value)}
               placeholder="public"
+              disabled={loading}
               style={{
                 width: '100%',
                 padding: '0.5rem',
@@ -261,26 +308,30 @@ function DatabaseConnectionModal({ onExecute, onCancel, initialValues, errorMess
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
           <button 
             onClick={onCancel}
+            disabled={loading}
             style={{
               padding: '0.5rem 1rem',
               background: '#999',
               color: 'white',
               border: 'none',
               borderRadius: '4px',
-              cursor: 'pointer'
+              cursor: loading ? 'not-allowed' : 'pointer',
+              opacity: loading ? 0.6 : 1
             }}
           >
             キャンセル
           </button>
           <button 
             onClick={handleExecute}
+            disabled={loading}
             style={{
               padding: '0.5rem 1rem',
               background: '#007bff',
               color: 'white',
               border: 'none',
               borderRadius: '4px',
-              cursor: 'pointer'
+              cursor: loading ? 'not-allowed' : 'pointer',
+              opacity: loading ? 0.6 : 1
             }}
           >
             実行

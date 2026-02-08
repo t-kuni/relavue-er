@@ -1,4 +1,4 @@
-import { DefaultService } from '../api/client';
+import { DefaultService, ApiError } from '../api/client';
 import { actionMergeERData, actionSetLoading } from '../actions/dataActions';
 import type { Store } from '../store/erDiagramStore';
 import type { ViewModel, DatabaseConnectionState, ReverseEngineerRequest } from '../api/client';
@@ -52,7 +52,15 @@ export async function commandReverseEngineer(
     return { success: true };
   } catch (error) {
     console.error('Failed to reverse engineer:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    
+    // ApiErrorの場合はbody.errorからユーザーフレンドリーなメッセージを取得
+    let errorMessage = 'Unknown error occurred';
+    if (error instanceof ApiError && error.body?.error) {
+      errorMessage = error.body.error;
+    } else if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+    
     return { success: false, error: errorMessage };
   } finally {
     dispatch(actionSetLoading, false);

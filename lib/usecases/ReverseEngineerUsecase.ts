@@ -21,14 +21,14 @@ export function createReverseEngineerUsecase(deps: ReverseEngineerDeps) {
     
     // 接続情報の検証
     if (!host || !port || !user || !database) {
-      throw new Error('Database connection information is incomplete. Please provide all required fields.');
+      throw new Error('データベース接続情報が不足しています。すべての必須フィールドを入力してください。');
     }
     
     // パスワードが空文字列の場合のみ環境変数をフォールバック
     const resolvedPassword = (password === '') ? process.env.DB_PASSWORD : password;
     
     if (!resolvedPassword) {
-      throw new Error('Database password is not specified.');
+      throw new Error('データベースパスワードが指定されていません。');
     }
     
     const connectionConfig: DatabaseConfig = {
@@ -66,7 +66,12 @@ export function createReverseEngineerUsecase(deps: ReverseEngineerDeps) {
       };
     } catch (error) {
       await dbManager.disconnect();
-      throw error;
+      
+      // エラーメッセージをそのまま返す
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error('データベース接続中に予期しないエラーが発生しました。');
     }
   };
 }

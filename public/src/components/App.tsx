@@ -333,6 +333,7 @@ function App() {
           onCancel={handleDatabaseConnectionCancel}
           initialValues={lastDatabaseConnection}
           errorMessage={dbConnectionError}
+          loading={erDiagram.loading}
         />
       )}
       <LayoutProgressBar />
