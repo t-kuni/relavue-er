@@ -4,11 +4,13 @@ import { DatabaseConnectionState } from '../api/client'
 interface DatabaseConnectionModalProps {
   onExecute: (connectionInfo: DatabaseConnectionState, password: string) => void;
   onCancel: () => void;
+  onLoadSample: () => void;
   initialValues?: DatabaseConnectionState;
   errorMessage?: string;
+  hasExistingNodes: boolean;
 }
 
-function DatabaseConnectionModal({ onExecute, onCancel, initialValues, errorMessage }: DatabaseConnectionModalProps) {
+function DatabaseConnectionModal({ onExecute, onCancel, onLoadSample, initialValues, errorMessage, hasExistingNodes }: DatabaseConnectionModalProps) {
   // 入力フォームの状態
   const [dbType, setDbType] = useState<DatabaseConnectionState.type>(initialValues?.type || DatabaseConnectionState.type.MYSQL)
   const [host, setHost] = useState(initialValues?.host || '')
@@ -258,33 +260,50 @@ function DatabaseConnectionModal({ onExecute, onCancel, initialValues, errorMess
           <div style={{ marginBottom: '1.5rem' }} />
         )}
 
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
-          <button 
-            onClick={onCancel}
-            style={{
-              padding: '0.5rem 1rem',
-              background: '#999',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer'
-            }}
-          >
-            キャンセル
-          </button>
-          <button 
-            onClick={handleExecute}
-            style={{
-              padding: '0.5rem 1rem',
-              background: '#007bff',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer'
-            }}
-          >
-            実行
-          </button>
+        <div style={{ display: 'flex', justifyContent: 'space-between', gap: '0.5rem' }}>
+          {!hasExistingNodes && (
+            <button 
+              onClick={onLoadSample}
+              style={{
+                padding: '0.5rem 1rem',
+                background: '#6c757d',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer'
+              }}
+            >
+              サンプルERを読み込む
+            </button>
+          )}
+          <div style={{ marginLeft: 'auto', display: 'flex', gap: '0.5rem' }}>
+            <button 
+              onClick={onCancel}
+              style={{
+                padding: '0.5rem 1rem',
+                background: '#999',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer'
+              }}
+            >
+              キャンセル
+            </button>
+            <button 
+              onClick={handleExecute}
+              style={{
+                padding: '0.5rem 1rem',
+                background: '#007bff',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer'
+              }}
+            >
+              実行
+            </button>
+          </div>
         </div>
       </div>
     </div>

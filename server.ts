@@ -9,6 +9,7 @@ import DatabaseManager from './lib/database/DatabaseManager.js';
 import { createGetBuildInfoUsecase } from './lib/usecases/GetBuildInfoUsecase';
 import { createReverseEngineerUsecase } from './lib/usecases/ReverseEngineerUsecase';
 import { createGetInitialViewModelUsecase } from './lib/usecases/GetInitialViewModelUsecase';
+import { createLoadSampleERDiagramUsecase } from './lib/usecases/LoadSampleERDiagramUsecase.js';
 
 dotenv.config();
 
@@ -51,6 +52,9 @@ const reverseEngineerUsecase = createReverseEngineerUsecase({
   createDatabaseManager: () => new DatabaseManager(),
 });
 
+// LoadSampleERDiagramUsecaseの依存性注入
+const loadSampleERDiagramUsecase = createLoadSampleERDiagramUsecase({});
+
 // GET /api/init - 初期ViewModelを返却
 app.get('/api/init', async (_req: Request, res: Response) => {
   try {
@@ -74,7 +78,16 @@ app.post('/api/reverse-engineer', async (req: Request, res: Response) => {
   }
 });
 
-
+// GET /api/reverse-engineer/sample - サンプルER図を返却
+app.get('/api/reverse-engineer/sample', async (_req: Request, res: Response) => {
+  try {
+    const response = await loadSampleERDiagramUsecase();
+    res.json(response);
+  } catch (error) {
+    console.error('Error loading sample ER diagram:', error);
+    res.status(500).json({ error: 'Failed to load sample ER diagram' });
+  }
+});
 
 app.get('/', (_req: Request, res: Response) => {
   res.sendFile(path.join(rootDir, 'public/dist/index.html'));

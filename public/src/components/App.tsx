@@ -15,6 +15,7 @@ import { actionSelectItem, actionToggleLayerPanel } from '../actions/layerAction
 import { actionSetViewModel } from '../actions/dataActions'
 import { commandInitialize } from '../commands/initializeCommand'
 import { commandReverseEngineer } from '../commands/reverseEngineerCommand'
+import { commandLoadSampleERDiagram } from '../commands/loadSampleERDiagramCommand'
 import { commandLayoutOptimize } from '../commands/layoutOptimizeCommand'
 import { erDiagramStore } from '../store/erDiagramStore'
 import { exportViewModel } from '../utils/exportViewModel'
@@ -114,6 +115,18 @@ function App() {
   const handleDatabaseConnectionCancel = () => {
     dispatch(actionHideDatabaseConnectionModal)
     setDbConnectionError(undefined)
+  }
+  
+  // サンプルER図読み込みハンドラ
+  const handleLoadSampleERDiagram = async () => {
+    const result = await commandLoadSampleERDiagram(dispatch, erDiagramStore.getState)
+    
+    if (result.success) {
+      dispatch(actionHideDatabaseConnectionModal)
+      setDbConnectionError(undefined)
+    } else {
+      setDbConnectionError(result.error)
+    }
   }
   
   // 配置最適化ボタンのハンドラ
@@ -331,6 +344,8 @@ function App() {
         <DatabaseConnectionModal 
           onExecute={handleDatabaseConnectionExecute}
           onCancel={handleDatabaseConnectionCancel}
+          onLoadSample={handleLoadSampleERDiagram}
+          hasExistingNodes={Object.keys(erDiagram.nodes).length > 0}
           initialValues={lastDatabaseConnection}
           errorMessage={dbConnectionError}
         />
