@@ -40,11 +40,11 @@ docker run --rm --network host tkuni83/relavue-er
 
 ![](docs/2.png)
 
-## 機能一覧
+## 🟦 機能一覧
 
 [こちら](https://zenn.dev/t_kuni_0/articles/ffecf4c2b7dbdb#%F0%9F%9F%A6-%E7%89%B9%E5%BE%B4) を参照ください。
 
 
-# 開発者向け情報
+## 🟦 開発者向け情報
 
 [README_DEVELOP.md](README_DEVELOP.md)を参照
