@@ -21,6 +21,7 @@ export class PostgresAdapter implements DatabaseAdapter {
         user: config.user,
         password: config.password,
         database: config.database,
+        connectionTimeoutMillis: 3000, // 3秒
       };
       console.log('PostgreSQL config prepared:', { ...pgConfig, password: '***' });
 

@@ -8,9 +8,24 @@ interface DatabaseConnectionModalProps {
   initialValues?: DatabaseConnectionState;
   errorMessage?: string;
   hasExistingNodes: boolean;
+  loading: boolean;
 }
 
-function DatabaseConnectionModal({ onExecute, onCancel, onLoadSample, initialValues, errorMessage, hasExistingNodes }: DatabaseConnectionModalProps) {
+function DatabaseConnectionModal({ onExecute, onCancel, onLoadSample, initialValues, errorMessage, hasExistingNodes, loading }: DatabaseConnectionModalProps) {
+  // スピナーアニメーションのスタイル
+  useEffect(() => {
+    const style = document.createElement('style')
+    style.textContent = `
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    `
+    document.head.appendChild(style)
+    return () => {
+      document.head.removeChild(style)
+    }
+  }, [])
   // 入力フォームの状態
   const [dbType, setDbType] = useState<DatabaseConnectionState.type>(initialValues?.type || DatabaseConnectionState.type.MYSQL)
   const [host, setHost] = useState(initialValues?.host || '')
@@ -103,7 +118,7 @@ function DatabaseConnectionModal({ onExecute, onCancel, onLoadSample, initialVal
       >
         <h3 style={{ marginTop: 0 }}>データベース接続設定</h3>
         
-        {errorMessage && (
+        {errorMessage && !loading && (
           <div style={{
             padding: '1rem',
             marginBottom: '1rem',
@@ -116,6 +131,30 @@ function DatabaseConnectionModal({ onExecute, onCancel, onLoadSample, initialVal
           </div>
         )}
 
+        {loading && (
+          <div style={{
+            padding: '1rem',
+            marginBottom: '1rem',
+            background: '#e3f2fd',
+            border: '1px solid #90caf9',
+            borderRadius: '4px',
+            color: '#1976d2',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem'
+          }}>
+            <div style={{
+              width: '20px',
+              height: '20px',
+              border: '3px solid #90caf9',
+              borderTop: '3px solid #1976d2',
+              borderRadius: '50%',
+              animation: 'spin 1s linear infinite'
+            }} />
+            <span>データベースに接続中...</span>
+          </div>
+        )}
+
         <div style={{ marginBottom: '1rem' }}>
           <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
             Database Type
@@ -123,6 +162,7 @@ function DatabaseConnectionModal({ onExecute, onCancel, onLoadSample, initialVal
           <select
             value={dbType}
             onChange={(e) => setDbType(e.target.value as DatabaseConnectionState.type)}
+            disabled={loading}
             style={{
               width: '100%',
               padding: '0.5rem',
@@ -156,6 +196,7 @@ function DatabaseConnectionModal({ onExecute, onCancel, onLoadSample, initialVal
             value={host}
             onChange={(e) => setHost(e.target.value)}
             placeholder="localhost"
+            disabled={loading}
             style={{
               width: '100%',
               padding: '0.5rem',
@@ -174,6 +215,7 @@ function DatabaseConnectionModal({ onExecute, onCancel, onLoadSample, initialVal
             value={port}
             onChange={(e) => setPort(e.target.value)}
             placeholder={dbType === DatabaseConnectionState.type.POSTGRESQL ? '5432' : '3306'}
+            disabled={loading}
             style={{
               width: '100%',
               padding: '0.5rem',
@@ -192,6 +234,7 @@ function DatabaseConnectionModal({ onExecute, onCancel, onLoadSample, initialVal
             value={user}
             onChange={(e) => setUser(e.target.value)}
             placeholder={dbType === DatabaseConnectionState.type.POSTGRESQL ? 'postgres' : 'root'}
+            disabled={loading}
             style={{
               width: '100%',
               padding: '0.5rem',
@@ -209,6 +252,7 @@ function DatabaseConnectionModal({ onExecute, onCancel, onLoadSample, initialVal
             type="password" 
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            disabled={loading}
             style={{
               width: '100%',
               padding: '0.5rem',
@@ -227,6 +271,7 @@ function DatabaseConnectionModal({ onExecute, onCancel, onLoadSample, initialVal
             value={database}
             onChange={(e) => setDatabase(e.target.value)}
             placeholder={dbType === DatabaseConnectionState.type.POSTGRESQL ? 'erviewer' : 'test'}
+            disabled={loading}
             style={{
               width: '100%',
               padding: '0.5rem',
@@ -246,6 +291,7 @@ function DatabaseConnectionModal({ onExecute, onCancel, onLoadSample, initialVal
               value={schema}
               onChange={(e) => setSchema(e.target.value)}
               placeholder="public"
+              disabled={loading}
               style={{
                 width: '100%',
                 padding: '0.5rem',
@@ -264,13 +310,15 @@ function DatabaseConnectionModal({ onExecute, onCancel, onLoadSample, initialVal
           {!hasExistingNodes && (
             <button 
               onClick={onLoadSample}
+              disabled={loading}
               style={{
                 padding: '0.5rem 1rem',
                 background: '#6c757d',
                 color: 'white',
                 border: 'none',
                 borderRadius: '4px',
-                cursor: 'pointer'
+                cursor: loading ? 'not-allowed' : 'pointer',
+                opacity: loading ? 0.6 : 1
               }}
             >
               サンプルERを読み込む
@@ -279,26 +327,30 @@ function DatabaseConnectionModal({ onExecute, onCancel, onLoadSample, initialVal
           <div style={{ marginLeft: 'auto', display: 'flex', gap: '0.5rem' }}>
             <button 
               onClick={onCancel}
+              disabled={loading}
               style={{
                 padding: '0.5rem 1rem',
                 background: '#999',
                 color: 'white',
                 border: 'none',
                 borderRadius: '4px',
-                cursor: 'pointer'
+                cursor: loading ? 'not-allowed' : 'pointer',
+                opacity: loading ? 0.6 : 1
               }}
             >
               キャンセル
             </button>
             <button 
               onClick={handleExecute}
+              disabled={loading}
               style={{
                 padding: '0.5rem 1rem',
                 background: '#007bff',
                 color: 'white',
                 border: 'none',
                 borderRadius: '4px',
-                cursor: 'pointer'
+                cursor: loading ? 'not-allowed' : 'pointer',
+                opacity: loading ? 0.6 : 1
               }}
             >
               実行

@@ -74,7 +74,11 @@ app.post('/api/reverse-engineer', async (req: Request, res: Response) => {
     res.json(response);
   } catch (error) {
     console.error('Error during reverse engineering:', error);
-    res.status(500).json({ error: 'Failed to reverse engineer database' });
+    
+    // エラーメッセージを取得（Usecaseで既に日本語化済み）
+    const errorMessage = error instanceof Error ? error.message : 'データベース接続中に予期しないエラーが発生しました。';
+    
+    res.status(500).json({ error: errorMessage });
   }
 });
 

@@ -348,6 +348,7 @@ function App() {
           hasExistingNodes={Object.keys(erDiagram.nodes).length > 0}
           initialValues={lastDatabaseConnection}
           errorMessage={dbConnectionError}
+          loading={erDiagram.loading}
         />
       )}
       <LayoutProgressBar />

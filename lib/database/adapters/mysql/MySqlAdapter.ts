@@ -14,6 +14,7 @@ export class MySqlAdapter implements DatabaseAdapter {
         user: config.user,
         password: config.password,
         database: config.database,
+        connectTimeout: 3000, // 3秒
       };
       console.log('MySQL config prepared:', { ...mysqlConfig, password: '***' });
 
