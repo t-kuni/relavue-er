@@ -98,6 +98,53 @@
 
 既存のレイアウトを維持したまま差分を反映する機能。詳細は[増分リバース・エンジニアリング機能仕様](./incremental_reverse_engineering.md)を参照。
 
+## サンプルER図読み込み機能
+
+初回ユーザー向けに、データベース接続なしでサンプルER図を読み込む機能。
+
+### 機能概要
+
+- データベース接続設定モーダルの左下に「サンプルERを読み込む」ボタンを表示
+- 既にER図が読み込まれている場合（`nodes`が1つ以上存在する場合）はボタンを表示しない
+- ボタン押下時、`GET /api/reverse-engineer/sample`を呼び出してサンプルERDataを取得
+- サンプルERDataは`init.sql`の内容を参考にした静的なデータ
+- データベース接続は不要（バックエンドで静的に構築）
+
+### API仕様
+
+**エンドポイント**: `GET /api/reverse-engineer/sample`
+
+**リクエスト**: なし
+
+**レスポンス**: `ReverseEngineerResponse`
+- `erData`: サンプルER図データ（`init.sql`を参考にした静的データ）
+- `connectionInfo`: 空の接続情報（フロントエンドでは無視される）
+
+### バックエンド処理
+
+- データベース接続は行わない
+- `init.sql`の内容を参考にしたERDataを静的に構築して返却
+- 主要なテーブル（users, user_profiles, roles, user_roles, organizations, teams, projects, tasksなど）を含む
+- UUIDはリクエスト時に動的に生成
+
+### フロントエンド処理
+
+1. `GET /api/reverse-engineer/sample`を呼び出し
+2. レスポンスで受け取った`erData`を既存ViewModelとマージ（増分リバースエンジニアリングと同じロジック）
+3. `connectionInfo`は無視（`settings.lastDatabaseConnection`は更新しない）
+4. モーダルを閉じてER図を表示
+
+### 表示条件
+
+- **ボタンを表示する条件**: `Object.keys(vm.erDiagram.nodes).length === 0`（ER図が未読み込みの場合のみ）
+- **ボタンを表示しない条件**: 既にER図が読み込まれている場合
+
+### 接続情報の扱い
+
+サンプルER図を読み込んだ場合、`settings.lastDatabaseConnection`は更新しない。理由：
+- サンプルはあくまで「お試し」であり、実際のDB接続情報とは分離すべき
+- 初回ユーザーが実際のDBに接続する際に、モーダルが空の状態の方が混乱が少ない
+
 ## 関連仕様書
 
 - [増分リバース・エンジニアリング機能仕様](./incremental_reverse_engineering.md) - 増分更新の詳細

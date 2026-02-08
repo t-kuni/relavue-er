@@ -430,4 +430,10 @@ namespace API {
   @post
   @route("/reverse-engineer")
   op reverseEngineer(@body request: ReverseEngineerRequest): ReverseEngineerResponse | ErrorResponse;
+
+  // Load sample ER diagram
+  // Returns static sample ER data (based on init.sql) without database connection
+  @get
+  @route("/reverse-engineer/sample")
+  op loadSampleERDiagram(): ReverseEngineerResponse | ErrorResponse;
 }
