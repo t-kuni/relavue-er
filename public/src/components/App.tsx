@@ -25,7 +25,7 @@ import { importViewModel } from '../utils/importViewModel'
 import type { DatabaseConnectionState } from '../api/client'
 
 function App() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const dispatch = useDispatch()
   const [dbConnectionError, setDbConnectionError] = useState<string | undefined>(undefined)
   const [nodesInitialized, setNodesInitialized] = useState<boolean>(false)
@@ -46,6 +46,7 @@ function App() {
   const lastDatabaseConnection = useViewModel((vm) => vm.settings?.lastDatabaseConnection)
   const erDiagram = useViewModel((vm) => vm.erDiagram)
   const layoutOptimization = useViewModel((vm) => vm.ui.layoutOptimization)
+  const locale = useViewModel((vm) => vm.settings?.locale)
   
   // エクスポートハンドラ
   const handleExport = () => {
@@ -67,6 +68,13 @@ function App() {
       window.removeEventListener('keydown', handleKeyDown)
     }
   }, [viewModel])
+  
+  // ViewModel更新時にi18nextの言語を同期
+  useEffect(() => {
+    if (locale) {
+      i18n.changeLanguage(locale)
+    }
+  }, [locale, i18n])
   
   // インポートハンドラ
   const handleImport = async (files: File[]) => {

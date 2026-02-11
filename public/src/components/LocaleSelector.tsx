@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
 import { useViewModel, useDispatch } from '../store/hooks'
 import { actionSetLocale } from '../actions/globalUIActions'
 import { AppSettings } from '../api/client'
@@ -15,7 +14,6 @@ const LOCALE_LABELS: Record<AppSettings.locale, string> = {
  * 言語切り替えドロップダウンコンポーネント
  */
 export function LocaleSelector() {
-  const { i18n } = useTranslation()
   const dispatch = useDispatch()
   const currentLocale = useViewModel((vm) => vm.settings?.locale ?? AppSettings.locale.EN)
   const [isOpen, setIsOpen] = useState(false)
@@ -41,7 +39,6 @@ export function LocaleSelector() {
   // 言語切り替えハンドラ
   const handleLocaleChange = (locale: AppSettings.locale) => {
     dispatch(actionSetLocale, locale)
-    i18n.changeLanguage(locale)
     setIsOpen(false)
   }
 
