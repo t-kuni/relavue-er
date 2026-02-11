@@ -1,5 +1,7 @@
 # セマンティックバージョニング仕様
 
+**運用情報**: 具体的なリリース手順については [README_DEVELOP.md](../README_DEVELOP.md) を参照。
+
 ## バージョニング方式
 
 Semantic Versioning 2.0.0に準拠した`MAJOR.MINOR.PATCH`形式を採用する。

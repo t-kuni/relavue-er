@@ -6,6 +6,8 @@ ER Viewer APIの型定義とスキーマ生成にTypeSpecを使用する。TypeS
 
 **重要**: 型は `scheme/main.tsp` で包括的に管理している。フロントエンドとバックエンドで共通の型定義を使用することで、API通信の型安全性を保証する。
 
+**運用情報**: 具体的な開発・運用手順については [README_DEVELOP.md](../README_DEVELOP.md) を参照。
+
 ## ID仕様の基本方針
 
 すべてのモデルの `id` フィールドはUUID (Universally Unique Identifier) を使用する。
@@ -84,3 +86,4 @@ npx openapi-typescript-codegen --input scheme/openapi.yaml --output public/src/a
 - TypeSpec定義を変更した場合は必ずクライアントコードの再生成が必要
 - 生成されたファイルは手動編集しない（次回生成時に上書きされるため）
 - APIの破壊的変更を行う場合は、フロントエンドコードの対応も必要
+- **Dockerビルド時**: `Dockerfile.prod`では、ビルド前に`npm run generate`を実行してAPI型定義を生成する。これにより`public/src/api/client`ディレクトリが作成され、フロントエンドのビルドが正常に完了する。
