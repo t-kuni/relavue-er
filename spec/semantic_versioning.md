@@ -42,6 +42,19 @@ GitHub Actionsの`workflow_dispatch`により手動トリガーで実行する�
 3. コミットを自動作成
 4. Gitタグ（`vX.Y.Z`形式）を自動作成
 5. タグをリモートリポジトリにpush
+6. Gitタグのpushにより、Docker Releaseワークフローが自動的にトリガーされる
+
+### 認証
+Personal Access Token（PAT）を使用する。
+
+#### PAT使用の理由
+デフォルトの`GITHUB_TOKEN`を使用した場合、GitHub Actionsの無限ループ防止仕様により、他のワークフローがトリガーされない。そのため、タグpush時にDocker Releaseワークフローを起動するにはPATが必要。
+
+#### PAT設定
+1. GitHub でPersonal Access Token (Classic) を作成
+   - `repo` スコープを付与
+2. リポジトリのSecretsに`PAT_TOKEN`として登録
+3. Version Bumpワークフローの`checkout`アクションでPATを使用
 
 ## Gitタグ
 
@@ -81,7 +94,14 @@ Gitタグ`vX.Y.Z`がpushされた際に、以下の3種類のDockerタグを自�
 GitHub Actionsで自動化する。
 
 ### トリガー
-Gitタグ（`v*`形式）のpush時に実行される。
+以下の2つの方法で実行できる：
+
+1. **自動実行**: Gitタグ（`v*`形式）のpush時に自動実行される
+2. **手動実行**: GitHub ActionsのUIから`workflow_dispatch`で実行
+   - 入力パラメータ：
+     - `tag`: リリース対象のGitタグ（例：`v1.2.3`）
+   - 既存のタグを指定して手動でDockerイメージをリリースできる
+   - リリース済みのバージョンを再ビルドする場合などに使用
 
 ### 認証
 Docker Hub Personal Access Tokenを使用する。
