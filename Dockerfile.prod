@@ -38,6 +38,10 @@ RUN npm run build
 # ============================================
 FROM node:20-alpine AS runner
 
+# Build arguments for metadata
+ARG GIT_SHA
+ARG BUILD_DATE
+
 WORKDIR /app
 
 # Copy package files
@@ -56,6 +60,11 @@ COPY --from=builder /app/build-info.json ./build-info.json
 
 # Set production environment
 ENV NODE_ENV=production
+
+# Add OCI labels for traceability
+LABEL org.opencontainers.image.source="https://github.com/t-kuni/relavue-er"
+LABEL org.opencontainers.image.revision="${GIT_SHA}"
+LABEL org.opencontainers.image.created="${BUILD_DATE}"
 
 # Expose the application port
 EXPOSE 30033
