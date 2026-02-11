@@ -71,11 +71,13 @@ npm run generate
 
 ---
 
-## フェーズ2: フロントエンド基盤（i18n初期化、Action、ユーティリティ）
+## フェーズ2: フロントエンド基盤（i18n初期化、Action、ユーティリティ） ✅ 完了
 
-### [ ] 2-1. i18nextの初期化設定ファイルの作成
+### [x] 2-1. i18nextの初期化設定ファイルの作成
 
 **ファイル**: `public/src/i18n/index.ts`（新規作成）
+
+**実施結果**: 完了。i18nextの初期化設定ファイルを作成しました。
 
 **実装内容**:
 - i18nextの初期化
@@ -89,9 +91,11 @@ npm run generate
 - ViewModelの `settings.locale` を単一ソースとするため、i18next側の永続化機能は無効化する
 - アプリケーション起動時に `main.tsx` でインポートし、初期化を実行する
 
-### [ ] 2-2. 翻訳ファイルの作成（日本語）
+### [x] 2-2. 翻訳ファイルの作成（日本語）
 
 **ファイル**: `public/locales/ja/translation.json`（新規作成）
+
+**実施結果**: 完了。日本語の翻訳ファイルを作成しました。
 
 **内容**:
 以下のカテゴリ別に翻訳キーを定義：
@@ -111,25 +115,31 @@ npm run generate
 - キーは英語のスネークケースで統一
 - 既存のハードコードされた日本語テキストを翻訳キーに置き換える
 
-### [ ] 2-3. 翻訳ファイルの作成（英語）
+### [x] 2-3. 翻訳ファイルの作成（英語）
 
 **ファイル**: `public/locales/en/translation.json`（新規作成）
+
+**実施結果**: 完了。英語の翻訳ファイルを作成しました。
 
 **内容**:
 - 日本語翻訳ファイルと同じ構造で英語版を作成
 - すべてのキーに対して英語の翻訳を提供
 
-### [ ] 2-4. 翻訳ファイルの作成（中国語）
+### [x] 2-4. 翻訳ファイルの作成（中国語）
 
 **ファイル**: `public/locales/zh/translation.json`（新規作成）
+
+**実施結果**: 完了。中国語（簡体字）の翻訳ファイルを作成しました。
 
 **内容**:
 - 日本語翻訳ファイルと同じ構造で中国語（簡体字）版を作成
 - すべてのキーに対して中国語の翻訳を提供
 
-### [ ] 2-5. actionSetLocaleの実装
+### [x] 2-5. actionSetLocaleの実装
 
 **ファイル**: `public/src/actions/globalUIActions.ts`（既存ファイルに追加）
+
+**実施結果**: 完了。actionSetLocaleを実装しました。
 
 **追加内容**:
 ```typescript
@@ -149,9 +159,11 @@ export function actionSetLocale(
 - 変化がない場合は同一参照を返す（最適化）
 - i18next の言語切り替えはこのActionの外で実施（Commandまたはコンポーネント側）
 
-### [ ] 2-6. ブラウザ言語検出ユーティリティの実装
+### [x] 2-6. ブラウザ言語検出ユーティリティの実装
 
 **ファイル**: `public/src/utils/detectBrowserLocale.ts`（新規作成）
+
+**実施結果**: 完了。ブラウザ言語検出ユーティリティを実装しました。
 
 **実装内容**:
 ```typescript
@@ -168,9 +180,11 @@ export function detectBrowserLocale(): Locale
 3. サポートする言語（`ja`, `en`, `zh`）にマッチするものを返す
 4. マッチしない場合は `"en"` を返す
 
-### [ ] 2-7. インポート処理の更新（locale対応）
+### [x] 2-7. インポート処理の更新（locale対応）
 
 **ファイル**: `public/src/utils/importViewModel.ts`
+
+**実施結果**: 完了。インポート時のlocaleバリデーションとフォールバック処理を追加しました。
 
 **変更内容**:
 1. インポート時に `settings.locale` のバリデーションを追加:
@@ -181,17 +195,21 @@ export function detectBrowserLocale(): Locale
 
 **仕様書参照**: [spec/import_export_feature.md](/spec/import_export_feature.md) の「settings.locale フィールド」セクション
 
-### [ ] 2-8. エクスポート処理の確認
+### [x] 2-8. エクスポート処理の確認
 
 **ファイル**: `public/src/utils/exportViewModel.ts`
+
+**実施結果**: 完了。settings.localeが既にエクスポート対象に含まれていることを確認しました。変更不要です。
 
 **確認内容**:
 - `settings.locale` が既にエクスポート対象に含まれていることを確認
 - 現在の実装で `settings` フィールドを維持しているため、変更不要
 
-### [ ] 2-9. commandInitializeの更新（ブラウザ言語検出）
+### [x] 2-9. commandInitializeの更新（ブラウザ言語検出）
 
 **ファイル**: `public/src/commands/initializeCommand.ts`
+
+**実施結果**: 完了。ブラウザ言語検出とi18nextの言語切り替え処理を追加しました。
 
 **変更内容**:
 1. `GET /api/init` から取得した初期ViewModelを確認
@@ -206,9 +224,11 @@ export function detectBrowserLocale(): Locale
 **注意事項**:
 - i18nextの初期化が完了してから実行する必要がある
 
-### [ ] 2-10. main.tsxの更新（i18n初期化）
+### [x] 2-10. main.tsxの更新（i18n初期化）
 
 **ファイル**: `public/src/main.tsx`
+
+**実施結果**: 完了。i18nの初期化をインポートしました。
 
 **変更内容**:
 - `./i18n` をインポートして初期化を実行

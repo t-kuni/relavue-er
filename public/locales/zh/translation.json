@@ -1,0 +1,124 @@
+{
+  "header": {
+    "app_title": "RelavueER",
+    "export": "导出",
+    "import": "导入",
+    "build_info": "构建信息",
+    "reverse_engineer": "从数据库反向工程",
+    "reverse_engineer_incremental": "从数据库增量反向工程",
+    "reverse_history": "反向工程历史",
+    "layout_optimize": "优化布局",
+    "layer": "图层",
+    "language": "语言"
+  },
+  "layer_panel": {
+    "title": "图层",
+    "background_layer": "背景图层",
+    "foreground_layer": "前景图层",
+    "empty": "图层为空",
+    "rectangle": "矩形",
+    "text": "文本"
+  },
+  "history_panel": {
+    "title": "反向工程历史",
+    "no_history": "没有历史记录",
+    "summary_none": "（无摘要）",
+    "no_changes": "无变更",
+    "added_tables": "表",
+    "removed_tables": "表",
+    "added_columns": "列",
+    "removed_columns": "列",
+    "modified_columns": "列",
+    "added_relationships": "关系",
+    "removed_relationships": "关系",
+    "changes_detail_none": "（无变更详情）",
+    "tables_added": "已添加的表",
+    "tables_removed": "已删除的表",
+    "columns_added": "已添加的列",
+    "columns_removed": "已删除的列",
+    "columns_modified": "已修改的列",
+    "relationships_added": "已添加的关系",
+    "relationships_removed": "已删除的关系",
+    "before": "之前",
+    "after": "之后"
+  },
+  "ddl_panel": {
+    "title": "DDL",
+    "no_entity_selected": "未选择实体"
+  },
+  "database_modal": {
+    "title": "数据库连接设置",
+    "db_type": "数据库类型",
+    "host": "主机",
+    "port": "端口",
+    "user": "用户",
+    "password": "密码",
+    "database": "数据库",
+    "schema": "模式",
+    "cancel": "取消",
+    "execute": "执行",
+    "load_sample": "加载示例ER图",
+    "load_sample_description": "加载开发用示例ER图（无需数据库连接）",
+    "loading": "处理中...",
+    "existing_nodes_warning": "※ 存在现有节点。反向工程将执行增量合并。"
+  },
+  "build_info_modal": {
+    "title": "构建信息",
+    "name": "名称",
+    "version": "版本",
+    "build_time": "构建时间",
+    "git_commit": "Git 提交",
+    "git_branch": "Git 分支",
+    "node_version": "Node 版本",
+    "platform": "平台",
+    "architecture": "架构",
+    "loading": "加载中..."
+  },
+  "rectangle_panel": {
+    "title": "矩形属性",
+    "position": "位置",
+    "size": "大小",
+    "width": "宽度",
+    "height": "高度",
+    "background_color": "背景色",
+    "border_color": "边框颜色",
+    "border_width": "边框宽度",
+    "corner_radius": "圆角半径",
+    "shadow": "阴影",
+    "shadow_color": "阴影颜色",
+    "shadow_offset_x": "X 偏移",
+    "shadow_offset_y": "Y 偏移",
+    "shadow_blur": "模糊",
+    "delete": "删除"
+  },
+  "text_panel": {
+    "title": "文本属性",
+    "text": "文本",
+    "position": "位置",
+    "font_size": "字体大小",
+    "font_color": "字体颜色",
+    "font_weight": "字体粗细",
+    "normal": "标准",
+    "bold": "粗体",
+    "delete": "删除"
+  },
+  "error": {
+    "import_failed": "导入失败",
+    "invalid_json": "JSON 格式无效",
+    "validation_error": "验证错误",
+    "unknown_error": "发生未知错误"
+  },
+  "common": {
+    "close": "关闭",
+    "cancel": "取消",
+    "execute": "执行",
+    "delete": "删除",
+    "loading": "加载中...",
+    "drop_file_to_import": "拖放文件以导入"
+  },
+  "locale": {
+    "ja": "日本語",
+    "en": "English",
+    "zh": "中文"
+  }
+}

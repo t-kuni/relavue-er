@@ -1,0 +1,124 @@
+{
+  "header": {
+    "app_title": "RelavueER",
+    "export": "エクスポート",
+    "import": "インポート",
+    "build_info": "ビルド情報",
+    "reverse_engineer": "DBからリバース",
+    "reverse_engineer_incremental": "DBから増分リバース",
+    "reverse_history": "リバース履歴",
+    "layout_optimize": "配置最適化",
+    "layer": "レイヤー",
+    "language": "言語"
+  },
+  "layer_panel": {
+    "title": "レイヤー",
+    "background_layer": "背景レイヤー",
+    "foreground_layer": "前景レイヤー",
+    "empty": "レイヤーが空です",
+    "rectangle": "Rectangle",
+    "text": "Text"
+  },
+  "history_panel": {
+    "title": "リバース履歴",
+    "no_history": "履歴がありません",
+    "summary_none": "(サマリーなし)",
+    "no_changes": "変更なし",
+    "added_tables": "テーブル",
+    "removed_tables": "テーブル",
+    "added_columns": "カラム",
+    "removed_columns": "カラム",
+    "modified_columns": "カラム",
+    "added_relationships": "リレーション",
+    "removed_relationships": "リレーション",
+    "changes_detail_none": "(変更詳細なし)",
+    "tables_added": "追加されたテーブル",
+    "tables_removed": "削除されたテーブル",
+    "columns_added": "追加されたカラム",
+    "columns_removed": "削除されたカラム",
+    "columns_modified": "変更されたカラム",
+    "relationships_added": "追加されたリレーション",
+    "relationships_removed": "削除されたリレーション",
+    "before": "Before",
+    "after": "After"
+  },
+  "ddl_panel": {
+    "title": "DDL",
+    "no_entity_selected": "エンティティが選択されていません"
+  },
+  "database_modal": {
+    "title": "データベース接続設定",
+    "db_type": "データベースタイプ",
+    "host": "ホスト",
+    "port": "ポート",
+    "user": "ユーザー",
+    "password": "パスワード",
+    "database": "データベース",
+    "schema": "スキーマ",
+    "cancel": "キャンセル",
+    "execute": "実行",
+    "load_sample": "サンプルER図を読み込む",
+    "load_sample_description": "開発用のサンプルER図を読み込みます（データベース接続不要）",
+    "loading": "処理中...",
+    "existing_nodes_warning": "※既存のノードが存在します。リバースエンジニアリングを実行すると、増分マージが行われます。"
+  },
+  "build_info_modal": {
+    "title": "ビルド情報",
+    "name": "名前",
+    "version": "バージョン",
+    "build_time": "ビルド日時",
+    "git_commit": "Git コミット",
+    "git_branch": "Git ブランチ",
+    "node_version": "Node バージョン",
+    "platform": "プラットフォーム",
+    "architecture": "アーキテクチャ",
+    "loading": "読み込み中..."
+  },
+  "rectangle_panel": {
+    "title": "矩形プロパティ",
+    "position": "位置",
+    "size": "サイズ",
+    "width": "幅",
+    "height": "高さ",
+    "background_color": "背景色",
+    "border_color": "枠線の色",
+    "border_width": "枠線の幅",
+    "corner_radius": "角丸の半径",
+    "shadow": "ドロップシャドウ",
+    "shadow_color": "シャドウの色",
+    "shadow_offset_x": "X オフセット",
+    "shadow_offset_y": "Y オフセット",
+    "shadow_blur": "ぼかし",
+    "delete": "削除"
+  },
+  "text_panel": {
+    "title": "テキストプロパティ",
+    "text": "テキスト",
+    "position": "位置",
+    "font_size": "フォントサイズ",
+    "font_color": "フォント色",
+    "font_weight": "フォントの太さ",
+    "normal": "標準",
+    "bold": "太字",
+    "delete": "削除"
+  },
+  "error": {
+    "import_failed": "インポートに失敗しました",
+    "invalid_json": "JSONフォーマットが不正です",
+    "validation_error": "バリデーションエラー",
+    "unknown_error": "不明なエラーが発生しました"
+  },
+  "common": {
+    "close": "閉じる",
+    "cancel": "キャンセル",
+    "execute": "実行",
+    "delete": "削除",
+    "loading": "読み込み中...",
+    "drop_file_to_import": "ファイルをドロップしてインポート"
+  },
+  "locale": {
+    "ja": "日本語",
+    "en": "English",
+    "zh": "中文"
+  }
+}

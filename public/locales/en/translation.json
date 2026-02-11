@@ -1,0 +1,124 @@
+{
+  "header": {
+    "app_title": "RelavueER",
+    "export": "Export",
+    "import": "Import",
+    "build_info": "Build Info",
+    "reverse_engineer": "Reverse from DB",
+    "reverse_engineer_incremental": "Incremental Reverse from DB",
+    "reverse_history": "Reverse History",
+    "layout_optimize": "Optimize Layout",
+    "layer": "Layer",
+    "language": "Language"
+  },
+  "layer_panel": {
+    "title": "Layers",
+    "background_layer": "Background Layer",
+    "foreground_layer": "Foreground Layer",
+    "empty": "No items in layer",
+    "rectangle": "Rectangle",
+    "text": "Text"
+  },
+  "history_panel": {
+    "title": "Reverse History",
+    "no_history": "No history available",
+    "summary_none": "(No summary)",
+    "no_changes": "No changes",
+    "added_tables": "table(s)",
+    "removed_tables": "table(s)",
+    "added_columns": "column(s)",
+    "removed_columns": "column(s)",
+    "modified_columns": "column(s)",
+    "added_relationships": "relationship(s)",
+    "removed_relationships": "relationship(s)",
+    "changes_detail_none": "(No change details)",
+    "tables_added": "Added Tables",
+    "tables_removed": "Removed Tables",
+    "columns_added": "Added Columns",
+    "columns_removed": "Removed Columns",
+    "columns_modified": "Modified Columns",
+    "relationships_added": "Added Relationships",
+    "relationships_removed": "Removed Relationships",
+    "before": "Before",
+    "after": "After"
+  },
+  "ddl_panel": {
+    "title": "DDL",
+    "no_entity_selected": "No entity selected"
+  },
+  "database_modal": {
+    "title": "Database Connection Settings",
+    "db_type": "Database Type",
+    "host": "Host",
+    "port": "Port",
+    "user": "User",
+    "password": "Password",
+    "database": "Database",
+    "schema": "Schema",
+    "cancel": "Cancel",
+    "execute": "Execute",
+    "load_sample": "Load Sample ER Diagram",
+    "load_sample_description": "Load a sample ER diagram for development (no database connection required)",
+    "loading": "Processing...",
+    "existing_nodes_warning": "※ Existing nodes found. Reverse engineering will perform incremental merge."
+  },
+  "build_info_modal": {
+    "title": "Build Information",
+    "name": "Name",
+    "version": "Version",
+    "build_time": "Build Time",
+    "git_commit": "Git Commit",
+    "git_branch": "Git Branch",
+    "node_version": "Node Version",
+    "platform": "Platform",
+    "architecture": "Architecture",
+    "loading": "Loading..."
+  },
+  "rectangle_panel": {
+    "title": "Rectangle Properties",
+    "position": "Position",
+    "size": "Size",
+    "width": "Width",
+    "height": "Height",
+    "background_color": "Background Color",
+    "border_color": "Border Color",
+    "border_width": "Border Width",
+    "corner_radius": "Corner Radius",
+    "shadow": "Drop Shadow",
+    "shadow_color": "Shadow Color",
+    "shadow_offset_x": "X Offset",
+    "shadow_offset_y": "Y Offset",
+    "shadow_blur": "Blur",
+    "delete": "Delete"
+  },
+  "text_panel": {
+    "title": "Text Properties",
+    "text": "Text",
+    "position": "Position",
+    "font_size": "Font Size",
+    "font_color": "Font Color",
+    "font_weight": "Font Weight",
+    "normal": "Normal",
+    "bold": "Bold",
+    "delete": "Delete"
+  },
+  "error": {
+    "import_failed": "Import failed",
+    "invalid_json": "Invalid JSON format",
+    "validation_error": "Validation error",
+    "unknown_error": "An unknown error occurred"
+  },
+  "common": {
+    "close": "Close",
+    "cancel": "Cancel",
+    "execute": "Execute",
+    "delete": "Delete",
+    "loading": "Loading...",
+    "drop_file_to_import": "Drop file to import"
+  },
+  "locale": {
+    "ja": "日本語",
+    "en": "English",
+    "zh": "中文"
+  }
+}
