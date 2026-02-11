@@ -1,103 +1,127 @@
-# タスク一覧
+# 国際化（i18n）仕様書更新に伴うタスク一覧
+
+仕様書: [spec/internationalization.md](/spec/internationalization.md)
 
 ## 概要
 
-仕様書 `spec/internationalization.md` の更新に伴う実装タスク。
-主に以下の2点の修正が必要：
+仕様書の更新により、ViewModel更新時のi18next言語同期の実装方法が明確化されました。以下のタスクを実施します。
 
-1. i18next初期化時のブラウザ言語検出処理の追加（ちらつき防止のため）
-2. ヘッダーのボタン配置順序の変更
+### 変更概要
 
-## 関連仕様書
+1. **ViewModel更新時のi18next言語同期の自動化**
+   - `App.tsx`で`useViewModel`を使ってlocaleを監視し、変更があれば`i18n.changeLanguage(locale)`を呼ぶ
+   - これにより、初期化時・言語選択時・インポート時のすべてで自動的に言語が同期される
 
-- [spec/internationalization.md](/spec/internationalization.md)
+2. **統合テストの強化**
+   - インポート後のUI表示確認を追加
 
 ## 実装タスク
 
-### i18next初期化処理の修正
+### □ `App.tsx`にlocale監視のuseEffectを追加
 
-- [x] `public/src/i18n/index.ts` を修正 ✅
-  - i18next初期化時に `detectBrowserLocale()` を呼び出してブラウザ言語を検出
-  - 検出した言語を `lng` パラメータに設定（現在は固定で `'en'` が設定されている）
-  - これにより、初回レンダリング時から適切な言語で表示される（ちらつき防止）
-  - 参照: `public/src/utils/detectBrowserLocale.ts` - ブラウザ言語検出関数
-  - 修正内容:
-    ```typescript
-    import { detectBrowserLocale } from '../utils/detectBrowserLocale';
-    
-    i18n
-      .use(initReactI18next)
-      .init({
-        // ...
-        lng: detectBrowserLocale(), // 変更: 'en' → detectBrowserLocale()
-        // ...
-      });
-    ```
+**ファイル**: `public/src/components/App.tsx`
 
-### ヘッダーボタン配置順序の変更
+**変更内容**:
+- `useViewModel`を使って`settings.locale`を監視する新しい`useEffect`を追加
+- localeが変更された場合、`i18n.changeLanguage(locale)`を呼び出す
+- これにより、以下のすべてのシナリオで自動的に言語が同期される：
+  - 初期化時（`commandInitialize`で`ViewModel.settings.locale`が設定される）
+  - 言語選択時（`actionSetLocale`でlocaleが更新される）
+  - インポート時（`importViewModel`でlocaleが設定される）
 
-- [x] `public/src/components/App.tsx` のヘッダー部分を修正 ✅
-  - ボタンの配置順序を仕様書通りに変更
-  - **新しい順序（左から右）**:
-    1. DBからリバースボタン（`actionShowDatabaseConnectionModal`）
-    2. リバース履歴ボタン（`actionToggleHistoryPanel`）
-    3. 配置最適化ボタン（`handleLayoutOptimize`）
-    4. レイヤーボタン（`actionToggleLayerPanel`）
-    5. エクスポートボタン（`handleExport`）
-    6. インポートボタン（`open`）
-    7. ビルド情報ボタン（`actionShowBuildInfoModal`）
-    8. 言語切り替えドロップダウン（`<LocaleSelector />`）
-  - **変更前の順序**: レイヤー、エクスポート、インポート、ビルド情報、DBからリバース、リバース履歴、配置最適化、言語切り替え
-  - 対象: App.tsx の `<header>` 内の `<div style={{ display: 'flex', gap: '8px' }}>` セクション（189行目付近）
+**実装場所**:
+- 既存のuseEffectの後に追加
+- `i18n`は`useTranslation()`から取得（既にインポート済み）
 
-### ビルド確認
+**参考**: 仕様書 [spec/internationalization.md](/spec/internationalization.md) の「実装時の注意事項」セクション
 
-- [x] コード生成を実行: `npm run generate` ✅
-  - `scheme/main.tsp` から型定義を生成
-  - 正常に完了
-- [x] ビルドエラーがないか確認 ✅
-  - エラーなし
+### □ `LocaleSelector.tsx`から手動の`i18n.changeLanguage`呼び出しを削除
 
-### テスト実行
+**ファイル**: `public/src/components/LocaleSelector.tsx`
 
-- [x] テストを実行: `npm run test` ✅
-  - 既存のテストが通ることを確認（268個すべてのテストが成功）
-  - 多言語対応機能のテストは本タスクでは対象外（将来的に追加予定）
+**変更内容**:
+- `handleLocaleChange`関数内の`i18n.changeLanguage(locale)`呼び出しを削除
+- `actionSetLocale`のdispatchのみを残す
+- 理由: `App.tsx`のlocale監視により自動的に言語が同期されるため、手動呼び出しは不要（重複を避ける）
+
+**変更箇所**:
+- 42-46行目の`handleLocaleChange`関数
+
+**変更前**:
+```typescript
+const handleLocaleChange = (locale: AppSettings.locale) => {
+  dispatch(actionSetLocale, locale)
+  i18n.changeLanguage(locale)
+  setIsOpen(false)
+}
+```
+
+**変更後**:
+```typescript
+const handleLocaleChange = (locale: AppSettings.locale) => {
+  dispatch(actionSetLocale, locale)
+  setIsOpen(false)
+}
+```
+
+**注意**: 
+- `i18n`のインポートと`useTranslation()`の呼び出しも不要になる可能性がある（他で使用されていなければ削除）
+
+## テストタスク
+
+### □ インポート後のUI表示確認の統合テストを追加
+
+**ファイル**: 新規作成 `public/tests/integration/i18n.test.tsx`
+
+**テスト内容**:
+1. **言語切り替え後、UIが正しく翻訳されることを確認**
+   - 各言語（ja, en, zh）に切り替えて、ヘッダーのボタンテキストが正しく表示されることを確認
+
+2. **エクスポート/インポート時に言語設定が保持され、インポート後に言語が正しく反映されることを確認**
+   - 日本語でViewModelをエクスポート
+   - ViewModelをインポート
+   - インポート後のUIがすべて日本語で表示されることを確認
+   - 同様に英語、中国語でもテスト
+
+3. **ブラウザ言語検出が正しく動作することを確認**
+   - localeが未設定のViewModelをインポート
+   - ブラウザ言語が検出され、適切な言語で表示されることを確認
+
+**参考**: 
+- 仕様書 [spec/internationalization.md](/spec/internationalization.md) の「統合テスト」セクション
+- 既存のテストファイル `public/tests/actions/globalUIActions.test.ts` を参考
+
+**注意**:
+- React Testing LibraryやVitestを使用
+- `@testing-library/react`の`render`を使用してコンポーネントをレンダリング
+- `screen.getByText()`などを使用してUI要素の翻訳を確認
+
+### □ ビルドの確認
+
+**実行コマンド**:
+```bash
+npm run generate && npm run build
+```
+
+**確認内容**:
+- TypeScriptのコンパイルエラーがないこと
+- ビルドが正常に完了すること
+
+### □ テストの実行
+
+**実行コマンド**:
+```bash
+npm run test
+```
+
+**確認内容**:
+- すべてのテストがパスすること
+- 特に以下のテストが正常に動作すること：
+  - `public/tests/actions/globalUIActions.test.ts` の `actionSetLocale` テスト
+  - 新規追加した `public/tests/integration/i18n.test.tsx` の統合テスト
 
 ## 備考
 
-- 実装はほぼ完了しており、以下のコンポーネント・関数は既に実装済み：
-  - `LocaleSelector` コンポーネント
-  - `actionSetLocale` アクション
-  - `detectBrowserLocale` 関数
-  - 翻訳ファイル（`public/locales/{ja,en,zh}/translation.json`）
-  - `commandInitialize` での言語設定の初期化処理
-- 今回の修正は、初期化のタイミングとUI配置の調整のみ
-- 修正対象ファイル数: 2ファイル（i18n/index.ts、App.tsx）のみ
-
-## 実施結果
-
-**✅ すべてのタスクが完了しました**
-
-### 実施した変更
-
-1. **i18next初期化処理の修正** (`public/src/i18n/index.ts`)
-   - `detectBrowserLocale()` 関数をインポート
-   - `lng` パラメータを `'en'` から `detectBrowserLocale()` に変更
-   - これにより、初回レンダリング時から適切な言語で表示され、ちらつきが防止されます
-
-2. **ヘッダーボタン配置順序の変更** (`public/src/components/App.tsx`)
-   - ボタンの配置順序を仕様書通りに変更
-   - 新しい順序: DBからリバース → リバース履歴 → 配置最適化 → レイヤー → エクスポート → インポート → ビルド情報 → 言語切り替え
-
-3. **ビルド確認**
-   - `npm run generate` を実行し、型定義を正常に生成
-   - ビルドエラーなし
-
-4. **テスト実行**
-   - `npm run test` を実行し、268個すべてのテストが成功
-   - 既存機能に影響なし
-
-### まとめ
-
-多言語対応に関する実装が完了しました。ブラウザの言語設定に基づいて初期言語が自動的に検出され、ユーザーに最適な言語で表示されるようになりました。また、ヘッダーのボタン配置も仕様書通りに修正されました。
+- 本タスクは小規模な修正のため、フェーズ分けは不要
+- 既存の`actionSetLocale`の実装とテストは変更不要（正常に動作している）
+- `importViewModel`の実装は既に仕様に準拠しているため、変更不要
