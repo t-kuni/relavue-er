@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useViewModel, useDispatch } from '../store/hooks';
 import { actionCancelLayoutOptimization } from '../actions/layoutActions';
 
@@ -6,6 +7,7 @@ import { actionCancelLayoutOptimization } from '../actions/layoutActions';
  * 配置最適化の進捗バーコンポーネント
  */
 function LayoutProgressBar() {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   
   // 配置最適化の状態を購読
@@ -41,7 +43,7 @@ function LayoutProgressBar() {
           alignItems: 'center',
           marginBottom: '0.5rem'
         }}>
-          <span style={{ fontWeight: 'bold' }}>配置最適化中...</span>
+          <span style={{ fontWeight: 'bold' }}>{t('layout_optimization.title')}</span>
           <span style={{ fontSize: '0.9rem', color: '#666' }}>
             {Math.round(layoutOptimization.progress)}%
           </span>
@@ -88,7 +90,7 @@ function LayoutProgressBar() {
             fontSize: '0.9rem'
           }}
         >
-          キャンセル
+          {t('layout_optimization.cancel')}
         </button>
       </div>
     </div>
