@@ -53,12 +53,20 @@ model AppSettings {
 
 ### 初期化時の処理
 
-アプリケーション起動時（`commandInitialize`）の処理：
+#### i18next初期化時（`public/src/i18n/index.ts`）
+
+1. ブラウザ言語を検出（`detectBrowserLocale()` を使用）
+2. 検出した言語をi18nextのデフォルト言語として設定
+3. これにより、初回レンダリング時から適切な言語で表示される（ちらつき防止）
+
+#### アプリケーション起動時（`commandInitialize`）
 
 1. `GET /api/init` から初期ViewModelを取得
-2. `ViewModel.settings.locale` が存在する場合はその値を使用
+2. `ViewModel.settings.locale` が存在する場合：
+   - その値を使用し、i18nextの言語を切り替え
+   - ViewModelをStoreに反映
 3. `ViewModel.settings.locale` が未設定の場合：
-   - ブラウザ言語を検出
+   - 既にi18next初期化時に検出した言語を使用
    - 検出した言語を `settings.locale` に設定
    - ViewModelをStoreに反映
 
@@ -90,14 +98,14 @@ model AppSettings {
 ヘッダーに言語切り替えドロップダウンを配置：
 
 **ヘッダーのボタン配置順序（左から右）**:
-1. レイヤーボタン
-2. エクスポートボタン
-3. インポートボタン
-4. ビルド情報ボタン
-5. データベース接続ボタン
-6. 履歴ボタン
-7. **言語切り替えドロップダウン**（新規）
-8. ヘルプボタン
+1. DBからリバースボタン（データベース接続ボタン）
+2. リバース履歴ボタン（履歴ボタン）
+3. 配置最適化ボタン
+4. レイヤーボタン
+5. エクスポートボタン
+6. インポートボタン
+7. ビルド情報ボタン
+8. **言語切り替えドロップダウン**
 
 ### ドロップダウンの仕様
 
@@ -186,9 +194,9 @@ actionSetLocale(viewModel: ViewModel, locale: Locale): ViewModel
 
 ### i18nextの初期化
 
-- アプリケーション起動時にi18nextを初期化
-- 初期言語は `ViewModel.settings.locale` から取得
-- 未設定の場合はブラウザ言語を検出
+- アプリケーション起動時（`main.tsx`でのインポート時）にi18nextを初期化
+- 初期化時にブラウザ言語を検出してデフォルト言語として設定（ちらつき防止）
+- その後、`commandInitialize` で取得した `ViewModel.settings.locale` がある場合は上書き
 
 ### 翻訳関数の使用
 
@@ -208,6 +216,7 @@ actionSetLocale(viewModel: ViewModel, locale: Locale): ViewModel
 - ViewModelの `settings.locale` を単一ソースとし、i18next側のlocalStorageは使用しない
 - ViewModel更新時にi18nextの言語も同期させる
 - 言語切り替え時に不要な再レンダリングが発生しないよう、`React.memo` を適切に使用
+- i18next初期化時にブラウザ言語を検出して設定することで、初回レンダリング時のちらつきを防ぐ
 
 ## バックエンドへの影響
 
