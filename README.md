@@ -32,12 +32,12 @@ docker run --pull=always --rm -p 30033:30033 tkuni83/relavue-er
 2. [http://localhost:30033](http://localhost:30033) にアクセスする
 
 3.「DBからリバース」ボタンからDB接続情報を入力し実行する
+    * **注意**: dockerコンテナから接続するためHostは`localhost`ではなく`host.docker.internal`となります。
 
 ![](docs/1.png)
 
 ![](docs/2.png)
 
-**注意**: dockerコンテナから接続するためHostは`localhost`ではなく`host.docker.internal`となります。
 
 ### 🟠 Linux の場合
 
