@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useViewModel, useDispatch } from '../store/hooks'
 import { actionSetLocale } from '../actions/globalUIActions'
-import type { AppSettings } from '../api/client'
+import { AppSettings } from '../api/client'
 
 // ロケールの表示名（ネイティブ表記）
 const LOCALE_LABELS: Record<AppSettings.locale, string> = {
