@@ -11,7 +11,7 @@ RelavueER（レラビューアー）は、データベースからER図をリバ
 1. コンテナを起動する
 
 ```bash
-docker run --rm -p 30033:30033 tkuni83/relavue-er
+docker run --pull=always --rm -p 30033:30033 tkuni83/relavue-er
 ```
 
 2. [http://localhost:30033](http://localhost:30033) にアクセスする
@@ -29,7 +29,7 @@ docker run --rm -p 30033:30033 tkuni83/relavue-er
 1. コンテナを起動する
 
 ```bash
-docker run --rm --network host tkuni83/relavue-er
+docker run --pull=always --rm --network host tkuni83/relavue-er
 ```
 
 2. [http://localhost:30033](http://localhost:30033) にアクセスする
