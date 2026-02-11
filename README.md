@@ -44,15 +44,15 @@ docker run --pull=always --rm -p 30033:30033 tkuni83/relavue-er
 
 ### 🟠 Linux の場合
 
-1. コンテナを起動する
+1\. コンテナを起動する
 
 ```bash
 docker run --pull=always --rm --network host tkuni83/relavue-er
 ```
 
-2. [http://localhost:30033](http://localhost:30033) にアクセスする
+2\. [http://localhost:30033](http://localhost:30033) にアクセスする
 
-3.「DBからリバース」ボタンからDB接続情報を入力し実行する
+3\.「DBからリバース」ボタンからDB接続情報を入力し実行する
 
 ![](docs/1.png)
 
