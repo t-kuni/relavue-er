@@ -20,9 +20,9 @@
 
 ---
 
-## フェーズ1: 依存関係追加と型生成
+## フェーズ1: 依存関係追加と型生成 ✅ 完了
 
-### [ ] 1-1. 依存関係の追加
+### [x] 1-1. 依存関係の追加
 
 **ファイル**: `package.json`
 
@@ -35,7 +35,9 @@
 npm install react-i18next@^16.5.4 i18next@^25.8.4
 ```
 
-### [ ] 1-2. 型生成の実行
+**実施結果**: 完了。react-i18next@16.5.4とi18next@25.8.4をインストールしました。
+
+### [x] 1-2. 型生成の実行
 
 **コマンド**:
 ```bash
@@ -46,14 +48,26 @@ npm run generate
 - `lib/generated/api-types.ts` に `Locale` 型が生成されていること
 - `public/src/api/client/models/AppSettings.ts` に `locale` フィールドが追加されていること
 
-### [ ] 1-3. テストファイルの作成（actionSetLocale用）
+**実施結果**: 完了。型生成が正常に完了し、以下を確認しました：
+- `lib/generated/api-types.ts`の`AppSettings`スキーマに`locale`フィールド（"ja" | "en" | "zh"）が生成されている
+- `public/src/api/client/models/AppSettings.ts`に`locale`フィールドがenum型（JA, EN, ZH）として正しく生成されている
 
-**ファイル**: `public/tests/actions/globalUIActions.test.ts`（新規作成）
+### [x] 1-3. テストファイルの作成（actionSetLocale用）
+
+**ファイル**: `public/tests/actions/globalUIActions.test.ts`（既存ファイルに追加）
 
 **内容**:
 - `actionSetLocale` の単体テスト
 - `settings.locale` が正しく更新されることを確認
 - 不変性が保たれることを確認（元のViewModelが変更されないこと）
+
+**実施結果**: 完了。以下のテストケースを追加しました：
+- 言語設定が正しく更新される
+- 別の言語に切り替えられる
+- 変化がない場合は同一参照を返す
+- 元のViewModelが変更されない（不変性が保たれる）
+
+**注意**: `actionSetLocale`はフェーズ2で実装予定のため、現時点ではテストは実行できません。
 
 ---
 
