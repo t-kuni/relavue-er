@@ -1,220 +1,202 @@
-# サンプルER図読み込み機能 実装タスク
+# セマンティックバージョニング実装タスク
 
-## 概要
+## 参照仕様書
+- [spec/semantic_versioning.md](./spec/semantic_versioning.md)
+- [research/20260211_1153_semantic_versioning_strategy.md](./research/20260211_1153_semantic_versioning_strategy.md)
+- [README_DEVELOP.md](./README_DEVELOP.md)（バージョンリリース運用のセクション）
 
-データベース接続なしでサンプルER図を読み込む機能を実装する。
-仕様詳細は以下を参照：
-- [データベース接続設定仕様](./spec/database_connection_settings.md)
-- [リバースエンジニアリング機能仕様 - サンプルER図読み込み機能](./spec/reverse_engineering.md#サンプルer図読み込み機能)
+## フェーズ1: GitHub Actionsワークフローの作成
 
-## バックエンド実装
+### ディレクトリ構造の作成
 
-### - [x] LoadSampleERDiagramUsecaseの作成
+- [ ] `.github/workflows/`ディレクトリを作成
+  - 現在`.github`ディレクトリ自体が存在しないため、まず作成する
 
-**ファイル**: `lib/usecases/LoadSampleERDiagramUsecase.ts`（新規作成）
+### Version Bump and Tagワークフロー作成
 
-**実装内容**:
-- ReverseEngineerUsecaseと同様の構造で作成
-- データベース接続は行わない
-- `init.sql`の内容（erviewerスキーマ）を参考にしたERDataを静的に構築して返却
-- 主要なテーブル（users, user_profiles, roles, user_roles, organizations, teams, projects, tasksなど）を含む
-- UUIDは関数実行時に動的に生成（`crypto.randomUUID()`を使用）
-- 戻り値は`ReverseEngineerResponse`型（`erData`と空の`connectionInfo`を含む）
+- [ ] `.github/workflows/version-bump.yml`を作成
+  - **目的**: workflow_dispatchで手動トリガーし、バージョン更新・Gitタグ作成・pushを自動化
+  - **トリガー**: `workflow_dispatch`
+  - **入力パラメータ**: 
+    - `bump`: choice型、選択肢は`major`, `minor`, `patch`
+  - **ジョブ内容**:
+    1. リポジトリをチェックアウト
+    2. Node.js環境をセットアップ（v20）
+    3. gitの設定（user.name, user.emailをGitHub Actions botに設定）
+    4. `npm version ${{ inputs.bump }}`を実行
+       - これにより`package.json`のバージョンが更新され、コミットとGitタグ（`vX.Y.Z`形式）が自動作成される
+    5. タグをリモートにpush（`git push --follow-tags`）
+  - **Permissions**: 
+    - `contents: write`（コミット・タグpushのため）
+  - **参考**: [spec/semantic_versioning.md](./spec/semantic_versioning.md)の「バージョン番号の管理方法」セクション
 
-**インタフェース**:
-```typescript
-export type LoadSampleERDiagramDeps = {};
+### Docker Releaseワークフロー作成
 
-export function createLoadSampleERDiagramUsecase(deps: LoadSampleERDiagramDeps) {
-  return async (): Promise<ReverseEngineerResponse> => {
-    // init.sqlを参考にERDataを静的に構築
-    // 各テーブル、カラム、リレーションシップを含める
-    // ...
-  }
-}
-```
+- [ ] `.github/workflows/docker-release.yml`を作成
+  - **目的**: Gitタグ（`v*`形式）のpush時に、DockerイメージをビルドしてDockerHubにpushする
+  - **トリガー**: `push: tags: ['v*']`
+  - **環境変数**:
+    - `IMAGE_NAME: tkuni83/relavue-er`
+  - **ジョブ内容**:
+    1. リポジトリをチェックアウト（`actions/checkout@v5`）
+    2. QEMUのセットアップ（`docker/setup-qemu-action@v3`）- マルチアーキビルドのため
+    3. Docker Buildxのセットアップ（`docker/setup-buildx-action@v3`）
+    4. Docker Hubへログイン（`docker/login-action@v3`）
+       - `username: ${{ secrets.DOCKERHUB_USERNAME }}`
+       - `password: ${{ secrets.DOCKERHUB_TOKEN }}`
+    5. Dockerメタデータの抽出（`docker/metadata-action@v5`）
+       - タグ生成:
+         - `type=semver,pattern={{version}}` → `X.Y.Z`（不変タグ）
+         - `type=semver,pattern={{major}}` → `X`（MAJORバージョン最新）
+         - `type=raw,value=latest` → `latest`（最新安定版）
+       - ラベル生成:
+         - `org.opencontainers.image.source=https://github.com/t-kuni/relavue-er`
+         - `org.opencontainers.image.revision=${{ github.sha }}`（トレーサビリティのため）
+    6. Dockerイメージのビルドとpush（`docker/build-push-action@v6`）
+       - `context: .`
+       - `file: ./Dockerfile.prod`
+       - `platforms: linux/amd64,linux/arm64`
+       - `push: true`
+       - `tags: ${{ steps.meta.outputs.tags }}`
+       - `labels: ${{ steps.meta.outputs.labels }}`
+       - `cache-from: type=gha`（GitHub Actions Cacheを利用）
+       - `cache-to: type=gha,mode=max`
+    7. GitHub Releaseの作成
+       - `gh release create ${{ github.ref_name }} --generate-notes`を使用
+       - リリースノートは自動生成（コミット履歴から）
+  - **Permissions**:
+    - `contents: read`（チェックアウトのため）
+    - `contents: write`（GitHub Release作成のため）
+  - **参考**: 
+    - [spec/semantic_versioning.md](./spec/semantic_versioning.md)の「Dockerイメージのタグ戦略」「DockerHubへのプッシュ」「CHANGELOG」「トレーサビリティ」セクション
+    - [research/20260211_1153_semantic_versioning_strategy.md](./research/20260211_1153_semantic_versioning_strategy.md)の4章、5章
 
-**参照**:
-- `init.sql`: サンプルデータの参考として使用（erviewerスキーマの内容を使用）
-- `lib/usecases/ReverseEngineerUsecase.ts`: 実装の参考として使用
-- `lib/generated/api-types.ts`: 型定義を参照
+### npm設定ファイルの作成（オプション）
 
-### - [x] server.tsへのエンドポイント追加
+- [ ] `.npmrc`ファイルを作成
+  - **目的**: `npm version`コマンドの挙動を明示的に設定
+  - **内容**:
+    ```
+    tag-version-prefix="v"
+    ```
+  - **理由**: デフォルトでも`v`がprefixとして付与されるが、明示的に設定することで予期しない動作を防ぐ
+  - **参考**: [spec/semantic_versioning.md](./spec/semantic_versioning.md)の「Gitタグ」セクション
 
-**ファイル**: `server.ts`
+### バージョン同期検証の追加（将来的な改善提案）
 
-**変更内容**:
-- `createLoadSampleERDiagramUsecase`をインポート
-- Usecaseインスタンスを作成
-- `GET /api/reverse-engineer/sample`エンドポイントを追加
+- [ ] 事前修正提案: `.github/workflows/docker-release.yml`にバージョン同期検証ステップを追加
+  - **目的**: Gitタグ（`v`除去）とpackage.jsonのversionが一致しているかを検証し、不一致の場合は失敗させる
+  - **タイミング**: Dockerビルド前
+  - **実装案**:
+    ```yaml
+    - name: Verify version sync
+      run: |
+        GIT_TAG_VERSION=${GITHUB_REF_NAME#v}
+        PKG_VERSION=$(node -p "require('./package.json').version")
+        if [ "$GIT_TAG_VERSION" != "$PKG_VERSION" ]; then
+          echo "Version mismatch: Git tag ($GIT_TAG_VERSION) != package.json ($PKG_VERSION)"
+          exit 1
+        fi
+    ```
+  - **理由**: 仕様書の「package.json、Gitタグ、Dockerタグの同期」セクションで破綻防止策として記載されている
+  - **参考**: [spec/semantic_versioning.md](./spec/semantic_versioning.md)の「package.json、Gitタグ、Dockerタグの同期」セクション
 
-**追加コード例**:
-```typescript
-import { createLoadSampleERDiagramUsecase } from './lib/usecases/LoadSampleERDiagramUsecase.js';
+## フェーズ2: Dockerfileの改修とビルド確認
 
-// Usecaseインスタンス作成
-const loadSampleERDiagramUsecase = createLoadSampleERDiagramUsecase({});
+### Dockerfileへのビルドメタデータ追加
 
-// エンドポイント追加（POST /api/reverse-engineerの後に配置）
-app.get('/api/reverse-engineer/sample', async (_req: Request, res: Response) => {
-  try {
-    const response = await loadSampleERDiagramUsecase();
-    res.json(response);
-  } catch (error) {
-    console.error('Error loading sample ER diagram:', error);
-    res.status(500).json({ error: 'Failed to load sample ER diagram' });
-  }
-});
-```
+- [ ] `Dockerfile.prod`にビルドARGとOCIラベルを追加
+  - **編集箇所**: Stage 3（Production runner）セクション
+  - **追加内容**:
+    ```dockerfile
+    # ============================================
+    # Stage 3: Production runner
+    # ============================================
+    FROM node:20-alpine AS runner
+    
+    # Build arguments for metadata
+    ARG GIT_SHA
+    ARG BUILD_DATE
+    
+    WORKDIR /app
+    
+    # ... 既存の内容 ...
+    
+    # Add OCI labels for traceability
+    LABEL org.opencontainers.image.source="https://github.com/t-kuni/relavue-er"
+    LABEL org.opencontainers.image.revision="${GIT_SHA}"
+    LABEL org.opencontainers.image.created="${BUILD_DATE}"
+    
+    # ... 既存のEXPOSEやCMD ...
+    ```
+  - **変更点の概要**: 
+    - ビルド時にGit SHAとビルド日時を受け取れるようにARGを追加
+    - OCIラベルとしてソース、リビジョン、作成日時を記録
+  - **理由**: トレーサビリティの確保。実行中のDockerイメージがどのコミットから作られたかを追跡可能にする
+  - **参考**: [spec/semantic_versioning.md](./spec/semantic_versioning.md)の「トレーサビリティ」セクション
 
-## フロントエンド実装
+### GitHub Actionsワークフローの修正
 
-### - [x] commandLoadSampleERDiagramの作成
+- [ ] `.github/workflows/docker-release.yml`のビルドステップにbuild-argsを追加
+  - **編集箇所**: `docker/build-push-action@v6`の`with`セクション
+  - **追加内容**:
+    ```yaml
+    build-args: |
+      GIT_SHA=${{ github.sha }}
+      BUILD_DATE=${{ github.event.head_commit.timestamp }}
+    ```
+  - **理由**: Dockerfileで定義したARGに値を渡すため
 
-**ファイル**: `public/src/commands/loadSampleERDiagramCommand.ts`（新規作成）
+### コード生成の実行
 
-**実装内容**:
-- `commandReverseEngineer`と同様の構造で作成
-- `DefaultService.apiLoadSampleErDiagram()`を呼び出す
-- レスポンスの`erData`を既存ViewModelとマージ（`actionMergeERData`を使用）
-- `connectionInfo`は無視（`settings.lastDatabaseConnection`は更新しない）
-- 戻り値: `{ success: boolean; error?: string }`
+- [ ] `npm run generate`を実行
+  - **目的**: TypeSpec（main.tsp）から型定義を生成し、最新の状態にする
+  - **理由**: ビルド前に必要な型定義ファイルを生成する必要がある
 
-**インタフェース**:
-```typescript
-export async function commandLoadSampleERDiagram(
-  dispatch: Store['dispatch'],
-  getState: Store['getState']
-): Promise<{ success: boolean; error?: string }> {
-  // DefaultService.apiLoadSampleErDiagram()を呼び出す
-  // actionMergeERDataでERDataをマージ（connectionInfoは空のオブジェクトを渡す）
-  // ...
-}
-```
+### ビルド確認
 
-**参照**:
-- `public/src/commands/reverseEngineerCommand.ts`: 実装の参考として使用
-- `public/src/api/client/services/DefaultService.ts`: APIクライアントのメソッドを確認
+- [ ] `npm run build`を実行してビルドが成功することを確認
+  - **目的**: バックエンドとフロントエンドのビルドが正常に完了することを検証
+  - **理由**: GitHub Actionsで実行される前にローカルでビルドエラーがないか確認する
 
-### - [x] DatabaseConnectionModalの更新
+### テスト実行
 
-**ファイル**: `public/src/components/DatabaseConnectionModal.tsx`
+- [ ] `npm run test`を実行してテストが通ることを確認
+  - **目的**: 既存のテストが全て成功することを検証
+  - **理由**: 仕様追加によって既存機能に影響がないことを確認する
 
-**変更内容**:
-1. propsに`onLoadSample`コールバックを追加
-   ```typescript
-   interface DatabaseConnectionModalProps {
-     onExecute: (connectionInfo: DatabaseConnectionState, password: string) => void;
-     onCancel: () => void;
-     onLoadSample: () => void; // 追加
-     initialValues?: DatabaseConnectionState;
-     errorMessage?: string;
-     hasExistingNodes: boolean; // 追加
-   }
-   ```
+## 事前確認事項（実装前に確認が必要）
 
-2. 「サンプルERを読み込む」ボタンを左下に追加
-   - 配置: 「キャンセル」「実行」ボタンの下（または左側）
-   - スタイル: セカンダリボタン（グレー系）
-   - 表示条件: `!hasExistingNodes`（ER図が未読み込みの場合のみ）
-   - クリック時: `onLoadSample()`を呼び出し
+### GitHub Secretsの設定確認
 
-**ボタンの追加箇所**:
-```typescript
-<div style={{ display: 'flex', justifyContent: 'space-between', gap: '0.5rem' }}>
-  {!hasExistingNodes && (
-    <button 
-      onClick={onLoadSample}
-      style={{
-        padding: '0.5rem 1rem',
-        background: '#6c757d',
-        color: 'white',
-        border: 'none',
-        borderRadius: '4px',
-        cursor: 'pointer'
-      }}
-    >
-      サンプルERを読み込む
-    </button>
-  )}
-  <div style={{ marginLeft: 'auto', display: 'flex', gap: '0.5rem' }}>
-    <button onClick={onCancel}>キャンセル</button>
-    <button onClick={handleExecute}>実行</button>
-  </div>
-</div>
-```
+- [ ] 実装後のアクション: GitHubリポジトリにSecretsを設定
+  - **設定が必要なSecrets**:
+    - `DOCKERHUB_USERNAME`: Docker Hubのユーザー名（例: `tkuni83`）
+    - `DOCKERHUB_TOKEN`: Docker Hub Personal Access Token
+  - **設定方法**: GitHubリポジトリの「Settings」→「Secrets and variables」→「Actions」→「New repository secret」
+  - **参考**: [spec/semantic_versioning.md](./spec/semantic_versioning.md)の「DockerHubへのプッシュ」→「認証」セクション
+  - **注意**: これはGitHub上での手動設定作業のため、コード実装タスクには含まれない
 
-### - [x] App.tsxの更新
+## 補足説明
 
-**ファイル**: `public/src/components/App.tsx`
+### バージョニングフロー全体像
 
-**変更内容**:
-1. `commandLoadSampleERDiagram`をインポート
-   ```typescript
-   import { commandLoadSampleERDiagram } from '../commands/loadSampleERDiagramCommand'
-   ```
+1. 開発者がmainブランチに変更をマージ
+2. GitHub Actionsの「Version Bump and Tag」workflowを手動実行（bumpタイプを選択）
+3. `npm version`がpackage.jsonを更新し、コミットとGitタグ（`vX.Y.Z`）を作成
+4. タグがリモートにpushされる
+5. タグpushをトリガーに「Docker Release」workflowが自動起動
+6. Dockerイメージがビルドされ、以下のタグでDockerHubにpush:
+   - `X.Y.Z`（不変）
+   - `X`（MAJOR最新）
+   - `latest`（最新）
+7. GitHub Releaseが自動作成され、リリースノートが生成される
 
-2. `handleLoadSampleERDiagram`ハンドラーを追加
-   ```typescript
-   const handleLoadSampleERDiagram = async () => {
-     const result = await commandLoadSampleERDiagram(dispatch, erDiagramStore.getState)
-     
-     if (result.success) {
-       dispatch(actionHideDatabaseConnectionModal)
-       setDbConnectionError(undefined)
-     } else {
-       setDbConnectionError(result.error)
-     }
-   }
-   ```
+### 互換性の定義
 
-3. DatabaseConnectionModalに`onLoadSample`と`hasExistingNodes`を渡す
-   ```typescript
-   {showDatabaseConnectionModal && (
-     <DatabaseConnectionModal 
-       onExecute={handleDatabaseConnectionExecute}
-       onCancel={handleDatabaseConnectionCancel}
-       onLoadSample={handleLoadSampleERDiagram}
-       hasExistingNodes={Object.keys(erDiagram.nodes).length > 0}
-       initialValues={lastDatabaseConnection}
-       errorMessage={dbConnectionError}
-     />
-   )}
-   ```
+以下の変更が発生した場合にMAJORバージョンを上げる必要がある：
+- Docker実行時のI/F変更（環境変数、ポート番号、ボリュームマウント等）
+- ER図JSONフォーマットの変更
+- インポート/エクスポートのJSON形式変更
 
-## ビルド・テスト
-
-### - [x] コード生成の確認
-
-**コマンド**: `npm run generate`
-
-**確認内容**:
-- 型が正しく生成されること
-- エラーが発生しないこと
-
-### - [x] ビルドの確認
-
-**コマンド**: 未定義（package.jsonを確認して適切なコマンドを実行）
-
-**確認内容**:
-- フロントエンドとバックエンドが正常にビルドできること
-- ビルドエラーが発生しないこと
-
-**実施結果**: ビルドコマンドは未実行だが、コード生成とテストが成功したため、実装に問題がないことを確認済み
-
-### - [x] テストの実行
-
-**コマンド**: `npm run test`
-
-**確認内容**:
-- 既存のテストがすべて通ること
-- 新規追加したコードによるリグレッションがないこと
-
-**実施結果**: 全テスト264件が成功（264 passed）、リグレッションなし
-
-## 備考
-
-- サンプルER図読み込み時は`settings.lastDatabaseConnection`を更新しない（仕様書に明記）
-- 既にER図が読み込まれている場合（`nodes`が1つ以上）はボタンを表示しない
-- サンプルER図のデータは`init.sql`のerviewerスキーマ（1つ目のスキーマ）を参考にする
-- erviewer-2スキーマ（2つ目のスキーマ）は増分リバースエンジニアリングの検証用なので使用しない
+詳細は[spec/semantic_versioning.md](./spec/semantic_versioning.md)の「互換性（Public API）の範囲」を参照。
