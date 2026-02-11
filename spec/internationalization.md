@@ -214,7 +214,9 @@ actionSetLocale(viewModel: ViewModel, locale: Locale): ViewModel
 ### 実装時の注意事項
 
 - ViewModelの `settings.locale` を単一ソースとし、i18next側のlocalStorageは使用しない
-- ViewModel更新時にi18nextの言語も同期させる
+- **ViewModel更新時にi18nextの言語も同期させる**
+  - `App.tsx`で`useViewModel`を使ってlocaleを監視し、変更があれば`i18n.changeLanguage(locale)`を呼ぶ
+  - これにより、初期化時・言語選択時・インポート時のすべてで自動的に言語が同期される
 - 言語切り替え時に不要な再レンダリングが発生しないよう、`React.memo` を適切に使用
 - i18next初期化時にブラウザ言語を検出して設定することで、初回レンダリング時のちらつきを防ぐ
 
@@ -243,7 +245,8 @@ actionSetLocale(viewModel: ViewModel, locale: Locale): ViewModel
 ### 統合テスト
 
 - 言語切り替え後、UIが正しく翻訳されることを確認
-- エクスポート/インポート時に言語設定が保持されることを確認
+- エクスポート/インポート時に言語設定が保持され、インポート後に言語が正しく反映されることを確認
+  - エクスポートした言語でインポート後のUIがすべて表示されることを確認
 - ブラウザ言語検出が正しく動作することを確認
 
 ### 翻訳の完全性チェック
