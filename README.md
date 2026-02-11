@@ -36,7 +36,9 @@ docker run --pull=always --rm -p 30033:30033 tkuni83/relavue-er
 
 ![](docs/1.png)
 
-![](docs/2.png)
+<p align="center">
+  <img src="docs/2.png" width="300">
+</p>
 
 
 ### 🟠 Linux の場合
@@ -53,7 +55,9 @@ docker run --pull=always --rm --network host tkuni83/relavue-er
 
 ![](docs/1.png)
 
-![](docs/2.png)
+<p align="center">
+  <img src="docs/2.png" width="300">
+</p>
 
 ## 🟦 特徴
 
