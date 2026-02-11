@@ -1,5 +1,6 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
+import { detectBrowserLocale } from '../utils/detectBrowserLocale';
 
 // 翻訳リソースのインポート
 import ja from '../../locales/ja/translation.json';
@@ -15,7 +16,7 @@ i18n
       en: { translation: en },
       zh: { translation: zh },
     },
-    lng: 'en', // デフォルト言語（初期化時はブラウザ言語検出前なので英語）
+    lng: detectBrowserLocale(), // ブラウザの言語設定から初期言語を検出
     fallbackLng: 'en', // フォールバック言語
     load: 'languageOnly', // 'ja-JP' → 'ja' のように正規化
     interpolation: {

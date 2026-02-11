@@ -188,6 +188,47 @@ function App() {
         <h1 style={{ margin: 0 }}>{t('header.app_title')}</h1>
         <div style={{ display: 'flex', gap: '8px' }}>
           <button 
+            onClick={() => dispatch(actionShowDatabaseConnectionModal)}
+            style={{
+              padding: '0.5rem 1rem',
+              background: '#555',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}
+          >
+            {reverseButtonLabel}
+          </button>
+          <button 
+            onClick={() => dispatch(actionToggleHistoryPanel)}
+            style={{
+              padding: '0.5rem 1rem',
+              background: showHistoryPanel ? '#777' : '#555',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}
+          >
+            {t('header.reverse_history')}
+          </button>
+          <button 
+            onClick={handleLayoutOptimize}
+            disabled={isLayoutOptimizeDisabled}
+            style={{
+              padding: '0.5rem 1rem',
+              background: isLayoutOptimizeDisabled ? '#888' : '#555',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: isLayoutOptimizeDisabled ? 'not-allowed' : 'pointer',
+              opacity: isLayoutOptimizeDisabled ? 0.6 : 1
+            }}
+          >
+            {t('header.layout_optimize')}
+          </button>
+          <button 
             onClick={() => dispatch(actionToggleLayerPanel)}
             style={{
               padding: '0.5rem 1rem',
@@ -238,47 +279,6 @@ function App() {
             }}
           >
             {t('header.build_info')}
-          </button>
-          <button 
-            onClick={() => dispatch(actionShowDatabaseConnectionModal)}
-            style={{
-              padding: '0.5rem 1rem',
-              background: '#555',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer'
-            }}
-          >
-            {reverseButtonLabel}
-          </button>
-          <button 
-            onClick={() => dispatch(actionToggleHistoryPanel)}
-            style={{
-              padding: '0.5rem 1rem',
-              background: showHistoryPanel ? '#777' : '#555',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer'
-            }}
-          >
-            {t('header.reverse_history')}
-          </button>
-          <button 
-            onClick={handleLayoutOptimize}
-            disabled={isLayoutOptimizeDisabled}
-            style={{
-              padding: '0.5rem 1rem',
-              background: isLayoutOptimizeDisabled ? '#888' : '#555',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: isLayoutOptimizeDisabled ? 'not-allowed' : 'pointer',
-              opacity: isLayoutOptimizeDisabled ? 0.6 : 1
-            }}
-          >
-            {t('header.layout_optimize')}
           </button>
           <LocaleSelector />
         </div>
