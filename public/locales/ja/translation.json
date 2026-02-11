@@ -13,9 +13,10 @@
   },
   "layer_panel": {
     "title": "レイヤー",
-    "background_layer": "背景レイヤー",
-    "foreground_layer": "前景レイヤー",
-    "empty": "レイヤーが空です",
+    "background_layer": "背面",
+    "foreground_layer": "前面",
+    "center_layer": "中央",
+    "empty": "(空)",
     "rectangle": "Rectangle",
     "text": "Text"
   },
@@ -40,11 +41,14 @@
     "relationships_added": "追加されたリレーション",
     "relationships_removed": "削除されたリレーション",
     "before": "Before",
-    "after": "After"
+    "after": "After",
+    "entry_type_initial": "初回",
+    "entry_type_incremental": "増分"
   },
   "ddl_panel": {
     "title": "DDL",
-    "no_entity_selected": "エンティティが選択されていません"
+    "no_entity_selected": "エンティティが選択されていません",
+    "no_ddl_available": "DDL is not available"
   },
   "database_modal": {
     "title": "データベース接続設定",
@@ -60,7 +64,8 @@
     "load_sample": "サンプルER図を読み込む",
     "load_sample_description": "開発用のサンプルER図を読み込みます（データベース接続不要）",
     "loading": "処理中...",
-    "existing_nodes_warning": "※既存のノードが存在します。リバースエンジニアリングを実行すると、増分マージが行われます。"
+    "existing_nodes_warning": "※既存のノードが存在します。リバースエンジニアリングを実行すると、増分マージが行われます。",
+    "warning_privileges": "⚠️ information_schemaを参照するためルートユーザ（または十分な権限を持つユーザ）での実行を推奨します"
   },
   "build_info_modal": {
     "title": "ビルド情報",
@@ -89,7 +94,13 @@
     "shadow_offset_x": "X オフセット",
     "shadow_offset_y": "Y オフセット",
     "shadow_blur": "ぼかし",
-    "delete": "削除"
+    "delete": "削除",
+    "show_fill": "背景色を表示",
+    "fill": "背景色",
+    "show_stroke": "枠線を表示",
+    "stroke": "枠線",
+    "stroke_width": "枠線幅",
+    "transparency": "透明度"
   },
   "text_panel": {
     "title": "テキストプロパティ",
@@ -100,7 +111,8 @@
     "font_weight": "フォントの太さ",
     "normal": "標準",
     "bold": "太字",
-    "delete": "削除"
+    "delete": "削除",
+    "default_content": "テキスト"
   },
   "error": {
     "import_failed": "インポートに失敗しました",
@@ -114,7 +126,9 @@
     "execute": "実行",
     "delete": "削除",
     "loading": "読み込み中...",
-    "drop_file_to_import": "ファイルをドロップしてインポート"
+    "drop_file_to_import": "ファイルをドロップしてインポート",
+    "add_rectangle": "矩形追加",
+    "add_text": "テキスト追加"
   },
   "locale": {
     "ja": "日本語",

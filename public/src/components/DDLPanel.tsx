@@ -1,4 +1,5 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 // @ts-ignore - 型定義が古い場合に対応
 import { prism } from 'react-syntax-highlighter/dist/esm/styles/prism'
@@ -6,6 +7,7 @@ import { useViewModel, useDispatch } from '../store/hooks'
 import { actionSelectItem } from '../actions/layerActions'
 
 const DDLPanel: React.FC = () => {
+  const { t } = useTranslation()
   const dispatch = useDispatch()
   
   // すべてのhookを最上位で呼ぶ（Reactのhookルールに従う）
@@ -69,7 +71,7 @@ const DDLPanel: React.FC = () => {
             color: '#666',
             lineHeight: 1,
           }}
-          title="閉じる"
+          title={t('common.close')}
         >
           ×
         </button>
@@ -93,7 +95,7 @@ const DDLPanel: React.FC = () => {
             lineHeight: '1.5',
           }}
         >
-          {entityNode.ddl || '-- DDL not available'}
+          {entityNode.ddl || `-- ${t('ddl_panel.no_ddl_available')}`}
         </SyntaxHighlighter>
       </div>
     </div>

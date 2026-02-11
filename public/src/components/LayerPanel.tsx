@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   DndContext,
   DragEndEvent,
@@ -31,6 +32,7 @@ interface SortableItemProps {
 }
 
 function SortableItem({ item, isSelected, onSelect }: SortableItemProps) {
+  const { t } = useTranslation();
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: `${item.kind}-${item.id}`,
   });
@@ -42,9 +44,9 @@ function SortableItem({ item, isSelected, onSelect }: SortableItemProps) {
   };
 
   const displayName = item.kind === LayerItemRef.kind.RECTANGLE 
-    ? `Rectangle ${item.id.substring(0, 6)}`
+    ? `${t('layer_panel.rectangle')} ${item.id.substring(0, 6)}`
     : item.kind === LayerItemRef.kind.TEXT
-    ? `Text ${item.id.substring(0, 6)}`
+    ? `${t('layer_panel.text')} ${item.id.substring(0, 6)}`
     : item.id;
 
   return (
@@ -63,6 +65,34 @@ function SortableItem({ item, isSelected, onSelect }: SortableItemProps) {
       {...attributes}
       {...listeners}
       onClick={() => onSelect(item)}
+    >
+      {displayName}
+    </div>
+  );
+}
+
+interface DragOverlayContentProps {
+  item: LayerItemRef;
+}
+
+function DragOverlayContent({ item }: DragOverlayContentProps) {
+  const { t } = useTranslation();
+  
+  const displayName = item.kind === LayerItemRef.kind.RECTANGLE 
+    ? `${t('layer_panel.rectangle')} ${item.id.substring(0, 6)}`
+    : `${t('layer_panel.text')} ${item.id.substring(0, 6)}`;
+  
+  return (
+    <div
+      style={{
+        padding: '8px 12px',
+        backgroundColor: '#fff',
+        border: '1px solid #ddd',
+        borderRadius: '4px',
+        cursor: 'move',
+        userSelect: 'none',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+      }}
     >
       {displayName}
     </div>
@@ -95,6 +125,7 @@ function DroppableSection({ id, children }: DroppableSectionProps) {
 }
 
 export function LayerPanel() {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const layerOrder = useViewModel((vm) => vm.erDiagram.ui.layerOrder);
   const selectedItem = useViewModel((vm) => vm.ui.selectedItem);
@@ -264,7 +295,7 @@ export function LayerPanel() {
     >
       <div style={{ padding: '16px' }}>
         <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', fontWeight: 'bold' }}>
-          レイヤー
+          {t('layer_panel.title')}
         </h3>
 
         {/* 前面セクション */}
@@ -275,7 +306,7 @@ export function LayerPanel() {
             marginBottom: '8px',
             fontWeight: 'bold'
           }}>
-            前面
+            {t('layer_panel.foreground_layer')}
           </div>
           <DroppableSection id="foreground-section">
             <SortableContext items={foregroundIds} strategy={verticalListSortingStrategy}>
@@ -288,7 +319,7 @@ export function LayerPanel() {
                   border: '1px dashed #ddd',
                   borderRadius: '4px'
                 }}>
-                  (空)
+                  {t('layer_panel.empty')}
                 </div>
               ) : (
                 layerOrder.foregroundItems.map((item) => {
@@ -315,7 +346,7 @@ export function LayerPanel() {
             marginBottom: '8px',
             fontWeight: 'bold'
           }}>
-            中央
+            {t('layer_panel.center_layer')}
           </div>
           <div
             style={{
@@ -341,7 +372,7 @@ export function LayerPanel() {
             marginBottom: '8px',
             fontWeight: 'bold'
           }}>
-            背面
+            {t('layer_panel.background_layer')}
           </div>
           <DroppableSection id="background-section">
             <SortableContext items={backgroundIds} strategy={verticalListSortingStrategy}>
@@ -354,7 +385,7 @@ export function LayerPanel() {
                   border: '1px dashed #ddd',
                   borderRadius: '4px'
                 }}>
-                  (空)
+                  {t('layer_panel.empty')}
                 </div>
               ) : (
                 layerOrder.backgroundItems.map((item) => {
@@ -376,21 +407,7 @@ export function LayerPanel() {
 
       <DragOverlay>
         {activeItem ? (
-          <div
-            style={{
-              padding: '8px 12px',
-              backgroundColor: '#fff',
-              border: '1px solid #ddd',
-              borderRadius: '4px',
-              cursor: 'move',
-              userSelect: 'none',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-            }}
-          >
-            {activeItem.kind === LayerItemRef.kind.RECTANGLE 
-              ? `Rectangle ${activeItem.id.substring(0, 6)}`
-              : `Text ${activeItem.id.substring(0, 6)}`}
-          </div>
+          <DragOverlayContent item={activeItem} />
         ) : null}
       </DragOverlay>
     </DndContext>

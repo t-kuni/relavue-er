@@ -13,9 +13,10 @@
   },
   "layer_panel": {
     "title": "Layers",
-    "background_layer": "Background Layer",
-    "foreground_layer": "Foreground Layer",
-    "empty": "No items in layer",
+    "background_layer": "Background",
+    "foreground_layer": "Foreground",
+    "center_layer": "Center",
+    "empty": "(Empty)",
     "rectangle": "Rectangle",
     "text": "Text"
   },
@@ -24,13 +25,13 @@
     "no_history": "No history available",
     "summary_none": "(No summary)",
     "no_changes": "No changes",
-    "added_tables": "table(s)",
-    "removed_tables": "table(s)",
-    "added_columns": "column(s)",
-    "removed_columns": "column(s)",
-    "modified_columns": "column(s)",
-    "added_relationships": "relationship(s)",
-    "removed_relationships": "relationship(s)",
+    "added_tables": " table(s)",
+    "removed_tables": " table(s)",
+    "added_columns": " column(s)",
+    "removed_columns": " column(s)",
+    "modified_columns": " column(s)",
+    "added_relationships": " relationship(s)",
+    "removed_relationships": " relationship(s)",
     "changes_detail_none": "(No change details)",
     "tables_added": "Added Tables",
     "tables_removed": "Removed Tables",
@@ -40,11 +41,14 @@
     "relationships_added": "Added Relationships",
     "relationships_removed": "Removed Relationships",
     "before": "Before",
-    "after": "After"
+    "after": "After",
+    "entry_type_initial": "Initial",
+    "entry_type_incremental": "Incremental"
   },
   "ddl_panel": {
     "title": "DDL",
-    "no_entity_selected": "No entity selected"
+    "no_entity_selected": "No entity selected",
+    "no_ddl_available": "DDL is not available"
   },
   "database_modal": {
     "title": "Database Connection Settings",
@@ -60,7 +64,8 @@
     "load_sample": "Load Sample ER Diagram",
     "load_sample_description": "Load a sample ER diagram for development (no database connection required)",
     "loading": "Processing...",
-    "existing_nodes_warning": "※ Existing nodes found. Reverse engineering will perform incremental merge."
+    "existing_nodes_warning": "※ Existing nodes found. Reverse engineering will perform incremental merge.",
+    "warning_privileges": "⚠️ Requires root user (or user with sufficient privileges) to access information_schema"
   },
   "build_info_modal": {
     "title": "Build Information",
@@ -89,7 +94,13 @@
     "shadow_offset_x": "X Offset",
     "shadow_offset_y": "Y Offset",
     "shadow_blur": "Blur",
-    "delete": "Delete"
+    "delete": "Delete",
+    "show_fill": "Show Fill",
+    "fill": "Fill",
+    "show_stroke": "Show Stroke",
+    "stroke": "Stroke",
+    "stroke_width": "Stroke Width",
+    "transparency": "Transparency"
   },
   "text_panel": {
     "title": "Text Properties",
@@ -100,7 +111,8 @@
     "font_weight": "Font Weight",
     "normal": "Normal",
     "bold": "Bold",
-    "delete": "Delete"
+    "delete": "Delete",
+    "default_content": "Text"
   },
   "error": {
     "import_failed": "Import failed",
@@ -114,7 +126,9 @@
     "execute": "Execute",
     "delete": "Delete",
     "loading": "Loading...",
-    "drop_file_to_import": "Drop file to import"
+    "drop_file_to_import": "Drop file to import",
+    "add_rectangle": "Add Rectangle",
+    "add_text": "Add Text"
   },
   "locale": {
     "ja": "日本語",

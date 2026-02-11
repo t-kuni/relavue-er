@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { DatabaseConnectionState } from '../api/client'
 
 interface DatabaseConnectionModalProps {
@@ -12,6 +13,8 @@ interface DatabaseConnectionModalProps {
 }
 
 function DatabaseConnectionModal({ onExecute, onCancel, onLoadSample, initialValues, errorMessage, hasExistingNodes, loading }: DatabaseConnectionModalProps) {
+  const { t } = useTranslation()
+  
   // スピナーアニメーションのスタイル
   useEffect(() => {
     const style = document.createElement('style')
@@ -116,7 +119,7 @@ function DatabaseConnectionModal({ onExecute, onCancel, onLoadSample, initialVal
         onCut={(e) => e.stopPropagation()}
         onPaste={(e) => e.stopPropagation()}
       >
-        <h3 style={{ marginTop: 0 }}>データベース接続設定</h3>
+        <h3 style={{ marginTop: 0 }}>{t('database_modal.title')}</h3>
         
         {errorMessage && !loading && (
           <div style={{
@@ -151,13 +154,13 @@ function DatabaseConnectionModal({ onExecute, onCancel, onLoadSample, initialVal
               borderRadius: '50%',
               animation: 'spin 1s linear infinite'
             }} />
-            <span>データベースに接続中...</span>
+            <span>{t('database_modal.loading')}</span>
           </div>
         )}
 
         <div style={{ marginBottom: '1rem' }}>
           <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-            Database Type
+            {t('database_modal.db_type')}
           </label>
           <select
             value={dbType}
@@ -184,12 +187,12 @@ function DatabaseConnectionModal({ onExecute, onCancel, onLoadSample, initialVal
           color: '#856404',
           fontSize: '0.9rem'
         }}>
-          ⚠️ information_schemaを参照するためルートユーザ（または十分な権限を持つユーザ）での実行を推奨します
+          {t('database_modal.warning_privileges')}
         </div>
 
         <div style={{ marginBottom: '1rem' }}>
           <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-            Host
+            {t('database_modal.host')}
           </label>
           <input 
             type="text" 
@@ -208,7 +211,7 @@ function DatabaseConnectionModal({ onExecute, onCancel, onLoadSample, initialVal
 
         <div style={{ marginBottom: '1rem' }}>
           <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-            Port
+            {t('database_modal.port')}
           </label>
           <input 
             type="number" 
@@ -227,7 +230,7 @@ function DatabaseConnectionModal({ onExecute, onCancel, onLoadSample, initialVal
 
         <div style={{ marginBottom: '1rem' }}>
           <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-            User
+            {t('database_modal.user')}
           </label>
           <input 
             type="text" 
@@ -246,7 +249,7 @@ function DatabaseConnectionModal({ onExecute, onCancel, onLoadSample, initialVal
 
         <div style={{ marginBottom: '1rem' }}>
           <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-            Password
+            {t('database_modal.password')}
           </label>
           <input 
             type="password" 
@@ -264,7 +267,7 @@ function DatabaseConnectionModal({ onExecute, onCancel, onLoadSample, initialVal
 
         <div style={{ marginBottom: '1rem' }}>
           <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-            Database
+            {t('database_modal.database')}
           </label>
           <input 
             type="text" 
@@ -284,7 +287,7 @@ function DatabaseConnectionModal({ onExecute, onCancel, onLoadSample, initialVal
         {dbType === DatabaseConnectionState.type.POSTGRESQL && (
           <div style={{ marginBottom: '1.5rem' }}>
             <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-              Schema
+              {t('database_modal.schema')}
             </label>
             <input 
               type="text" 
@@ -321,7 +324,7 @@ function DatabaseConnectionModal({ onExecute, onCancel, onLoadSample, initialVal
                 opacity: loading ? 0.6 : 1
               }}
             >
-              サンプルERを読み込む
+              {t('database_modal.load_sample')}
             </button>
           )}
           <div style={{ marginLeft: 'auto', display: 'flex', gap: '0.5rem' }}>
@@ -338,7 +341,7 @@ function DatabaseConnectionModal({ onExecute, onCancel, onLoadSample, initialVal
                 opacity: loading ? 0.6 : 1
               }}
             >
-              キャンセル
+              {t('database_modal.cancel')}
             </button>
             <button 
               onClick={handleExecute}
@@ -353,7 +356,7 @@ function DatabaseConnectionModal({ onExecute, onCancel, onLoadSample, initialVal
                 opacity: loading ? 0.6 : 1
               }}
             >
-              実行
+              {t('database_modal.execute')}
             </button>
           </div>
         </div>

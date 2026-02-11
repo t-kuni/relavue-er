@@ -13,9 +13,10 @@
   },
   "layer_panel": {
     "title": "图层",
-    "background_layer": "背景图层",
-    "foreground_layer": "前景图层",
-    "empty": "图层为空",
+    "background_layer": "背面",
+    "foreground_layer": "前面",
+    "center_layer": "中央",
+    "empty": "（空）",
     "rectangle": "矩形",
     "text": "文本"
   },
@@ -40,11 +41,14 @@
     "relationships_added": "已添加的关系",
     "relationships_removed": "已删除的关系",
     "before": "之前",
-    "after": "之后"
+    "after": "之后",
+    "entry_type_initial": "初次",
+    "entry_type_incremental": "增量"
   },
   "ddl_panel": {
     "title": "DDL",
-    "no_entity_selected": "未选择实体"
+    "no_entity_selected": "未选择实体",
+    "no_ddl_available": "DDL 不可用"
   },
   "database_modal": {
     "title": "数据库连接设置",
@@ -60,7 +64,8 @@
     "load_sample": "加载示例ER图",
     "load_sample_description": "加载开发用示例ER图（无需数据库连接）",
     "loading": "处理中...",
-    "existing_nodes_warning": "※ 存在现有节点。反向工程将执行增量合并。"
+    "existing_nodes_warning": "※ 存在现有节点。反向工程将执行增量合并。",
+    "warning_privileges": "⚠️ 需要root用户（或具有足够权限的用户）访问information_schema"
   },
   "build_info_modal": {
     "title": "构建信息",
@@ -89,7 +94,13 @@
     "shadow_offset_x": "X 偏移",
     "shadow_offset_y": "Y 偏移",
     "shadow_blur": "模糊",
-    "delete": "删除"
+    "delete": "删除",
+    "show_fill": "显示填充",
+    "fill": "填充",
+    "show_stroke": "显示边框",
+    "stroke": "边框",
+    "stroke_width": "边框宽度",
+    "transparency": "透明度"
   },
   "text_panel": {
     "title": "文本属性",
@@ -100,7 +111,8 @@
     "font_weight": "字体粗细",
     "normal": "标准",
     "bold": "粗体",
-    "delete": "删除"
+    "delete": "删除",
+    "default_content": "文本"
   },
   "error": {
     "import_failed": "导入失败",
@@ -114,7 +126,9 @@
     "execute": "执行",
     "delete": "删除",
     "loading": "加载中...",
-    "drop_file_to_import": "拖放文件以导入"
+    "drop_file_to_import": "拖放文件以导入",
+    "add_rectangle": "添加矩形",
+    "add_text": "添加文本"
   },
   "locale": {
     "ja": "日本語",

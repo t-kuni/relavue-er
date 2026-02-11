@@ -236,9 +236,9 @@ export function detectBrowserLocale(): Locale
 
 ---
 
-## フェーズ3-1: 言語切り替えUIと主要コンポーネントの多言語対応
+## フェーズ3-1: 言語切り替えUIと主要コンポーネントの多言語対応 ✅ 完了
 
-### [ ] 3-1-1. 言語切り替えドロップダウンコンポーネントの作成
+### [x] 3-1-1. 言語切り替えドロップダウンコンポーネントの作成
 
 **ファイル**: `public/src/components/LocaleSelector.tsx`（新規作成）
 
@@ -253,7 +253,7 @@ export function detectBrowserLocale(): Locale
 - ヘッダーの他のボタンと統一感のあるデザイン
 - ドロップダウンはボタンクリックで表示/非表示
 
-### [ ] 3-1-2. App.tsxへの言語切り替えUIの追加
+### [x] 3-1-2. App.tsxへの言語切り替えUIの追加
 
 **ファイル**: `public/src/components/App.tsx`
 
@@ -266,7 +266,7 @@ export function detectBrowserLocale(): Locale
 
 **仕様書参照**: [spec/internationalization.md](/spec/internationalization.md) の「言語切り替えUI」セクション
 
-### [ ] 3-1-3. ERCanvasコンポーネントの多言語対応
+### [x] 3-1-3. ERCanvasコンポーネントの多言語対応
 
 **ファイル**: `public/src/components/ERCanvas.tsx`
 
@@ -274,7 +274,7 @@ export function detectBrowserLocale(): Locale
 - `useTranslation()` フックをインポート
 - エラーメッセージやツールチップなどのテキストを `t()` で翻訳
 
-### [ ] 3-1-4. DatabaseConnectionModalの多言語対応
+### [x] 3-1-4. DatabaseConnectionModalの多言語対応
 
 **ファイル**: `public/src/components/DatabaseConnectionModal.tsx`
 
@@ -282,7 +282,7 @@ export function detectBrowserLocale(): Locale
 - `useTranslation()` フックをインポート
 - モーダルのタイトル、フォームラベル、ボタンラベル、エラーメッセージを `t()` で翻訳
 
-### [ ] 3-1-5. BuildInfoModalの多言語対応
+### [x] 3-1-5. BuildInfoModalの多言語対応
 
 **ファイル**: `public/src/components/BuildInfoModal.tsx`
 
@@ -290,7 +290,7 @@ export function detectBrowserLocale(): Locale
 - `useTranslation()` フックをインポート
 - モーダルのタイトル、ラベル、ボタンを `t()` で翻訳
 
-### [ ] 3-1-6. LayerPanelの多言語対応
+### [x] 3-1-6. LayerPanelの多言語対応
 
 **ファイル**: `public/src/components/LayerPanel.tsx`
 
@@ -298,7 +298,7 @@ export function detectBrowserLocale(): Locale
 - `useTranslation()` フックをインポート
 - パネルのタイトル、セクション見出し、ラベルを `t()` で翻訳
 
-### [ ] 3-1-7. HistoryPanelの多言語対応
+### [x] 3-1-7. HistoryPanelの多言語対応
 
 **ファイル**: `public/src/components/HistoryPanel.tsx`
 
@@ -306,7 +306,7 @@ export function detectBrowserLocale(): Locale
 - `useTranslation()` フックをインポート
 - パネルのタイトル、ラベル、メッセージを `t()` で翻訳
 
-### [ ] 3-1-8. DDLPanelの多言語対応
+### [x] 3-1-8. DDLPanelの多言語対応
 
 **ファイル**: `public/src/components/DDLPanel.tsx`
 
@@ -314,7 +314,7 @@ export function detectBrowserLocale(): Locale
 - `useTranslation()` フックをインポート
 - パネルのタイトル、ラベル、ボタンを `t()` で翻訳
 
-### [ ] 3-1-9. RectanglePropertyPanelの多言語対応
+### [x] 3-1-9. RectanglePropertyPanelの多言語対応
 
 **ファイル**: `public/src/components/RectanglePropertyPanel.tsx`
 
@@ -322,7 +322,7 @@ export function detectBrowserLocale(): Locale
 - `useTranslation()` フックをインポート
 - パネルのタイトル、ラベル、ボタンを `t()` で翻訳
 
-### [ ] 3-1-10. フェーズ3-1のビルド確認
+### [x] 3-1-10. フェーズ3-1のビルド確認
 
 **コマンド**:
 ```bash
@@ -333,6 +333,10 @@ npm run --prefix public build
 **確認事項**:
 - ビルドエラーが発生しないこと
 - 翻訳キーの参照エラーがないこと
+
+**実施結果**: 完了。フロントエンドのビルドが成功しました。
+
+**注意**: i18nextとreact-i18nextをpublicディレクトリにインストールする必要がありました（`npm install react-i18next@^16.5.4 i18next@^25.8.4 --prefix public`）。
 
 ---
 
