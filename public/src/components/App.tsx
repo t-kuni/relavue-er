@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
+import { useTranslation } from 'react-i18next'
 import ERCanvas from './ERCanvas'
 import BuildInfoModal from './BuildInfoModal'
 import DatabaseConnectionModal from './DatabaseConnectionModal'
@@ -9,6 +10,7 @@ import { TextPropertyPanel } from './TextPropertyPanel'
 import { LayerPanel } from './LayerPanel'
 import { HistoryPanel } from './HistoryPanel'
 import DDLPanel from './DDLPanel'
+import { LocaleSelector } from './LocaleSelector'
 import { useViewModel, useDispatch } from '../store/hooks'
 import { actionShowBuildInfoModal, actionHideBuildInfoModal, actionShowDatabaseConnectionModal, actionHideDatabaseConnectionModal, actionToggleHistoryPanel } from '../actions/globalUIActions'
 import { actionSelectItem, actionToggleLayerPanel } from '../actions/layerActions'
@@ -23,6 +25,7 @@ import { importViewModel } from '../utils/importViewModel'
 import type { DatabaseConnectionState } from '../api/client'
 
 function App() {
+  const { t, i18n } = useTranslation()
   const dispatch = useDispatch()
   const [dbConnectionError, setDbConnectionError] = useState<string | undefined>(undefined)
   const [nodesInitialized, setNodesInitialized] = useState<boolean>(false)
@@ -43,6 +46,7 @@ function App() {
   const lastDatabaseConnection = useViewModel((vm) => vm.settings?.lastDatabaseConnection)
   const erDiagram = useViewModel((vm) => vm.erDiagram)
   const layoutOptimization = useViewModel((vm) => vm.ui.layoutOptimization)
+  const locale = useViewModel((vm) => vm.settings?.locale)
   
   // エクスポートハンドラ
   const handleExport = () => {
@@ -65,6 +69,13 @@ function App() {
     }
   }, [viewModel])
   
+  // ViewModel更新時にi18nextの言語を同期
+  useEffect(() => {
+    if (locale) {
+      i18n.changeLanguage(locale)
+    }
+  }, [locale, i18n])
+  
   // インポートハンドラ
   const handleImport = async (files: File[]) => {
     if (files.length === 0) return
@@ -74,7 +85,7 @@ function App() {
       dispatch(actionSetViewModel, importedViewModel)
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
-      alert(`インポートに失敗しました: ${errorMessage}`)
+      alert(`${t('error.import_failed')}: ${errorMessage}`)
     }
   }
   
@@ -144,7 +155,9 @@ function App() {
     !hasValidNodeSize
   
   // リバースエンジニアボタンのラベルを動的に決定
-  const reverseButtonLabel = (erDiagram.history?.length ?? 0) >= 1 ? 'DBから増分リバース' : 'DBからリバース'
+  const reverseButtonLabel = (erDiagram.history?.length ?? 0) >= 1 
+    ? t('header.reverse_engineer_incremental') 
+    : t('header.reverse_engineer')
   
   return (
     <div className="app" {...getRootProps()}>
@@ -167,7 +180,7 @@ function App() {
           fontSize: '24px',
           fontWeight: 'bold'
         }}>
-          ファイルをドロップしてインポート
+          {t('common.drop_file_to_import')}
         </div>
       )}
       <header 
@@ -180,7 +193,7 @@ function App() {
           alignItems: 'center'
         }}
       >
-        <h1 style={{ margin: 0 }}>RelavueER</h1>
+        <h1 style={{ margin: 0 }}>{t('header.app_title')}</h1>
         <div style={{ display: 'flex', gap: '8px' }}>
           <button 
             onClick={() => dispatch(actionShowDatabaseConnectionModal)}
@@ -206,7 +219,7 @@ function App() {
               cursor: 'pointer'
             }}
           >
-            リバース履歴
+            {t('header.reverse_history')}
           </button>
           <button 
             onClick={handleLayoutOptimize}
@@ -221,7 +234,7 @@ function App() {
               opacity: isLayoutOptimizeDisabled ? 0.6 : 1
             }}
           >
-            配置最適化
+            {t('header.layout_optimize')}
           </button>
           <button 
             onClick={() => dispatch(actionToggleLayerPanel)}
@@ -234,7 +247,7 @@ function App() {
               cursor: 'pointer'
             }}
           >
-            レイヤー
+            {t('header.layer')}
           </button>
           <button 
             onClick={handleExport}
@@ -247,7 +260,7 @@ function App() {
               cursor: 'pointer'
             }}
           >
-            エクスポート
+            {t('header.export')}
           </button>
           <button 
             onClick={open}
@@ -260,7 +273,7 @@ function App() {
               cursor: 'pointer'
             }}
           >
-            インポート
+            {t('header.import')}
           </button>
           <button 
             onClick={() => dispatch(actionShowBuildInfoModal)}
@@ -273,8 +286,9 @@ function App() {
               cursor: 'pointer'
             }}
           >
-            ビルド情報
+            {t('header.build_info')}
           </button>
+          <LocaleSelector />
         </div>
       </header>
       <main style={{ 

@@ -19,6 +19,7 @@ import {
   useKeyPress,
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
+import { useTranslation } from 'react-i18next'
 import EntityNode from './EntityNode'
 import RelationshipEdge from './RelationshipEdge'
 import SelfRelationshipEdge from './SelfRelationshipEdge'
@@ -191,6 +192,7 @@ function ERCanvasInner({
   addRectangleRef?: React.MutableRefObject<(() => void) | null>,
   addTextRef?: React.MutableRefObject<(() => void) | null>
 }) {
+  const { t } = useTranslation()
   const { getNodes, screenToFlowPosition } = useReactFlow()
   const viewport = useViewport()
   const nodesInitialized = useNodesInitialized()
@@ -890,7 +892,7 @@ function ERCanvasInner({
       y: position.y,
       width: 200,
       height: 80,
-      content: 'テキスト',
+      content: t('text_panel.default_content'),
       fontSize: 16,
       lineHeight: 24,
       textAlign: TextBox.textAlign.LEFT,
@@ -1093,6 +1095,7 @@ interface ERCanvasProps {
 }
 
 function ERCanvas({ onSelectionChange, onNodesInitialized }: ERCanvasProps = {}) {
+  const { t } = useTranslation()
   const dispatch = useDispatch()
   const [nodes, setNodes] = useState<Node[]>([])
   const [edges, setEdges] = useState<Edge[]>([])
@@ -1150,7 +1153,7 @@ function ERCanvas({ onSelectionChange, onNodesInitialized }: ERCanvasProps = {})
             cursor: 'pointer'
           }}
         >
-          矩形追加
+          {t('common.add_rectangle')}
         </button>
         <button 
           onClick={handleAddText}
@@ -1163,7 +1166,7 @@ function ERCanvas({ onSelectionChange, onNodesInitialized }: ERCanvasProps = {})
             cursor: 'pointer'
           }}
         >
-          テキスト追加
+          {t('common.add_text')}
         </button>
       </div>
       <ReactFlowProvider>

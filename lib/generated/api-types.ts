@@ -58,6 +58,8 @@ export interface components {
     schemas: {
         AppSettings: {
             lastDatabaseConnection?: components["schemas"]["DatabaseConnectionState"];
+            /** @enum {string} */
+            locale?: "ja" | "en" | "zh";
         };
         BuildInfo: {
             version: string;

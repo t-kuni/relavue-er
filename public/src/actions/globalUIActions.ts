@@ -96,3 +96,26 @@ export function actionToggleHistoryPanel(
     },
   };
 }
+
+/**
+ * 言語設定を変更する
+ * @param viewModel 現在のViewModel
+ * @param locale 設定する言語
+ */
+export function actionSetLocale(
+  viewModel: ViewModel,
+  locale: 'ja' | 'en' | 'zh'
+): ViewModel {
+  // 変化がない場合は同一参照を返す（最適化）
+  if (viewModel.settings?.locale === locale) {
+    return viewModel;
+  }
+
+  return {
+    ...viewModel,
+    settings: {
+      ...viewModel.settings,
+      locale,
+    },
+  };
+}

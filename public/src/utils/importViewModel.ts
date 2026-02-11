@@ -1,6 +1,7 @@
 import { BuildInfoState, ViewModel, ReverseEngineeringHistoryEntry } from "../api/client";
 import { getInitialGlobalUIState } from "./getInitialViewModelValues";
 import { buildERDiagramIndex } from "./buildERDiagramIndex";
+import { detectBrowserLocale } from "./detectBrowserLocale";
 
 /**
  * JSONファイルからViewModelをインポートする
@@ -103,6 +104,22 @@ export function importViewModel(
           }) as ReverseEngineeringHistoryEntry[];
         }
 
+        // settings.locale のバリデーションと補完
+        let locale: 'ja' | 'en' | 'zh';
+        const importedLocale = importedViewModel.settings?.locale;
+        
+        if (
+          importedLocale === 'ja' ||
+          importedLocale === 'en' ||
+          importedLocale === 'zh'
+        ) {
+          // 正しい値の場合はそのまま使用
+          locale = importedLocale;
+        } else {
+          // 不正値または未設定の場合はブラウザ言語を検出
+          locale = detectBrowserLocale();
+        }
+
         // 一時UI状態とキャッシュを補完したViewModelを作成
         const viewModel: ViewModel = {
           format: importedViewModel.format,
@@ -130,7 +147,10 @@ export function importViewModel(
           },
           ui: getInitialGlobalUIState(),
           buildInfo: currentBuildInfo, // 現在のbuildInfoを保持
-          settings: importedViewModel.settings, // 設定を保持
+          settings: {
+            ...importedViewModel.settings,
+            locale, // バリデーション済みのlocaleを設定
+          },
         };
 
         resolve(viewModel);

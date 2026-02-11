@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { HexColorPicker, HexColorInput } from 'react-colorful';
+import { useTranslation } from 'react-i18next';
 import { useViewModel, useDispatch } from '../store/hooks';
 import { ColorPickerWithPresets } from './ColorPickerWithPresets';
 import {
@@ -20,6 +21,7 @@ interface TextPropertyPanelProps {
 }
 
 export const TextPropertyPanel: React.FC<TextPropertyPanelProps> = ({ textId }) => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const text = useViewModel((vm) => vm.erDiagram.texts[textId]);
 
@@ -243,12 +245,12 @@ export const TextPropertyPanel: React.FC<TextPropertyPanelProps> = ({ textId }) 
       onCut={(e) => e.stopPropagation()}
       onPaste={(e) => e.stopPropagation()}
     >
-      <h3 style={{ marginTop: 0, marginBottom: '1rem' }}>テキストプロパティ</h3>
+      <h3 style={{ marginTop: 0, marginBottom: '1rem' }}>{t('text_panel.title')}</h3>
 
       {/* 内容 */}
       <div style={{ marginBottom: '1rem' }}>
         <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '0.5rem' }}>
-          内容
+          {t('text_panel.content')}
         </label>
         <textarea
           rows={5}
@@ -269,7 +271,7 @@ export const TextPropertyPanel: React.FC<TextPropertyPanelProps> = ({ textId }) 
       {/* フォントサイズ */}
       <div style={{ marginBottom: '1rem' }}>
         <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '0.5rem' }}>
-          フォントサイズ: {text.fontSize}px
+          {t('text_panel.font_size')}: {text.fontSize}px
         </label>
         <input
           type="number"
@@ -290,7 +292,7 @@ export const TextPropertyPanel: React.FC<TextPropertyPanelProps> = ({ textId }) 
       {/* 行の高さ */}
       <div style={{ marginBottom: '1rem' }}>
         <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '0.5rem' }}>
-          行の高さ: {text.lineHeight}px
+          {t('text_panel.line_height')}: {text.lineHeight}px
         </label>
         <input
           type="number"
@@ -311,7 +313,7 @@ export const TextPropertyPanel: React.FC<TextPropertyPanelProps> = ({ textId }) 
       {/* 水平配置 */}
       <div style={{ marginBottom: '1rem' }}>
         <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '0.5rem' }}>
-          水平配置
+          {t('text_panel.horizontal_align')}
         </label>
         <div style={{ display: 'flex', gap: '0.5rem' }}>
           {([TextBox.textAlign.LEFT, TextBox.textAlign.CENTER, TextBox.textAlign.RIGHT]).map((align) => (
@@ -330,7 +332,7 @@ export const TextPropertyPanel: React.FC<TextPropertyPanelProps> = ({ textId }) 
                 fontSize: '14px',
               }}
             >
-              {align === TextBox.textAlign.LEFT ? '左' : align === TextBox.textAlign.CENTER ? '中央' : '右'}
+              {align === TextBox.textAlign.LEFT ? t('text_panel.align_left') : align === TextBox.textAlign.CENTER ? t('text_panel.align_center') : t('text_panel.align_right')}
             </button>
           ))}
         </div>
@@ -339,7 +341,7 @@ export const TextPropertyPanel: React.FC<TextPropertyPanelProps> = ({ textId }) 
       {/* 垂直配置 */}
       <div style={{ marginBottom: '1rem' }}>
         <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '0.5rem' }}>
-          垂直配置
+          {t('text_panel.vertical_align')}
         </label>
         <div style={{ display: 'flex', gap: '0.5rem' }}>
           {([TextBox.textVerticalAlign.TOP, TextBox.textVerticalAlign.MIDDLE, TextBox.textVerticalAlign.BOTTOM]).map((align) => (
@@ -358,7 +360,7 @@ export const TextPropertyPanel: React.FC<TextPropertyPanelProps> = ({ textId }) 
                 fontSize: '14px',
               }}
             >
-              {align === TextBox.textVerticalAlign.TOP ? '上' : align === TextBox.textVerticalAlign.MIDDLE ? '中央' : '下'}
+              {align === TextBox.textVerticalAlign.TOP ? t('text_panel.align_top') : align === TextBox.textVerticalAlign.MIDDLE ? t('text_panel.align_middle') : t('text_panel.align_bottom')}
             </button>
           ))}
         </div>
@@ -367,7 +369,7 @@ export const TextPropertyPanel: React.FC<TextPropertyPanelProps> = ({ textId }) 
       {/* 文字色 */}
       <div style={{ marginBottom: '1rem' }}>
         <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '0.5rem' }}>
-          文字色
+          {t('text_panel.text_color')}
         </label>
         <div
           style={{
@@ -408,7 +410,7 @@ export const TextPropertyPanel: React.FC<TextPropertyPanelProps> = ({ textId }) 
       {/* 文字の透明度 */}
       <div style={{ marginBottom: '1rem' }}>
         <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '0.5rem' }}>
-          文字の透明度: {Math.round((1 - text.opacity) * 100)}%
+          {t('text_panel.text_transparency')}: {Math.round((1 - text.opacity) * 100)}%
         </label>
         <input
           type="range"
@@ -429,13 +431,13 @@ export const TextPropertyPanel: React.FC<TextPropertyPanelProps> = ({ textId }) 
             checked={text.backgroundEnabled}
             onChange={handleBackgroundEnabledChange}
           />
-          <span style={{ fontWeight: 'bold' }}>背景色</span>
+          <span style={{ fontWeight: 'bold' }}>{t('text_panel.background_color')}</span>
         </label>
 
         {text.backgroundEnabled && (
           <div style={{ marginLeft: '1.5rem', marginTop: '0.5rem' }}>
             <ColorPickerWithPresets
-              label="色"
+              label={t('text_panel.shadow_color')}
               value={text.backgroundColor}
               onChange={handleBackgroundColorChange}
             />
@@ -443,7 +445,7 @@ export const TextPropertyPanel: React.FC<TextPropertyPanelProps> = ({ textId }) 
             {/* 背景の透明度 */}
             <div style={{ marginBottom: '0.5rem' }}>
               <label style={{ display: 'block', fontSize: '12px', marginBottom: '0.25rem' }}>
-                背景の透明度: {Math.round((1 - text.backgroundOpacity) * 100)}%
+                {t('text_panel.background_transparency')}: {Math.round((1 - text.backgroundOpacity) * 100)}%
               </label>
               <input
                 type="range"
@@ -462,7 +464,7 @@ export const TextPropertyPanel: React.FC<TextPropertyPanelProps> = ({ textId }) 
       {/* パディング */}
       <div style={{ marginBottom: '1rem' }}>
         <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '0.5rem' }}>
-          パディング (X / Y)
+          {t('text_panel.padding')}
         </label>
         <div style={{ display: 'flex', gap: '0.5rem' }}>
           <input
@@ -499,7 +501,7 @@ export const TextPropertyPanel: React.FC<TextPropertyPanelProps> = ({ textId }) 
       {/* 自動サイズ調整モード */}
       <div style={{ marginBottom: '1rem' }}>
         <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '0.5rem' }}>
-          自動サイズ調整
+          {t('text_panel.auto_size_mode')}
         </label>
         <select
           value={text.autoSizeMode}
@@ -512,9 +514,9 @@ export const TextPropertyPanel: React.FC<TextPropertyPanelProps> = ({ textId }) 
             borderRadius: '4px',
           }}
         >
-          <option value={TextBox.autoSizeMode.MANUAL}>手動</option>
-          <option value={TextBox.autoSizeMode.FIT_CONTENT}>内容に合わせる</option>
-          <option value={TextBox.autoSizeMode.FIT_WIDTH}>幅に合わせる</option>
+          <option value={TextBox.autoSizeMode.MANUAL}>{t('text_panel.auto_size_manual')}</option>
+          <option value={TextBox.autoSizeMode.FIT_CONTENT}>{t('text_panel.auto_size_fit_content')}</option>
+          <option value={TextBox.autoSizeMode.FIT_WIDTH}>{t('text_panel.auto_size_fit_width')}</option>
         </select>
       </div>
 
@@ -522,14 +524,14 @@ export const TextPropertyPanel: React.FC<TextPropertyPanelProps> = ({ textId }) 
       <div style={{ marginBottom: '1rem' }}>
         <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <input type="checkbox" checked={text.wrap} onChange={handleWrapChange} />
-          <span style={{ fontWeight: 'bold' }}>折り返し</span>
+          <span style={{ fontWeight: 'bold' }}>{t('text_panel.wrap')}</span>
         </label>
       </div>
 
       {/* オーバーフロー */}
       <div style={{ marginBottom: '1rem' }}>
         <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '0.5rem' }}>
-          オーバーフロー
+          {t('text_panel.overflow')}
         </label>
         <select
           value={text.overflow}
@@ -542,8 +544,8 @@ export const TextPropertyPanel: React.FC<TextPropertyPanelProps> = ({ textId }) 
             borderRadius: '4px',
           }}
         >
-          <option value={TextBox.overflow.CLIP}>切り取り</option>
-          <option value={TextBox.overflow.SCROLL}>スクロール</option>
+          <option value={TextBox.overflow.CLIP}>{t('text_panel.overflow_clip')}</option>
+          <option value={TextBox.overflow.SCROLL}>{t('text_panel.overflow_scroll')}</option>
         </select>
       </div>
 
@@ -555,7 +557,7 @@ export const TextPropertyPanel: React.FC<TextPropertyPanelProps> = ({ textId }) 
             checked={text.textShadow.enabled}
             onChange={handleShadowEnabledChange}
           />
-          <span style={{ fontWeight: 'bold' }}>文字のドロップシャドウ</span>
+          <span style={{ fontWeight: 'bold' }}>{t('text_panel.text_shadow')}</span>
         </label>
 
         {text.textShadow.enabled && (
@@ -563,7 +565,7 @@ export const TextPropertyPanel: React.FC<TextPropertyPanelProps> = ({ textId }) 
             {/* オフセットX */}
             <div style={{ marginBottom: '0.5rem' }}>
               <label style={{ display: 'block', fontSize: '12px', marginBottom: '0.25rem' }}>
-                オフセットX: {text.textShadow.offsetX}px
+                {t('text_panel.shadow_offset_x')}: {text.textShadow.offsetX}px
               </label>
               <input
                 type="number"
@@ -583,7 +585,7 @@ export const TextPropertyPanel: React.FC<TextPropertyPanelProps> = ({ textId }) 
             {/* オフセットY */}
             <div style={{ marginBottom: '0.5rem' }}>
               <label style={{ display: 'block', fontSize: '12px', marginBottom: '0.25rem' }}>
-                オフセットY: {text.textShadow.offsetY}px
+                {t('text_panel.shadow_offset_y')}: {text.textShadow.offsetY}px
               </label>
               <input
                 type="number"
@@ -603,7 +605,7 @@ export const TextPropertyPanel: React.FC<TextPropertyPanelProps> = ({ textId }) 
             {/* ぼかし */}
             <div style={{ marginBottom: '0.5rem' }}>
               <label style={{ display: 'block', fontSize: '12px', marginBottom: '0.25rem' }}>
-                ぼかし: {text.textShadow.blur}px
+                {t('text_panel.shadow_blur')}: {text.textShadow.blur}px
               </label>
               <input
                 type="number"
@@ -624,7 +626,7 @@ export const TextPropertyPanel: React.FC<TextPropertyPanelProps> = ({ textId }) 
             {/* 色 */}
             <div style={{ marginBottom: '0.5rem' }}>
               <label style={{ display: 'block', fontSize: '12px', marginBottom: '0.25rem' }}>
-                色
+                {t('text_panel.shadow_color')}
               </label>
               <div
                 style={{
@@ -668,7 +670,7 @@ export const TextPropertyPanel: React.FC<TextPropertyPanelProps> = ({ textId }) 
             {/* 透明度 */}
             <div style={{ marginBottom: '0.5rem' }}>
               <label style={{ display: 'block', fontSize: '12px', marginBottom: '0.25rem' }}>
-                透明度: {Math.round(text.textShadow.opacity * 100)}%
+                {t('text_panel.shadow_opacity')}: {Math.round(text.textShadow.opacity * 100)}%
               </label>
               <input
                 type="range"
@@ -692,7 +694,7 @@ export const TextPropertyPanel: React.FC<TextPropertyPanelProps> = ({ textId }) 
             checked={text.backgroundShadow.enabled}
             onChange={handleBackgroundShadowEnabledChange}
           />
-          <span style={{ fontWeight: 'bold' }}>背景のドロップシャドウ</span>
+          <span style={{ fontWeight: 'bold' }}>{t('text_panel.background_shadow')}</span>
         </label>
 
         {text.backgroundShadow.enabled && (
@@ -700,7 +702,7 @@ export const TextPropertyPanel: React.FC<TextPropertyPanelProps> = ({ textId }) 
             {/* オフセットX */}
             <div style={{ marginBottom: '0.5rem' }}>
               <label style={{ display: 'block', fontSize: '12px', marginBottom: '0.25rem' }}>
-                オフセットX: {text.backgroundShadow.offsetX}px
+                {t('text_panel.shadow_offset_x')}: {text.backgroundShadow.offsetX}px
               </label>
               <input
                 type="number"
@@ -720,7 +722,7 @@ export const TextPropertyPanel: React.FC<TextPropertyPanelProps> = ({ textId }) 
             {/* オフセットY */}
             <div style={{ marginBottom: '0.5rem' }}>
               <label style={{ display: 'block', fontSize: '12px', marginBottom: '0.25rem' }}>
-                オフセットY: {text.backgroundShadow.offsetY}px
+                {t('text_panel.shadow_offset_y')}: {text.backgroundShadow.offsetY}px
               </label>
               <input
                 type="number"
@@ -740,7 +742,7 @@ export const TextPropertyPanel: React.FC<TextPropertyPanelProps> = ({ textId }) 
             {/* ぼかし */}
             <div style={{ marginBottom: '0.5rem' }}>
               <label style={{ display: 'block', fontSize: '12px', marginBottom: '0.25rem' }}>
-                ぼかし: {text.backgroundShadow.blur}px
+                {t('text_panel.shadow_blur')}: {text.backgroundShadow.blur}px
               </label>
               <input
                 type="number"
@@ -761,7 +763,7 @@ export const TextPropertyPanel: React.FC<TextPropertyPanelProps> = ({ textId }) 
             {/* 広がり */}
             <div style={{ marginBottom: '0.5rem' }}>
               <label style={{ display: 'block', fontSize: '12px', marginBottom: '0.25rem' }}>
-                広がり: {text.backgroundShadow.spread}px
+                {t('text_panel.shadow_spread')}: {text.backgroundShadow.spread}px
               </label>
               <input
                 type="number"
@@ -781,7 +783,7 @@ export const TextPropertyPanel: React.FC<TextPropertyPanelProps> = ({ textId }) 
             {/* 色 */}
             <div style={{ marginBottom: '0.5rem' }}>
               <label style={{ display: 'block', fontSize: '12px', marginBottom: '0.25rem' }}>
-                色
+                {t('text_panel.shadow_color')}
               </label>
               <div
                 style={{
@@ -825,7 +827,7 @@ export const TextPropertyPanel: React.FC<TextPropertyPanelProps> = ({ textId }) 
             {/* 透明度 */}
             <div style={{ marginBottom: '0.5rem' }}>
               <label style={{ display: 'block', fontSize: '12px', marginBottom: '0.25rem' }}>
-                透明度: {Math.round(text.backgroundShadow.opacity * 100)}%
+                {t('text_panel.shadow_opacity')}: {Math.round(text.backgroundShadow.opacity * 100)}%
               </label>
               <input
                 type="range"
@@ -849,7 +851,7 @@ export const TextPropertyPanel: React.FC<TextPropertyPanelProps> = ({ textId }) 
                 borderRadius: '4px',
                 border: '1px solid #fcd34d'
               }}>
-                ⚠️ 背景色が無効のため、影は表示されません
+                {t('text_panel.background_shadow_warning')}
               </div>
             )}
           </div>
@@ -873,7 +875,7 @@ export const TextPropertyPanel: React.FC<TextPropertyPanelProps> = ({ textId }) 
           marginBottom: '0.5rem',
         }}
       >
-        内容に合わせる
+        {t('text_panel.fit_to_content')}
       </button>
 
       {/* 削除ボタン */}
@@ -892,7 +894,7 @@ export const TextPropertyPanel: React.FC<TextPropertyPanelProps> = ({ textId }) 
           cursor: 'pointer',
         }}
       >
-        削除
+        {t('text_panel.delete')}
       </button>
     </div>
   );

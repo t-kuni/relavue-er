@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useViewModel } from '../store/hooks';
 import type {
   ReverseEngineeringHistoryEntry,
@@ -12,21 +13,21 @@ import type {
  * サマリーテキストを生成する
  * 例: "+3テーブル, -1テーブル, +5カラム, ~2カラム"
  */
-function formatSummary(summary: ReverseEngineeringSummary | undefined): string {
-  if (!summary) return '(サマリーなし)';
+function formatSummary(summary: ReverseEngineeringSummary | undefined, t: any): string {
+  if (!summary) return t('history_panel.summary_none');
 
   const parts: string[] = [];
 
-  if (summary.addedTables > 0) parts.push(`+${summary.addedTables}テーブル`);
-  if (summary.removedTables > 0) parts.push(`-${summary.removedTables}テーブル`);
-  if (summary.addedColumns > 0) parts.push(`+${summary.addedColumns}カラム`);
-  if (summary.removedColumns > 0) parts.push(`-${summary.removedColumns}カラム`);
-  if (summary.modifiedColumns > 0) parts.push(`~${summary.modifiedColumns}カラム`);
-  if (summary.addedRelationships > 0) parts.push(`+${summary.addedRelationships}リレーション`);
-  if (summary.removedRelationships > 0) parts.push(`-${summary.removedRelationships}リレーション`);
+  if (summary.addedTables > 0) parts.push(`+${summary.addedTables}${t('history_panel.added_tables')}`);
+  if (summary.removedTables > 0) parts.push(`-${summary.removedTables}${t('history_panel.removed_tables')}`);
+  if (summary.addedColumns > 0) parts.push(`+${summary.addedColumns}${t('history_panel.added_columns')}`);
+  if (summary.removedColumns > 0) parts.push(`-${summary.removedColumns}${t('history_panel.removed_columns')}`);
+  if (summary.modifiedColumns > 0) parts.push(`~${summary.modifiedColumns}${t('history_panel.modified_columns')}`);
+  if (summary.addedRelationships > 0) parts.push(`+${summary.addedRelationships}${t('history_panel.added_relationships')}`);
+  if (summary.removedRelationships > 0) parts.push(`-${summary.removedRelationships}${t('history_panel.removed_relationships')}`);
 
   if (parts.length === 0) {
-    return '変更なし';
+    return t('history_panel.no_changes');
   }
 
   return parts.join(', ');
@@ -62,14 +63,16 @@ function formatColumnSnapshot(snapshot: ColumnSnapshot): string {
  * カラム変更の詳細を表示するコンポーネント
  */
 function ColumnModificationItem({ mod }: { mod: ColumnModification }) {
+  const { t } = useTranslation();
+  
   return (
     <div style={{ marginBottom: '8px', paddingLeft: '16px' }}>
       <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>
         {mod.tableName}.{mod.columnName}
       </div>
       <div style={{ fontSize: '12px', color: '#666', paddingLeft: '8px' }}>
-        <div>Before: {formatColumnSnapshot(mod.before)}</div>
-        <div>After: {formatColumnSnapshot(mod.after)}</div>
+        <div>{t('history_panel.before')}: {formatColumnSnapshot(mod.before)}</div>
+        <div>{t('history_panel.after')}: {formatColumnSnapshot(mod.after)}</div>
       </div>
     </div>
   );
@@ -79,10 +82,12 @@ function ColumnModificationItem({ mod }: { mod: ColumnModification }) {
  * 変更詳細を表示するコンポーネント
  */
 function ChangesDetail({ changes }: { changes: ReverseEngineeringChanges | undefined }) {
+  const { t } = useTranslation();
+  
   if (!changes) {
     return (
       <div style={{ padding: '8px', color: '#999', fontSize: '12px' }}>
-        (変更詳細なし)
+        {t('history_panel.changes_detail_none')}
       </div>
     );
   }
@@ -99,7 +104,7 @@ function ChangesDetail({ changes }: { changes: ReverseEngineeringChanges | undef
   if (!hasChanges) {
     return (
       <div style={{ padding: '8px', color: '#999', fontSize: '12px' }}>
-        変更なし
+        {t('history_panel.no_changes')}
       </div>
     );
   }
@@ -110,7 +115,7 @@ function ChangesDetail({ changes }: { changes: ReverseEngineeringChanges | undef
       {changes.tables?.added && changes.tables.added.length > 0 && (
         <div style={{ marginBottom: '12px' }}>
           <div style={{ fontWeight: 'bold', marginBottom: '4px', color: '#2e7d32' }}>
-            追加されたテーブル ({changes.tables.added.length})
+            {t('history_panel.tables_added')} ({changes.tables.added.length})
           </div>
           <ul style={{ margin: '0', paddingLeft: '24px' }}>
             {changes.tables.added.map((tableName) => (
@@ -124,7 +129,7 @@ function ChangesDetail({ changes }: { changes: ReverseEngineeringChanges | undef
       {changes.tables?.removed && changes.tables.removed.length > 0 && (
         <div style={{ marginBottom: '12px' }}>
           <div style={{ fontWeight: 'bold', marginBottom: '4px', color: '#c62828' }}>
-            削除されたテーブル ({changes.tables.removed.length})
+            {t('history_panel.tables_removed')} ({changes.tables.removed.length})
           </div>
           <ul style={{ margin: '0', paddingLeft: '24px' }}>
             {changes.tables.removed.map((tableName) => (
@@ -138,7 +143,7 @@ function ChangesDetail({ changes }: { changes: ReverseEngineeringChanges | undef
       {changes.columns?.added && changes.columns.added.length > 0 && (
         <div style={{ marginBottom: '12px' }}>
           <div style={{ fontWeight: 'bold', marginBottom: '4px', color: '#2e7d32' }}>
-            追加されたカラム ({changes.columns.added.length})
+            {t('history_panel.columns_added')} ({changes.columns.added.length})
           </div>
           <ul style={{ margin: '0', paddingLeft: '24px' }}>
             {changes.columns.added.map((col) => (
@@ -154,7 +159,7 @@ function ChangesDetail({ changes }: { changes: ReverseEngineeringChanges | undef
       {changes.columns?.removed && changes.columns.removed.length > 0 && (
         <div style={{ marginBottom: '12px' }}>
           <div style={{ fontWeight: 'bold', marginBottom: '4px', color: '#c62828' }}>
-            削除されたカラム ({changes.columns.removed.length})
+            {t('history_panel.columns_removed')} ({changes.columns.removed.length})
           </div>
           <ul style={{ margin: '0', paddingLeft: '24px' }}>
             {changes.columns.removed.map((col) => (
@@ -170,7 +175,7 @@ function ChangesDetail({ changes }: { changes: ReverseEngineeringChanges | undef
       {changes.columns?.modified && changes.columns.modified.length > 0 && (
         <div style={{ marginBottom: '12px' }}>
           <div style={{ fontWeight: 'bold', marginBottom: '4px', color: '#f57c00' }}>
-            変更されたカラム ({changes.columns.modified.length})
+            {t('history_panel.columns_modified')} ({changes.columns.modified.length})
           </div>
           {changes.columns.modified.map((mod) => (
             <ColumnModificationItem key={`${mod.tableName}.${mod.columnName}`} mod={mod} />
@@ -182,7 +187,7 @@ function ChangesDetail({ changes }: { changes: ReverseEngineeringChanges | undef
       {changes.relationships?.added && changes.relationships.added.length > 0 && (
         <div style={{ marginBottom: '12px' }}>
           <div style={{ fontWeight: 'bold', marginBottom: '4px', color: '#2e7d32' }}>
-            追加されたリレーション ({changes.relationships.added.length})
+            {t('history_panel.relationships_added')} ({changes.relationships.added.length})
           </div>
           <ul style={{ margin: '0', paddingLeft: '24px', fontSize: '12px' }}>
             {changes.relationships.added.map((rel, idx) => (
@@ -196,7 +201,7 @@ function ChangesDetail({ changes }: { changes: ReverseEngineeringChanges | undef
       {changes.relationships?.removed && changes.relationships.removed.length > 0 && (
         <div style={{ marginBottom: '12px' }}>
           <div style={{ fontWeight: 'bold', marginBottom: '4px', color: '#c62828' }}>
-            削除されたリレーション ({changes.relationships.removed.length})
+            {t('history_panel.relationships_removed')} ({changes.relationships.removed.length})
           </div>
           <ul style={{ margin: '0', paddingLeft: '24px', fontSize: '12px' }}>
             {changes.relationships.removed.map((rel, idx) => (
@@ -213,10 +218,11 @@ function ChangesDetail({ changes }: { changes: ReverseEngineeringChanges | undef
  * 履歴エントリを表示するコンポーネント
  */
 function HistoryEntryItem({ entry }: { entry: ReverseEngineeringHistoryEntry }) {
+  const { t, i18n } = useTranslation();
   const date = new Date(entry.timestamp);
-  const dateString = date.toLocaleString('ja-JP');
-  const typeLabel = entry.entryType === 'initial' ? '初回' : '増分';
-  const summaryText = formatSummary(entry.summary);
+  const dateString = date.toLocaleString(i18n.language);
+  const typeLabel = entry.entryType === 'initial' ? t('history_panel.entry_type_initial') : t('history_panel.entry_type_incremental');
+  const summaryText = formatSummary(entry.summary, t);
 
   return (
     <details
@@ -267,6 +273,7 @@ function HistoryEntryItem({ entry }: { entry: ReverseEngineeringHistoryEntry }) 
  * 履歴パネルコンポーネント
  */
 export function HistoryPanel() {
+  const { t } = useTranslation();
   const history = useViewModel((vm) => vm.erDiagram.history);
 
   // 履歴を新しい順にソート
@@ -278,7 +285,7 @@ export function HistoryPanel() {
   return (
     <div style={{ padding: '16px' }}>
       <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', fontWeight: 'bold' }}>
-        リバース履歴
+        {t('history_panel.title')}
       </h3>
 
       {sortedHistory.length === 0 ? (
@@ -292,7 +299,7 @@ export function HistoryPanel() {
             borderRadius: '4px',
           }}
         >
-          履歴がありません
+          {t('history_panel.no_history')}
         </div>
       ) : (
         <div>

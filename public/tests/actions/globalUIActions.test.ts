@@ -5,6 +5,7 @@ import {
   actionShowDatabaseConnectionModal,
   actionHideDatabaseConnectionModal,
   actionToggleHistoryPanel,
+  actionSetLocale,
 } from '../../src/actions/globalUIActions';
 import type { components } from '../../../lib/generated/api-types';
 
@@ -53,6 +54,9 @@ describe('globalUIActions', () => {
       data: null,
       loading: false,
       error: null,
+    },
+    settings: {
+      locale: 'en',
     },
   });
 
@@ -173,6 +177,56 @@ describe('globalUIActions', () => {
       const result = actionToggleHistoryPanel(viewModel);
 
       expect(result.ui.showHistoryPanel).toBe(false);
+    });
+  });
+
+  describe('actionSetLocale', () => {
+    it('言語設定が正しく更新される', () => {
+      const viewModel = createMockViewModel();
+      
+      const result = actionSetLocale(viewModel, 'ja');
+
+      expect(result.settings?.locale).toBe('ja');
+    });
+
+    it('別の言語に切り替えられる', () => {
+      const viewModel: ViewModel = {
+        ...createMockViewModel(),
+        settings: {
+          locale: 'en',
+        },
+      };
+      
+      const result = actionSetLocale(viewModel, 'zh');
+
+      expect(result.settings?.locale).toBe('zh');
+    });
+
+    it('変化がない場合は同一参照を返す', () => {
+      const viewModel: ViewModel = {
+        ...createMockViewModel(),
+        settings: {
+          locale: 'ja',
+        },
+      };
+      
+      const result = actionSetLocale(viewModel, 'ja');
+
+      expect(result).toBe(viewModel);
+    });
+
+    it('元のViewModelが変更されない（不変性が保たれる）', () => {
+      const viewModel: ViewModel = {
+        ...createMockViewModel(),
+        settings: {
+          locale: 'en',
+        },
+      };
+      const originalLocale = viewModel.settings?.locale;
+      
+      actionSetLocale(viewModel, 'ja');
+
+      expect(viewModel.settings?.locale).toBe(originalLocale);
     });
   });
 });

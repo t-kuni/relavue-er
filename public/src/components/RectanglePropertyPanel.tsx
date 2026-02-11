@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useViewModel, useDispatch } from '../store/hooks';
 import { actionUpdateRectangleStyle, actionRemoveRectangle } from '../actions/rectangleActions';
 import { ColorPickerWithPresets } from './ColorPickerWithPresets';
@@ -10,6 +11,7 @@ interface RectanglePropertyPanelProps {
 export const RectanglePropertyPanel: React.FC<RectanglePropertyPanelProps> = ({
   rectangleId,
 }) => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   
   const rectangle = useViewModel((vm) => vm.erDiagram.rectangles[rectangleId]);
@@ -74,7 +76,7 @@ export const RectanglePropertyPanel: React.FC<RectanglePropertyPanelProps> = ({
       onCut={(e) => e.stopPropagation()}
       onPaste={(e) => e.stopPropagation()}
     >
-      <h3 style={{ marginTop: 0, marginBottom: '1rem' }}>矩形プロパティ</h3>
+      <h3 style={{ marginTop: 0, marginBottom: '1rem' }}>{t('rectangle_panel.title')}</h3>
 
       {/* 背景色 */}
       <div style={{ marginBottom: '0.5rem' }}>
@@ -84,11 +86,11 @@ export const RectanglePropertyPanel: React.FC<RectanglePropertyPanelProps> = ({
             checked={rectangle.fillEnabled ?? true}
             onChange={handleFillEnabledChange}
           />
-          <span>背景色を表示</span>
+          <span>{t('rectangle_panel.show_fill')}</span>
         </label>
       </div>
       <ColorPickerWithPresets
-        label="背景色"
+        label={t('rectangle_panel.fill')}
         value={rectangle.fill}
         onChange={handleFillChange}
         disabled={!(rectangle.fillEnabled ?? true)}
@@ -102,11 +104,11 @@ export const RectanglePropertyPanel: React.FC<RectanglePropertyPanelProps> = ({
             checked={rectangle.strokeEnabled ?? true}
             onChange={handleStrokeEnabledChange}
           />
-          <span>枠線を表示</span>
+          <span>{t('rectangle_panel.show_stroke')}</span>
         </label>
       </div>
       <ColorPickerWithPresets
-        label="枠線"
+        label={t('rectangle_panel.stroke')}
         value={rectangle.stroke}
         onChange={handleStrokeChange}
         disabled={!(rectangle.strokeEnabled ?? true)}
@@ -115,7 +117,7 @@ export const RectanglePropertyPanel: React.FC<RectanglePropertyPanelProps> = ({
       {/* 枠線幅 */}
       <div style={{ marginBottom: '1rem' }}>
         <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '0.5rem' }}>
-          枠線幅: {rectangle.strokeWidth}px
+          {t('rectangle_panel.stroke_width')}: {rectangle.strokeWidth}px
         </label>
         <input
           type="number"
@@ -137,7 +139,7 @@ export const RectanglePropertyPanel: React.FC<RectanglePropertyPanelProps> = ({
       {/* 透明度 */}
       <div style={{ marginBottom: '1rem' }}>
         <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '0.5rem' }}>
-          透明度: {Math.round((1 - rectangle.opacity) * 100)}%
+          {t('rectangle_panel.transparency')}: {Math.round((1 - rectangle.opacity) * 100)}%
         </label>
         <input
           type="range"
@@ -166,7 +168,7 @@ export const RectanglePropertyPanel: React.FC<RectanglePropertyPanelProps> = ({
           cursor: 'pointer',
         }}
       >
-        削除
+        {t('rectangle_panel.delete')}
       </button>
     </div>
   );

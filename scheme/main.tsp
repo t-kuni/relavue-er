@@ -383,9 +383,13 @@ model DatabaseConnectionState {
   schema?: string;  // Schema name (for PostgreSQL)
 }
 
+// Locale type for internationalization
+alias Locale = "ja" | "en" | "zh"; // ja: 日本語, en: 英語, zh: 中国語（簡体字）
+
 // Application settings
 model AppSettings {
   lastDatabaseConnection?: DatabaseConnectionState; // リバースエンジニア成功時に更新
+  locale?: Locale; // 言語設定（未設定の場合はブラウザ設定から検出）
 }
 
 // Root view model for the entire frontend application
