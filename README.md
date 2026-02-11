@@ -1,39 +1,41 @@
+lang: [EN](README.md) | [JA](README_JA.md)
+
 # RelavueER
 
-RelavueER（レラビューアー）は、データベースからER図をリバースし、ブラウザ上で手軽にかつインタラクティブに閲覧できるツールです。
+RelavueER is a tool that reverses ER diagrams from databases and allows you to view them interactively in your browser with ease.
 
 ![](docs/1.gif)
 
-### 🟠 コンセプト
+### 🟠 Concept
 
-* すぐ使える
-* 表示特化・インタラクティブで見やすく
+* Ready to use
+* Display-focused, interactive, and easy to view
 
-### 🟠 サポートしているDB
+### 🟠 Supported Databases
 
 * MySQL
 * PostgreSQL
 
-### 🟠 できないこと
+### 🟠 Limitations
 
-* CIに組み込むことは想定していません
-* 外部キーが付与されてないと無力です
+* Not designed to be integrated into CI pipelines
+* Requires foreign keys to be defined in the database
 
-## 🟦 使用方法
+## 🟦 Usage
 
-### 🟠 macOS / Windows（Docker Desktop）の場合
+### 🟠 For macOS / Windows (Docker Desktop)
 
-1\. コンテナを起動する
+1\. Start the container
 
 ```bash
 docker run --pull=always --rm -p 30033:30033 tkuni83/relavue-er
 ```
 
-2\. [http://localhost:30033](http://localhost:30033) にアクセスする
+2\. Access [http://localhost:30033](http://localhost:30033)
 
-3\.「DBからリバース」ボタンからDB接続情報を入力し実行する
+3\. Click the "Reverse from DB" button, enter your database connection information, and execute
 
-**⚠️ 注意**: dockerコンテナから接続するためHostは`localhost`ではなく`host.docker.internal`となります。
+**⚠️ Note**: To connect from the Docker container, use `host.docker.internal` instead of `localhost` for the Host.
 
 ![](docs/1.png)
 
@@ -42,17 +44,17 @@ docker run --pull=always --rm -p 30033:30033 tkuni83/relavue-er
 </p>
 
 
-### 🟠 Linux の場合
+### 🟠 For Linux
 
-1\. コンテナを起動する
+1\. Start the container
 
 ```bash
 docker run --pull=always --rm --network host tkuni83/relavue-er
 ```
 
-2\. [http://localhost:30033](http://localhost:30033) にアクセスする
+2\. Access [http://localhost:30033](http://localhost:30033)
 
-3\.「DBからリバース」ボタンからDB接続情報を入力し実行する
+3\. Click the "Reverse from DB" button, enter your database connection information, and execute
 
 ![](docs/1.png)
 
@@ -60,50 +62,50 @@ docker run --pull=always --rm --network host tkuni83/relavue-er
   <img src="docs/2.png" width="300">
 </p>
 
-## 🟦 特徴
+## 🟦 Features
 
-### 🟠 DBからリバースする
+### 🟠 Reverse Engineering from Database
 
-DBに接続してER図を作成します。
+Connect to your database and generate ER diagrams.
 
 ![](docs/reverse.gif)
 
-### 🟠 ハイライト機能
+### 🟠 Highlight Feature
 
-エンティティにホバーすると関連するテーブルがハイライト表示されます。
-外部キーのカラムにホバーした場合も同様です。
+When you hover over an entity, related tables are highlighted.
+The same applies when hovering over foreign key columns.
 
 ![](docs/hover.gif)
 
-### 🟠 配置最適化
+### 🟠 Layout Optimization
 
-エンティティの配置を最適化し、関連のあるテーブルを近くに配置します。
+Optimize entity placement by positioning related tables close to each other.
 
 ![](docs/optimize.gif)
 
-### 🟠 増分リバースに対応
+### 🟠 Incremental Reverse Engineering
 
-DBに変更が入った場合の増分リバースに対応しています。
-ER図の配置を維持したままリバースできます。
+Supports incremental reverse engineering when database changes are made.
+You can reverse while maintaining the existing ER diagram layout.
 
-また、差分を閲覧できます。
+You can also view the differences.
 
 ![](docs/rev-inc.gif)
 
-### 🟠 メモを書き込める
+### 🟠 Add Notes
 
-備忘録などメモを書き込んでおけます。
+You can add memos and notes for reference.
 
 ![](docs/memo.gif)
 
-### 🟠 保存・読み込み
+### 🟠 Save and Load
 
-「エクスポート」「インポート」でER図を保存・読み込みできます。
-Ctrl + S で保存できるほか、保存されたJSONを画面のドロップして読み込む事も可能です。
+Save and load ER diagrams using "Export" and "Import".
+You can save with Ctrl + S, or drop a saved JSON file onto the screen to load it.
 
 ![](docs/export.png)
 
 
-## 🟦 開発者向け情報
+## 🟦 For Developers
 
-[README_DEVELOP.md](README_DEVELOP.md)を参照
+See [README_DEVELOP.md](README_DEVELOP.md)
