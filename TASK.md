@@ -1,519 +1,75 @@
-# タスク一覧: 多言語対応（国際化）機能実装
+# タスク一覧
 
 ## 概要
 
-[spec/internationalization.md](/spec/internationalization.md) の仕様に基づき、日本語・英語・中国語（簡体字）の3言語に対応した国際化機能を実装する。
+仕様書 `spec/internationalization.md` の更新に伴う実装タスク。
+主に以下の2点の修正が必要：
 
-実装規模が大きいため、以下の4フェーズに分けて実装する：
-- **フェーズ1**: 依存関係追加と型生成
-- **フェーズ2**: フロントエンド基盤（i18n初期化、Action、ユーティリティ）
-- **フェーズ3-1**: 言語切り替えUIと主要コンポーネントの多言語対応
-- **フェーズ3-2**: 残りのコンポーネントの多言語対応
-- **フェーズ4**: テストとビルド確認
+1. i18next初期化時のブラウザ言語検出処理の追加（ちらつき防止のため）
+2. ヘッダーのボタン配置順序の変更
 
 ## 関連仕様書
 
-- [spec/internationalization.md](/spec/internationalization.md) - 多言語対応の全体仕様
-- [spec/frontend_state_management.md](/spec/frontend_state_management.md) - Action設計
-- [spec/import_export_feature.md](/spec/import_export_feature.md) - エクスポート/インポート時の言語設定の扱い
-- [scheme/main.tsp](/scheme/main.tsp) - Locale型とAppSettings型の定義（既に追加済み）
-
----
-
-## フェーズ1: 依存関係追加と型生成 ✅ 完了
-
-### [x] 1-1. 依存関係の追加
-
-**ファイル**: `package.json`
-
-**変更内容**:
-- `react-i18next`: v16.5.4以上を追加
-- `i18next`: v25.8.4以上を追加
-
-**コマンド**:
-```bash
-npm install react-i18next@^16.5.4 i18next@^25.8.4
-```
-
-**実施結果**: 完了。react-i18next@16.5.4とi18next@25.8.4をインストールしました。
-
-### [x] 1-2. 型生成の実行
-
-**コマンド**:
-```bash
-npm run generate
-```
-
-**確認事項**:
-- `lib/generated/api-types.ts` に `Locale` 型が生成されていること
-- `public/src/api/client/models/AppSettings.ts` に `locale` フィールドが追加されていること
-
-**実施結果**: 完了。型生成が正常に完了し、以下を確認しました：
-- `lib/generated/api-types.ts`の`AppSettings`スキーマに`locale`フィールド（"ja" | "en" | "zh"）が生成されている
-- `public/src/api/client/models/AppSettings.ts`に`locale`フィールドがenum型（JA, EN, ZH）として正しく生成されている
-
-### [x] 1-3. テストファイルの作成（actionSetLocale用）
-
-**ファイル**: `public/tests/actions/globalUIActions.test.ts`（既存ファイルに追加）
-
-**内容**:
-- `actionSetLocale` の単体テスト
-- `settings.locale` が正しく更新されることを確認
-- 不変性が保たれることを確認（元のViewModelが変更されないこと）
-
-**実施結果**: 完了。以下のテストケースを追加しました：
-- 言語設定が正しく更新される
-- 別の言語に切り替えられる
-- 変化がない場合は同一参照を返す
-- 元のViewModelが変更されない（不変性が保たれる）
-
-**注意**: `actionSetLocale`はフェーズ2で実装予定のため、現時点ではテストは実行できません。
-
----
-
-## フェーズ2: フロントエンド基盤（i18n初期化、Action、ユーティリティ） ✅ 完了
-
-### [x] 2-1. i18nextの初期化設定ファイルの作成
-
-**ファイル**: `public/src/i18n/index.ts`（新規作成）
-
-**実施結果**: 完了。i18nextの初期化設定ファイルを作成しました。
-
-**実装内容**:
-- i18nextの初期化
-- `react-i18next` の設定
-- 翻訳リソースの読み込み（3言語分をインポート）
-- デフォルト言語: `en`（初期化時はブラウザ言語検出前なので英語をデフォルトにする）
-- フォールバック言語: `en`
-- i18next側のlocalStorageは使用しない（`load: 'languageOnly'`, `caches: []`）
-
-**注意事項**:
-- ViewModelの `settings.locale` を単一ソースとするため、i18next側の永続化機能は無効化する
-- アプリケーション起動時に `main.tsx` でインポートし、初期化を実行する
-
-### [x] 2-2. 翻訳ファイルの作成（日本語）
-
-**ファイル**: `public/locales/ja/translation.json`（新規作成）
-
-**実施結果**: 完了。日本語の翻訳ファイルを作成しました。
-
-**内容**:
-以下のカテゴリ別に翻訳キーを定義：
-- `header`: ヘッダーのボタンラベル（エクスポート、インポート、ビルド情報、DBからリバース、リバース履歴、配置最適化、レイヤー、言語切り替え）
-- `layer_panel`: レイヤーパネルのラベル（タイトル、背景レイヤー、前景レイヤー、など）
-- `history_panel`: 履歴パネルのラベル
-- `ddl_panel`: DDLパネルのラベル
-- `database_modal`: データベース接続モーダルのラベル
-- `build_info_modal`: ビルド情報モーダルのラベル
-- `rectangle_panel`: 矩形プロパティパネルのラベル
-- `text_panel`: テキストプロパティパネルのラベル
-- `error`: エラーメッセージ（JSONフォーマット不正、バリデーションエラー、など）
-- `common`: 共通ラベル（閉じる、キャンセル、実行、など）
-
-**注意事項**:
-- すべてのUI要素の翻訳キーを網羅的にリストアップ
-- キーは英語のスネークケースで統一
-- 既存のハードコードされた日本語テキストを翻訳キーに置き換える
-
-### [x] 2-3. 翻訳ファイルの作成（英語）
-
-**ファイル**: `public/locales/en/translation.json`（新規作成）
-
-**実施結果**: 完了。英語の翻訳ファイルを作成しました。
-
-**内容**:
-- 日本語翻訳ファイルと同じ構造で英語版を作成
-- すべてのキーに対して英語の翻訳を提供
-
-### [x] 2-4. 翻訳ファイルの作成（中国語）
-
-**ファイル**: `public/locales/zh/translation.json`（新規作成）
-
-**実施結果**: 完了。中国語（簡体字）の翻訳ファイルを作成しました。
-
-**内容**:
-- 日本語翻訳ファイルと同じ構造で中国語（簡体字）版を作成
-- すべてのキーに対して中国語の翻訳を提供
-
-### [x] 2-5. actionSetLocaleの実装
-
-**ファイル**: `public/src/actions/globalUIActions.ts`（既存ファイルに追加）
-
-**実施結果**: 完了。actionSetLocaleを実装しました。
-
-**追加内容**:
-```typescript
-/**
- * 言語設定を変更する
- * @param viewModel 現在のViewModel
- * @param locale 設定する言語
- */
-export function actionSetLocale(
-  viewModel: ViewModel,
-  locale: Locale
-): ViewModel
-```
-
-**実装内容**:
-- `viewModel.settings.locale` を更新
-- 変化がない場合は同一参照を返す（最適化）
-- i18next の言語切り替えはこのActionの外で実施（Commandまたはコンポーネント側）
-
-### [x] 2-6. ブラウザ言語検出ユーティリティの実装
-
-**ファイル**: `public/src/utils/detectBrowserLocale.ts`（新規作成）
-
-**実施結果**: 完了。ブラウザ言語検出ユーティリティを実装しました。
-
-**実装内容**:
-```typescript
-/**
- * ブラウザの言語設定から対応言語を検出する
- * @returns 検出された言語（ja, en, zh）、マッチしない場合は "en"
- */
-export function detectBrowserLocale(): Locale
-```
-
-**処理フロー**:
-1. `navigator.languages` から優先言語リストを取得
-2. 各言語タグを正規化（例: `"ja-JP"` → `"ja"`, `"zh-Hans-CN"` → `"zh"`）
-3. サポートする言語（`ja`, `en`, `zh`）にマッチするものを返す
-4. マッチしない場合は `"en"` を返す
-
-### [x] 2-7. インポート処理の更新（locale対応）
-
-**ファイル**: `public/src/utils/importViewModel.ts`
-
-**実施結果**: 完了。インポート時のlocaleバリデーションとフォールバック処理を追加しました。
-
-**変更内容**:
-1. インポート時に `settings.locale` のバリデーションを追加:
-   - `settings.locale` が存在する場合、値が `"ja" | "en" | "zh"` のいずれかであることを確認
-   - 不正値の場合は `detectBrowserLocale()` で検出した言語を設定（エラーは発生させない）
-2. `settings.locale` が存在しない場合（旧バージョンのファイル等）:
-   - `detectBrowserLocale()` で検出した言語を設定
-
-**仕様書参照**: [spec/import_export_feature.md](/spec/import_export_feature.md) の「settings.locale フィールド」セクション
-
-### [x] 2-8. エクスポート処理の確認
-
-**ファイル**: `public/src/utils/exportViewModel.ts`
-
-**実施結果**: 完了。settings.localeが既にエクスポート対象に含まれていることを確認しました。変更不要です。
-
-**確認内容**:
-- `settings.locale` が既にエクスポート対象に含まれていることを確認
-- 現在の実装で `settings` フィールドを維持しているため、変更不要
-
-### [x] 2-9. commandInitializeの更新（ブラウザ言語検出）
-
-**ファイル**: `public/src/commands/initializeCommand.ts`
-
-**実施結果**: 完了。ブラウザ言語検出とi18nextの言語切り替え処理を追加しました。
-
-**変更内容**:
-1. `GET /api/init` から取得した初期ViewModelを確認
-2. `viewModel.settings?.locale` が未設定（`undefined`）の場合:
-   - `detectBrowserLocale()` でブラウザ言語を検出
-   - `viewModel.settings.locale` に検出した言語を設定
-   - `i18n.changeLanguage(locale)` でi18nextの言語を切り替え
-3. `viewModel.settings?.locale` が既に設定されている場合:
-   - `i18n.changeLanguage(viewModel.settings.locale)` でi18nextの言語を切り替え
-4. ViewModelをStoreに設定
-
-**注意事項**:
-- i18nextの初期化が完了してから実行する必要がある
-
-### [x] 2-10. main.tsxの更新（i18n初期化）
-
-**ファイル**: `public/src/main.tsx`
-
-**実施結果**: 完了。i18nの初期化をインポートしました。
-
-**変更内容**:
-- `./i18n` をインポートして初期化を実行
-- アプリケーションのレンダリング前にi18nextの初期化を完了させる
-
----
-
-## フェーズ3-1: 言語切り替えUIと主要コンポーネントの多言語対応 ✅ 完了
-
-### [x] 3-1-1. 言語切り替えドロップダウンコンポーネントの作成
-
-**ファイル**: `public/src/components/LocaleSelector.tsx`（新規作成）
-
-**実装内容**:
-- ドロップダウンUIの実装
-- 現在選択中の言語をネイティブ表記で表示（日本語、English、中文）
-- ドロップダウンメニューに3言語をネイティブ表記で表示
-- 選択時に `actionSetLocale` をdispatchし、`i18n.changeLanguage(locale)` を実行
-- `useViewModel` で現在の言語を購読
-
-**スタイル**:
-- ヘッダーの他のボタンと統一感のあるデザイン
-- ドロップダウンはボタンクリックで表示/非表示
-
-### [x] 3-1-2. App.tsxへの言語切り替えUIの追加
-
-**ファイル**: `public/src/components/App.tsx`
-
-**変更内容**:
-1. `LocaleSelector` コンポーネントをインポート
-2. ヘッダーのボタン配置順序を更新:
-   - レイヤー → エクスポート → インポート → ビルド情報 → DBからリバース → リバース履歴 → **言語切り替えドロップダウン（新規）** → ヘルプ（将来追加予定）
-3. `useTranslation()` フックをインポートし、翻訳関数 `t` を取得
-4. すべてのハードコードされたテキストを `t()` 関数で翻訳キーに置き換え
-
-**仕様書参照**: [spec/internationalization.md](/spec/internationalization.md) の「言語切り替えUI」セクション
-
-### [x] 3-1-3. ERCanvasコンポーネントの多言語対応
-
-**ファイル**: `public/src/components/ERCanvas.tsx`
-
-**変更内容**:
-- `useTranslation()` フックをインポート
-- エラーメッセージやツールチップなどのテキストを `t()` で翻訳
-
-### [x] 3-1-4. DatabaseConnectionModalの多言語対応
-
-**ファイル**: `public/src/components/DatabaseConnectionModal.tsx`
-
-**変更内容**:
-- `useTranslation()` フックをインポート
-- モーダルのタイトル、フォームラベル、ボタンラベル、エラーメッセージを `t()` で翻訳
-
-### [x] 3-1-5. BuildInfoModalの多言語対応
-
-**ファイル**: `public/src/components/BuildInfoModal.tsx`
-
-**変更内容**:
-- `useTranslation()` フックをインポート
-- モーダルのタイトル、ラベル、ボタンを `t()` で翻訳
-
-### [x] 3-1-6. LayerPanelの多言語対応
-
-**ファイル**: `public/src/components/LayerPanel.tsx`
-
-**変更内容**:
-- `useTranslation()` フックをインポート
-- パネルのタイトル、セクション見出し、ラベルを `t()` で翻訳
-
-### [x] 3-1-7. HistoryPanelの多言語対応
-
-**ファイル**: `public/src/components/HistoryPanel.tsx`
-
-**変更内容**:
-- `useTranslation()` フックをインポート
-- パネルのタイトル、ラベル、メッセージを `t()` で翻訳
-
-### [x] 3-1-8. DDLPanelの多言語対応
-
-**ファイル**: `public/src/components/DDLPanel.tsx`
-
-**変更内容**:
-- `useTranslation()` フックをインポート
-- パネルのタイトル、ラベル、ボタンを `t()` で翻訳
-
-### [x] 3-1-9. RectanglePropertyPanelの多言語対応
-
-**ファイル**: `public/src/components/RectanglePropertyPanel.tsx`
-
-**変更内容**:
-- `useTranslation()` フックをインポート
-- パネルのタイトル、ラベル、ボタンを `t()` で翻訳
-
-### [x] 3-1-10. フェーズ3-1のビルド確認
-
-**コマンド**:
-```bash
-npm run generate  # 念のため型生成を再実行
-npm run --prefix public build
-```
-
-**確認事項**:
-- ビルドエラーが発生しないこと
-- 翻訳キーの参照エラーがないこと
-
-**実施結果**: 完了。フロントエンドのビルドが成功しました。
-
-**注意**: i18nextとreact-i18nextをpublicディレクトリにインストールする必要がありました（`npm install react-i18next@^16.5.4 i18next@^25.8.4 --prefix public`）。
-
----
-
-## フェーズ3-2: 残りのコンポーネントの多言語対応 ✅ 完了
-
-### [x] 3-2-1. TextPropertyPanelの多言語対応
-
-**ファイル**: `public/src/components/TextPropertyPanel.tsx`
-
-**実施結果**: 完了。すべてのラベル、ボタン、警告メッセージを翻訳キーに置き換えました。
-
-**変更内容**:
-- `useTranslation()` フックをインポート
-- パネルのタイトル、ラベル、ボタンを `t()` で翻訳
-- 翻訳ファイルに不足していたキーを追加（3言語すべて）
-
-### [x] 3-2-2. EntityNodeの多言語対応
-
-**ファイル**: `public/src/components/EntityNode.tsx`
-
-**実施結果**: 翻訳対象のテキストがないため、対応不要です。
-
-**注意事項**:
-- エンティティ名やカラム名などのユーザーデータは翻訳対象外
-
-### [x] 3-2-3. EntityColumnの多言語対応
-
-**ファイル**: `public/src/components/EntityColumn.tsx`
-
-**実施結果**: 翻訳対象のテキストがないため、対応不要です（絵文字のみ使用）。
-
-**注意事項**:
-- カラム名やデータ型などのユーザーデータは翻訳対象外
-
-### [x] 3-2-4. RelationshipEdgeの多言語対応
-
-**ファイル**: `public/src/components/RelationshipEdge.tsx`
-
-**実施結果**: 翻訳対象のテキストがないため、対応不要です。
-
-### [x] 3-2-5. SelfRelationshipEdgeの多言語対応
-
-**ファイル**: `public/src/components/SelfRelationshipEdge.tsx`
-
-**実施結果**: 翻訳対象のテキストがないため、対応不要です（記号"↺"のみ使用）。
-
-### [x] 3-2-6. RectangleNodeの多言語対応
-
-**ファイル**: `public/src/components/RectangleNode.tsx`
-
-**実施結果**: `@deprecated`コンポーネントのため、対応不要です。
-
-**注意事項**:
-- 矩形内のテキストはユーザーデータのため翻訳対象外
-
-### [x] 3-2-7. ColorPickerWithPresetsの多言語対応
-
-**ファイル**: `public/src/components/ColorPickerWithPresets.tsx`
-
-**実施結果**: labelはpropsで渡されるため、呼び出し元で翻訳済みです。対応不要です。
-
-### [x] 3-2-8. LayoutProgressBarの多言語対応
-
-**ファイル**: `public/src/components/LayoutProgressBar.tsx`
-
-**実施結果**: 完了。「配置最適化中...」と「キャンセル」を翻訳キーに置き換えました。
-
-**変更内容**:
-- `useTranslation()` フックをインポート
-- プログレスバーのラベルやメッセージを `t()` で翻訳
-- 翻訳ファイルに`layout_optimization`カテゴリを追加（3言語すべて）
-
-### [x] 3-2-9. フェーズ3-2のビルド確認
-
-**実施結果**: 完了。フロントエンドのビルドが成功しました。
-
-**コマンド**:
-```bash
-npm install react-i18next@^16.5.4 i18next@^25.8.4 --prefix public  # 依存関係を追加
-npm run --prefix public build
-```
-
-**確認内容**:
-- ビルドエラーが発生しないこと ✓
-- 翻訳キーの参照エラーがないこと ✓
-
----
-
-## フェーズ4: テストとビルド確認 ⚠️ 一部完了（型エラーあり）
-
-### [x] 4-1. テストの実行
-
-**実施結果**: 完了。全テスト（268個）が成功しました。
-
-**コマンド**:
-```bash
-npm run test
-```
-
-**確認内容**:
-- 既存のテストがすべてパスすること ✓
-- 新規追加したテスト（`actionSetLocale`）がパスすること ✓
-
-**テスト対象**:
-- `actionSetLocale` の単体テスト
-  - `settings.locale` が正しく更新されること ✓
-  - 変化がない場合は同一参照を返すこと ✓
-
-### [⚠] 4-2. 型チェックの実行
-
-**実施結果**: エラーあり（既存の型定義の問題）。今回の多言語対応の変更とは無関係。
-
-**コマンド**:
-```bash
-npm run typecheck
-```
-
-**確認内容**:
-- 型エラーが発生：既存コードの型定義に不整合あり（詳細はALERT.mdを参照）
-
-**主なエラー**:
-- `entryType` の型不一致
-- `LayerPosition`, `TextAutoSizeMode`, `TextAlign`, `TextVerticalAlign`, `TextOverflowMode` が見つからない
-- `locale` 型の不一致
-
-### [x] 4-3. 最終ビルド確認
-
-**実施結果**: 完了。バックエンドとフロントエンドの両方のビルドが成功しました。
-
-**コマンド**:
-```bash
-npm run generate
-npm run build
-```
-
-**確認内容**:
-- バックエンドとフロントエンドの両方がビルドできること ✓
-- ビルドエラーが発生しないこと ✓
-- 翻訳キーの参照エラーがないこと ✓
-
-**注意**: 型チェックではエラーが出ていますが、ビルドは成功しており、アプリケーションは正常に動作するはずです。型エラーは既存の問題であり、今回の多言語対応の作業では導入していません。
-
----
-
-## 実装上の注意事項
-
-### 翻訳キーの命名規則
-
-- カテゴリごとにネストした構造を使用（例: `header.export`, `error.invalid_json`）
-- キーは英語のスネークケースで統一
-- 明確で自己説明的な名前を使用
-
-### i18nextの設定
-
-- ViewModelの `settings.locale` を単一ソースとする
-- i18next側のlocalStorageは使用しない
-- 言語切り替え時はActionとi18nextの両方を更新
-
-### ブラウザ言語検出
-
-- `navigator.languages` から優先言語リストを取得
-- 言語タグを正規化（例: `"ja-JP"` → `"ja"`）
-- サポートする言語にマッチしない場合は `"en"` を使用
-
-### エクスポート/インポート
-
-- エクスポート時に `settings.locale` を保持
-- インポート時に `settings.locale` のバリデーションを実施
-- 不正値の場合はブラウザ言語検出にフォールバック（エラーは発生させない）
-
-### テストカバレッジ
-
-- `actionSetLocale` の単体テスト
-- ブラウザ言語検出のテストは将来的に追加（MVP段階では不要）
-
----
-
-## 事前修正提案
-
-特になし。現在の実装で問題なく多言語対応機能を追加できる。
+- [spec/internationalization.md](/spec/internationalization.md)
+
+## 実装タスク
+
+### i18next初期化処理の修正
+
+- [ ] `public/src/i18n/index.ts` を修正
+  - i18next初期化時に `detectBrowserLocale()` を呼び出してブラウザ言語を検出
+  - 検出した言語を `lng` パラメータに設定（現在は固定で `'en'` が設定されている）
+  - これにより、初回レンダリング時から適切な言語で表示される（ちらつき防止）
+  - 参照: `public/src/utils/detectBrowserLocale.ts` - ブラウザ言語検出関数
+  - 修正内容:
+    ```typescript
+    import { detectBrowserLocale } from '../utils/detectBrowserLocale';
+    
+    i18n
+      .use(initReactI18next)
+      .init({
+        // ...
+        lng: detectBrowserLocale(), // 変更: 'en' → detectBrowserLocale()
+        // ...
+      });
+    ```
+
+### ヘッダーボタン配置順序の変更
+
+- [ ] `public/src/components/App.tsx` のヘッダー部分を修正
+  - ボタンの配置順序を仕様書通りに変更
+  - **新しい順序（左から右）**:
+    1. DBからリバースボタン（`actionShowDatabaseConnectionModal`）
+    2. リバース履歴ボタン（`actionToggleHistoryPanel`）
+    3. 配置最適化ボタン（`handleLayoutOptimize`）
+    4. レイヤーボタン（`actionToggleLayerPanel`）
+    5. エクスポートボタン（`handleExport`）
+    6. インポートボタン（`open`）
+    7. ビルド情報ボタン（`actionShowBuildInfoModal`）
+    8. 言語切り替えドロップダウン（`<LocaleSelector />`）
+  - **現在の順序**: レイヤー、エクスポート、インポート、ビルド情報、DBからリバース、リバース履歴、配置最適化、言語切り替え
+  - 対象: App.tsx の `<header>` 内の `<div style={{ display: 'flex', gap: '8px' }}>` セクション（189行目付近）
+
+### ビルド確認
+
+- [ ] コード生成を実行: `npm run generate`
+  - `scheme/main.tsp` から型定義を生成
+  - すでに `Locale` 型は定義済みなので、再生成して確認
+- [ ] ビルドエラーがないか確認
+
+### テスト実行
+
+- [ ] テストを実行: `npm run test`
+  - 既存のテストが通ることを確認
+  - 多言語対応機能のテストは本タスクでは対象外（将来的に追加予定）
+
+## 備考
+
+- 実装はほぼ完了しており、以下のコンポーネント・関数は既に実装済み：
+  - `LocaleSelector` コンポーネント
+  - `actionSetLocale` アクション
+  - `detectBrowserLocale` 関数
+  - 翻訳ファイル（`public/locales/{ja,en,zh}/translation.json`）
+  - `commandInitialize` での言語設定の初期化処理
+- 今回の修正は、初期化のタイミングとUI配置の調整のみ
+- 修正対象ファイル数: 2ファイル（i18n/index.ts、App.tsx）のみ
