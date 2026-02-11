@@ -20,6 +20,7 @@ case "$GIT_DIR" in
     echo "worktreeを初期セットアップが完了しました"
     ;;
   *)
-    echo "worktreeではないのでスキップしました"
+    echo "worktree環境ではないため終了します"
+    exit 1
     ;;
 esac
