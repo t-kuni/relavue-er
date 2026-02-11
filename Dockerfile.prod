@@ -30,6 +30,9 @@ COPY --from=deps /app/public/node_modules ./public/node_modules
 # Copy all source files needed for build
 COPY . .
 
+# Generate API types from TypeSpec
+RUN npm run generate
+
 # Build the application
 RUN npm run build
 
