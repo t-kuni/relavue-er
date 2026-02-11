@@ -107,7 +107,9 @@ https://hub.docker.com/r/tkuni83/relavue-er/tags
 開発・検証目的で手動pushする場合のみ以下を使用：
 
 ```bash
-docker build -f Dockerfile.prod -t tkuni83/relavue-er:dev .
+docker build -f Dockerfile.prod -t tkuni83/relavue-er .
+docker run --rm --network host tkuni83/relavue-er
+
 docker push tkuni83/relavue-er:dev
 ```
 
