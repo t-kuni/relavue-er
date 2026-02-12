@@ -1,112 +1,128 @@
 # タスク一覧
 
-## 概要
+## フェーズ1: 型生成とバックエンド実装
 
-仕様書 [spec/frontend_er_rendering.md](spec/frontend_er_rendering.md) の「パンスクロール操作」に関する変更に対応する実装タスク。
+### - [ ] 型生成の実行
 
-パンスクロール操作に「ホイールボタンドラッグ」を追加し、パンモード中に矩形・テキストのドラッグを無効化する機能を実装する。
+- コマンド: `npm run generate`
+- 目的: `scheme/main.tsp`に追加された`isPanModeActive`フィールドを型定義に反映する
+- 生成される対象ファイル:
+  - `lib/generated/api-types.ts` (バックエンド用)
+  - `public/src/api/client/index.ts` (フロントエンド用)
 
-## 現状
+### - [ ] バックエンド: GetInitialViewModelUsecaseの修正
 
-全てのタスクが完了しました。
+- ファイル: `lib/usecases/GetInitialViewModelUsecase.ts`
+- 修正内容:
+  - `ERDiagramUIState`の初期化時に`isPanModeActive: false`を追加（38行目付近）
+- 参照仕様: [viewmodel_based_api.md](spec/viewmodel_based_api.md)の初期値仕様
 
-- ✅ 矩形のドラッグ無効化処理を追加（完了）
-- ✅ テキストのドラッグ無効化処理を追加（完了）
-- ✅ ビルドの確認（成功）
-- ✅ テストの実行（全268テスト成功）
+### - [ ] ビルドの確認
 
-## 実装内容
+- コマンド: `npm run build` または TypeScriptのビルドコマンド
+- 型エラーが発生しないことを確認
 
-### 実装済みの機能
-- スペースキー押下によるパンモード（`useKeyPress('Space')`）
-- テキスト編集中のスペースキー無効化（`effectiveSpacePressed`）
-- スペースキー押下時のホバー状態クリア
-- スペースキー押下時のエンティティドラッグ無効化（`nodesDraggable={!effectiveSpacePressed}`）
-- スペースキー押下時のカーソル変更（`grab`/`grabbing`）
-- `panOnDrag={true}`の設定（ホイールボタンドラッグは既に有効）
-- **パンモード中（スペースキー押下中またはホイールボタンドラッグ中）の矩形・テキストのドラッグ無効化（今回追加）**
+### - [ ] テストの実行
 
-## 実装タスク
+- コマンド: `npm run test`
+- バックエンドのテストが通過することを確認
 
-### ✅ 矩形のドラッグ無効化処理を追加（完了）
+## フェーズ2: フロントエンド実装
 
-**対象ファイル**: `public/src/components/ERCanvas.tsx`
+### - [ ] getInitialViewModelValuesの修正
 
-**変更箇所**: `handleRectangleMouseDown`関数
+- ファイル: `public/src/utils/getInitialViewModelValues.ts`
+- 修正内容:
+  - `getInitialErDiagramUIState()`関数の戻り値に`isPanModeActive: false`を追加（17行目付近）
+- 参照仕様: [viewmodel_based_api.md](spec/viewmodel_based_api.md)
 
-**実装内容**:
-- 関数の冒頭に以下の早期リターン処理を追加：
-  1. `effectiveSpacePressed === true`の場合、`return`（ドラッグを開始しない）
-  2. `e.button === 1`（ホイールボタン）の場合、`return`（ドラッグを開始しない）
-- 早期リターンは`e.stopPropagation()`の後に配置
+### - [ ] importViewModelの修正
 
-**実装の意図**:
-- スペースキー押下中は矩形のドラッグを無効化し、パンスクロールのみを実行する
-- ホイールボタンでのドラッグ時も矩形のドラッグを無効化し、React Flowのデフォルトのパン機能に処理を委譲する
+- ファイル: `public/src/utils/importViewModel.ts`
+- 修正内容:
+  - ViewModelインポート時の初期化処理に`isPanModeActive: false`を追加（144行目付近の`ui`オブジェクト）
+  - 古いデータに`isPanModeActive`が存在しない場合のデフォルト値として`false`を設定
+- 参照仕様: [import_export_feature.md](spec/import_export_feature.md)
 
-**参照仕様**: [spec/frontend_er_rendering.md](spec/frontend_er_rendering.md) の「矩形・テキストのドラッグ無効化」セクション（375-382行目）
+### - [ ] exportViewModelの修正
 
----
+- ファイル: `public/src/utils/exportViewModel.ts`
+- 修正内容:
+  - エクスポート時の初期化処理に`isPanModeActive: false`を追加（40行目付近の`ui`オブジェクト）
+- 参照仕様: [import_export_feature.md](spec/import_export_feature.md)
 
-### ✅ テキストのドラッグ無効化処理を追加（完了）
+### - [ ] hoverActionsの修正（パンモード対応）
 
-**対象ファイル**: `public/src/components/ERCanvas.tsx`
+- ファイル: `public/src/actions/hoverActions.ts`
+- 修正内容:
+  - `actionHoverEntity`関数: 冒頭に`isPanModeActive`チェックを追加し、trueの場合は早期リターン（76行目付近、`isDraggingEntity`チェックの直後）
+  - `actionHoverEdge`関数: 冒頭に`isPanModeActive`チェックを追加し、trueの場合は早期リターン（132行目付近、`isDraggingEntity`チェックの直後）
+  - `actionHoverColumn`関数: 冒頭に`isPanModeActive`チェックを追加し、trueの場合は早期リターン（196行目付近、`isDraggingEntity`チェックの直後）
+  - 新規Actionの追加:
+    - `actionSetPanModeActive(viewModel: ViewModel, isActive: boolean): ViewModel` - `isPanModeActive`を設定する
+- 参照仕様: [frontend_er_rendering.md](spec/frontend_er_rendering.md)のパンモード仕様
 
-**変更箇所**: `handleTextMouseDown`関数
+### - [ ] ERCanvasの修正（パンモード状態管理）
 
-**実装内容**:
-- 関数の冒頭に以下の早期リターン処理を追加：
-  1. `effectiveSpacePressed === true`の場合、`return`（ドラッグを開始しない）
-  2. `e.button === 1`（ホイールボタン）の場合、`return`（ドラッグを開始しない）
-- 早期リターンは`e.stopPropagation()`の後に配置
+- ファイル: `public/src/components/ERCanvas.tsx`
+- 修正内容:
+  - Storeから`isPanModeActive`を購読する処理を追加（ERCanvasInner内）
+    ```typescript
+    const isPanModeActive = useViewModel((vm) => vm.erDiagram.ui.isPanModeActive)
+    ```
+  - スペースキー押下/解放時に`actionSetPanModeActive`をdispatchする処理を追加
+    - `useEffect`フックでスペースキー状態の変化を監視
+    - 押下時（false→true）: `dispatch(actionSetPanModeActive, true)`
+    - 解放時（true→false）: `dispatch(actionSetPanModeActive, false)`
+    - テキスト編集中は無視する（`editingTextId !== null`の場合は早期リターン）
+  - 既存の`effectiveSpacePressed`によるホバークリア処理（283-287行目）を削除（不要になる）
+  - `nodesDraggable`の制御を`effectiveSpacePressed`から`isPanModeActive`を参照するように変更（992行目）
+  - 矩形・テキストのドラッグ無効化判定を`effectiveSpacePressed`から`isPanModeActive`を参照するように変更（411行目、605行目）
+  - カーソルスタイルの制御:
+    - `effectiveSpacePressed`の代わりに`spacePressed && !isPanModeActive`を使用してカーソル制御
+    - または`isPanModeActive`を直接参照（実装時に判断）
+- 注意事項:
+  - テキスト編集中のスペースキー無効化は維持する（276-277行目）
+  - ホイールボタンドラッグ時の処理は追加実装不要（既存のReact Flowのデフォルト機能で動作）
+  - `effectiveSpacePressed`変数は削除しないが、用途を限定する（カーソル制御のみ）
+- 参照仕様: [frontend_er_rendering.md](spec/frontend_er_rendering.md)のパンモード実装方針
 
-**実装の意図**:
-- スペースキー押下中はテキストのドラッグを無効化し、パンスクロールのみを実行する
-- ホイールボタンでのドラッグ時もテキストのドラッグを無効化し、React Flowのデフォルトのパン機能に処理を委譲する
+### - [ ] dataActionsの修正（actionMergeERData）
 
-**参照仕様**: [spec/frontend_er_rendering.md](spec/frontend_er_rendering.md) の「矩形・テキストのドラッグ無効化」セクション（375-382行目）
+- ファイル: `public/src/actions/dataActions.ts`
+- 修正内容:
+  - `actionMergeERData`関数: UI状態のクリア処理に`isDraggingEntity: false`と`isPanModeActive: false`を追加（556-559行目付近）
+- 参照仕様: [incremental_reverse_engineering.md](spec/incremental_reverse_engineering.md)
 
----
+### - [ ] ビルドの確認
 
-### ✅ ビルドの確認（成功）
+- コマンド: フロントエンドのビルドコマンド
+- 型エラーやビルドエラーが発生しないことを確認
 
-**実行コマンド**: `npm run generate && npm run build`
+### - [ ] テストの実行
 
-**結果**:
-- ✅ 型生成が正常に完了
-- ✅ ビルドエラーなし
+- コマンド: `npm run test`
+- 全てのテストが通過することを確認
 
----
+## 補足事項
 
-### ✅ テストの実行（全268テスト成功）
+### 実装の考え方
 
-**実行コマンド**: `npm run test`
+- `isPanModeActive`はスペースキー押下状態やホイールボタンドラッグ状態を表す一時的なフラグ
+- ViewModelで管理することで、ホバーActionの先頭で統一的にチェック可能になる
+- エンティティ選択状態によるハイライトは`selectedItem`で別管理されているため、パンモード中も表示が維持される
 
-**結果**:
-- ✅ 既存のテストが全て成功（268テスト）
-- ✅ 新たなテストエラーなし
+### フェーズ分けの理由
 
-**補足**:
-- 今回の変更は操作系の処理追加であり、既存のロジックを変更するものではないため、新規テストコードの作成は不要
-- ただし、既存テストが正常に動作することを確認
+- フェーズ1: 型生成とバックエンドのみ（変更が少ない）
+- フェーズ2: フロントエンドの実装（複数ファイルの修正が必要）
+- 各フェーズの最後にビルド・テストを実行することで、段階的に動作確認できる
 
----
+### 動作確認の観点（手動確認時の参考）
 
-## 事前修正提案
-
-なし
-
-## 備考
-
-### ホイールボタンドラッグについて
-- React Flowは`panOnDrag={true}`設定により、デフォルトでホイールボタンドラッグによるパンをサポートしている
-- 既に`panOnDrag={true}`は設定済みのため、ホイールボタンドラッグ自体の実装は不要
-- 矩形・テキストの`onMouseDown`でホイールボタン（`e.button === 1`）を除外することで、React Flowのデフォルト動作に処理を委譲する
-
-### パンモードの判定
-- スペースキー押下中: `effectiveSpacePressed`変数で判定（既存の実装）
-- ホイールボタンドラッグ中: `e.button === 1`で判定（今回追加）
-
-### 修正対象ファイル数
-- 修正: 1ファイル（`public/src/components/ERCanvas.tsx`）
-- フェーズ分けは不要
+1. スペースキー押下中にホバーイベントが無視されること
+2. スペースキー押下中でもエンティティ選択によるハイライトは表示されたままであること
+3. スペースキー押下中はエンティティ・矩形・テキストのドラッグが無効化されること
+4. カーソルが`grab`/`grabbing`に変化すること
+5. テキスト編集中のスペースキーは無視されること
+6. JSONインポート時に古いデータでも正しく動作すること
