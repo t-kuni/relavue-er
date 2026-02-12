@@ -36,6 +36,7 @@ export function createGetInitialViewModelUsecase(deps: GetInitialViewModelDeps) 
       highlightedColumnIds: [],
       layerOrder,
       isDraggingEntity: false,
+      isPanModeActive: false,
     };
 
     // 空のERDiagramViewModelを生成

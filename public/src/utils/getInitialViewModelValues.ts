@@ -15,6 +15,7 @@ export function getInitialErDiagramUIState(): ERDiagramUIState {
       foregroundItems: [],
     },
     isDraggingEntity: false,
+    isPanModeActive: false,
   };
 }
 

@@ -142,6 +142,7 @@ export function importViewModel(
                   foregroundItems: [],
                 },
               isDraggingEntity: false,
+              isPanModeActive: false,
             },
             loading: false,
           },

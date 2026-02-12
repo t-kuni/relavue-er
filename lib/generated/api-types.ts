@@ -173,6 +173,7 @@ export interface components {
             highlightedColumnIds: string[];
             layerOrder: components["schemas"]["LayerOrder"];
             isDraggingEntity: boolean;
+            isPanModeActive: boolean;
         };
         ERDiagramViewModel: {
             nodes: {

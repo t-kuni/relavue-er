@@ -38,6 +38,7 @@ export function exportViewModel(viewModel: ViewModel): void {
           highlightedColumnIds: [],
           layerOrder: viewModel.erDiagram.ui.layerOrder, // 維持する
           isDraggingEntity: false,
+          isPanModeActive: false,
         },
         loading: false,
       },

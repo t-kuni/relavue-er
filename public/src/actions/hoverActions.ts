@@ -73,6 +73,11 @@ export function actionHoverEntity(
   viewModel: ViewModel,
   entityId: string
 ): ViewModel {
+  // パンモード中はホバーイベントを無視
+  if (viewModel.erDiagram.ui.isPanModeActive) {
+    return viewModel;
+  }
+
   // ドラッグ中はホバーイベントを無視
   if (viewModel.erDiagram.ui.isDraggingEntity) {
     return viewModel;
@@ -129,6 +134,11 @@ export function actionHoverEdge(
   viewModel: ViewModel,
   edgeId: string
 ): ViewModel {
+  // パンモード中はホバーイベントを無視
+  if (viewModel.erDiagram.ui.isPanModeActive) {
+    return viewModel;
+  }
+
   // ドラッグ中はホバーイベントを無視
   if (viewModel.erDiagram.ui.isDraggingEntity) {
     return viewModel;
@@ -193,6 +203,11 @@ export function actionHoverColumn(
   viewModel: ViewModel,
   columnId: string
 ): ViewModel {
+  // パンモード中はホバーイベントを無視
+  if (viewModel.erDiagram.ui.isPanModeActive) {
+    return viewModel;
+  }
+
   // ドラッグ中はホバーイベントを無視
   if (viewModel.erDiagram.ui.isDraggingEntity) {
     return viewModel;
@@ -375,6 +390,35 @@ export function actionStopEntityDrag(
   const newUi = {
     ...viewModel.erDiagram.ui,
     isDraggingEntity: false,
+  };
+
+  return {
+    ...viewModel,
+    erDiagram: {
+      ...viewModel.erDiagram,
+      ui: newUi,
+    },
+  };
+}
+
+/**
+ * パンモード状態を設定するAction
+ * @param viewModel 現在の状態
+ * @param isActive パンモードが有効かどうか
+ * @returns 新しい状態（変化がない場合は同一参照）
+ */
+export function actionSetPanModeActive(
+  viewModel: ViewModel,
+  isActive: boolean
+): ViewModel {
+  // すでに同じ状態の場合は同一参照を返す
+  if (viewModel.erDiagram.ui.isPanModeActive === isActive) {
+    return viewModel;
+  }
+
+  const newUi = {
+    ...viewModel.erDiagram.ui,
+    isPanModeActive: isActive,
   };
 
   return {

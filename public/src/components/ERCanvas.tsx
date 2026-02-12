@@ -30,7 +30,7 @@ import { actionUpdateNodePositions, actionUpdateNodeSizes } from '../actions/dat
 import { actionAddRectangle, actionUpdateRectanglePosition, actionUpdateRectangleBounds, actionRemoveRectangle } from '../actions/rectangleActions'
 import { actionAddText, actionRemoveText, actionUpdateTextPosition, actionUpdateTextBounds, actionSetTextAutoSizeMode, actionUpdateTextContent } from '../actions/textActions'
 import { actionSelectItem } from '../actions/layerActions'
-import { actionStartEntityDrag, actionStopEntityDrag, actionClearHover } from '../actions/hoverActions'
+import { actionStartEntityDrag, actionStopEntityDrag, actionClearHover, actionSetPanModeActive } from '../actions/hoverActions'
 import { actionCopyItem, actionPasteItem, actionUpdateMousePosition } from '../actions/clipboardActions'
 import type { Rectangle, LayerItemRef } from '../api/client'
 import { TextBox } from '../api/client'
@@ -234,6 +234,7 @@ function ERCanvasInner({
   const selectedItem = useViewModel((vm) => vm.ui.selectedItem)
   const clipboard = useViewModel((vm) => vm.ui.clipboard)
   const lastMousePosition = useViewModel((vm) => vm.ui.lastMousePosition)
+  const isPanModeActive = useViewModel((vm) => vm.erDiagram.ui.isPanModeActive)
   
   // 空テキストの自動削除
   const prevSelectedItem = useRef<typeof selectedItem>(null)
@@ -279,10 +280,20 @@ function ERCanvasInner({
   // パン中状態の管理（カーソル制御用）
   const [isPanning, setIsPanning] = useState(false)
   
-  // スペースキー押下時にホバー状態をクリア
+  // スペースキー押下/解放時にisPanModeActiveを更新
+  const prevSpacePressed = useRef(false)
+  
   useEffect(() => {
-    if (effectiveSpacePressed) {
-      dispatch(actionClearHover)
+    const prev = prevSpacePressed.current
+    prevSpacePressed.current = effectiveSpacePressed
+    
+    // false → true の変化を検知（押下）
+    if (!prev && effectiveSpacePressed) {
+      dispatch(actionSetPanModeActive, true)
+    }
+    // true → false の変化を検知（解放）
+    else if (prev && !effectiveSpacePressed) {
+      dispatch(actionSetPanModeActive, false)
     }
   }, [effectiveSpacePressed, dispatch])
   
@@ -408,7 +419,7 @@ function ERCanvasInner({
   // 矩形のドラッグ処理
   const handleRectangleMouseDown = useCallback((e: React.MouseEvent, rectangleId: string) => {
     // パンモード中は矩形のドラッグを無効化（イベント伝播は許可してReact Flowにパン処理を委譲）
-    if (effectiveSpacePressed) return
+    if (isPanModeActive) return
     if (e.button === 1) return // ホイールボタン
     
     // 通常のドラッグ処理の場合のみイベント伝播を止める
@@ -427,7 +438,7 @@ function ERCanvasInner({
       rectStartX: rectangle.x,
       rectStartY: rectangle.y,
     })
-  }, [rectangles, dispatch, effectiveSpacePressed])
+  }, [rectangles, dispatch, isPanModeActive])
   
   // マウスムーブ時のドラッグ処理（矩形）
   useEffect(() => {
@@ -602,7 +613,7 @@ function ERCanvasInner({
   // テキストのドラッグ処理
   const handleTextMouseDown = useCallback((e: React.MouseEvent, textId: string) => {
     // パンモード中はテキストのドラッグを無効化（イベント伝播は許可してReact Flowにパン処理を委譲）
-    if (effectiveSpacePressed) return
+    if (isPanModeActive) return
     if (e.button === 1) return // ホイールボタン
     
     // 通常のドラッグ処理の場合のみイベント伝播を止める
@@ -621,7 +632,7 @@ function ERCanvasInner({
       textStartX: text.x,
       textStartY: text.y,
     })
-  }, [texts, dispatch, effectiveSpacePressed])
+  }, [texts, dispatch, isPanModeActive])
   
   // リサイズハンドラー（テキスト）
   const handleTextResize = useCallback((textId: string, newBounds: { x: number; y: number; width: number; height: number }) => {
@@ -955,17 +966,17 @@ function ERCanvasInner({
   
   // パン開始・終了イベントハンドラー（カーソル制御用）
   const handleMoveStart = useCallback(() => {
-    if (effectiveSpacePressed) {
+    if (isPanModeActive) {
       setIsPanning(true)
     }
-  }, [effectiveSpacePressed])
+  }, [isPanModeActive])
   
   const handleMoveEnd = useCallback(() => {
     setIsPanning(false)
   }, [])
   
   // カーソルスタイルの決定
-  const cursorStyle = effectiveSpacePressed ? (isPanning ? 'grabbing' : 'grab') : undefined
+  const cursorStyle = isPanModeActive ? (isPanning ? 'grabbing' : 'grab') : undefined
   
   return (
     <div 
@@ -989,7 +1000,7 @@ function ERCanvasInner({
         elevateEdgesOnSelect={false}
         zIndexMode="manual"
         panOnDrag={true}
-        nodesDraggable={!effectiveSpacePressed}
+        nodesDraggable={!isPanModeActive}
         fitView
       >
         {/* 背面レイヤー */}

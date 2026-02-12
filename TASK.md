@@ -1,57 +1,64 @@
 # タスク一覧
 
-## フェーズ1: 型生成とバックエンド実装
+## フェーズ1: 型生成とバックエンド実装 ✅ 完了
 
-### - [ ] 型生成の実行
+### - [x] 型生成の実行
 
 - コマンド: `npm run generate`
 - 目的: `scheme/main.tsp`に追加された`isPanModeActive`フィールドを型定義に反映する
 - 生成される対象ファイル:
   - `lib/generated/api-types.ts` (バックエンド用)
   - `public/src/api/client/index.ts` (フロントエンド用)
+- ✅ 完了: 型生成が正常に完了しました
 
-### - [ ] バックエンド: GetInitialViewModelUsecaseの修正
+### - [x] バックエンド: GetInitialViewModelUsecaseの修正
 
 - ファイル: `lib/usecases/GetInitialViewModelUsecase.ts`
 - 修正内容:
   - `ERDiagramUIState`の初期化時に`isPanModeActive: false`を追加（38行目付近）
 - 参照仕様: [viewmodel_based_api.md](spec/viewmodel_based_api.md)の初期値仕様
+- ✅ 完了: 39行目に`isPanModeActive: false`を追加しました
 
-### - [ ] ビルドの確認
+### - [x] ビルドの確認
 
 - コマンド: `npm run build` または TypeScriptのビルドコマンド
 - 型エラーが発生しないことを確認
+- ✅ 完了: ビルドが正常に完了しました
 
-### - [ ] テストの実行
+### - [x] テストの実行
 
 - コマンド: `npm run test`
 - バックエンドのテストが通過することを確認
+- ✅ 完了: 全てのテスト（268件）が通過しました
 
-## フェーズ2: フロントエンド実装
+## フェーズ2: フロントエンド実装 ✅ 完了
 
-### - [ ] getInitialViewModelValuesの修正
+### - [x] getInitialViewModelValuesの修正
 
 - ファイル: `public/src/utils/getInitialViewModelValues.ts`
 - 修正内容:
   - `getInitialErDiagramUIState()`関数の戻り値に`isPanModeActive: false`を追加（17行目付近）
 - 参照仕様: [viewmodel_based_api.md](spec/viewmodel_based_api.md)
+- ✅ 完了: 18行目に`isPanModeActive: false`を追加しました
 
-### - [ ] importViewModelの修正
+### - [x] importViewModelの修正
 
 - ファイル: `public/src/utils/importViewModel.ts`
 - 修正内容:
   - ViewModelインポート時の初期化処理に`isPanModeActive: false`を追加（144行目付近の`ui`オブジェクト）
   - 古いデータに`isPanModeActive`が存在しない場合のデフォルト値として`false`を設定
 - 参照仕様: [import_export_feature.md](spec/import_export_feature.md)
+- ✅ 完了: 145行目に`isPanModeActive: false`を追加しました
 
-### - [ ] exportViewModelの修正
+### - [x] exportViewModelの修正
 
 - ファイル: `public/src/utils/exportViewModel.ts`
 - 修正内容:
   - エクスポート時の初期化処理に`isPanModeActive: false`を追加（40行目付近の`ui`オブジェクト）
 - 参照仕様: [import_export_feature.md](spec/import_export_feature.md)
+- ✅ 完了: 41行目に`isPanModeActive: false`を追加しました
 
-### - [ ] hoverActionsの修正（パンモード対応）
+### - [x] hoverActionsの修正（パンモード対応）
 
 - ファイル: `public/src/actions/hoverActions.ts`
 - 修正内容:
@@ -61,8 +68,9 @@
   - 新規Actionの追加:
     - `actionSetPanModeActive(viewModel: ViewModel, isActive: boolean): ViewModel` - `isPanModeActive`を設定する
 - 参照仕様: [frontend_er_rendering.md](spec/frontend_er_rendering.md)のパンモード仕様
+- ✅ 完了: 各Hover関数の冒頭にパンモードチェックを追加し、新規Action `actionSetPanModeActive`を追加しました
 
-### - [ ] ERCanvasの修正（パンモード状態管理）
+### - [x] ERCanvasの修正（パンモード状態管理）
 
 - ファイル: `public/src/components/ERCanvas.tsx`
 - 修正内容:
@@ -86,23 +94,27 @@
   - ホイールボタンドラッグ時の処理は追加実装不要（既存のReact Flowのデフォルト機能で動作）
   - `effectiveSpacePressed`変数は削除しないが、用途を限定する（カーソル制御のみ）
 - 参照仕様: [frontend_er_rendering.md](spec/frontend_er_rendering.md)のパンモード実装方針
+- ✅ 完了: 全ての修正を実施し、`isPanModeActive`を直接参照するカーソル制御を採用しました
 
-### - [ ] dataActionsの修正（actionMergeERData）
+### - [x] dataActionsの修正（actionMergeERData）
 
 - ファイル: `public/src/actions/dataActions.ts`
 - 修正内容:
   - `actionMergeERData`関数: UI状態のクリア処理に`isDraggingEntity: false`と`isPanModeActive: false`を追加（556-559行目付近）
 - 参照仕様: [incremental_reverse_engineering.md](spec/incremental_reverse_engineering.md)
+- ✅ 完了: 558-559行目に`isDraggingEntity: false`と`isPanModeActive: false`を追加しました
 
-### - [ ] ビルドの確認
+### - [x] ビルドの確認
 
 - コマンド: フロントエンドのビルドコマンド
 - 型エラーやビルドエラーが発生しないことを確認
+- ✅ 完了: `npm run build`が正常に完了しました
 
-### - [ ] テストの実行
+### - [x] テストの実行
 
 - コマンド: `npm run test`
 - 全てのテストが通過することを確認
+- ✅ 完了: 全てのテスト（268件）が通過しました
 
 ## 補足事項
 

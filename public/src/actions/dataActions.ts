@@ -556,6 +556,8 @@ export function actionMergeERData(
         highlightedNodeIds: [],
         highlightedEdgeIds: [],
         highlightedColumnIds: [],
+        isDraggingEntity: false,
+        isPanModeActive: false,
         layerOrder: newLayerOrder,
       },
     },
