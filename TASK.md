@@ -1,130 +1,105 @@
-# 国際化（i18n）仕様書更新に伴うタスク一覧
+# タスク一覧
 
-仕様書: [spec/internationalization.md](/spec/internationalization.md)
+## 概要
 
-## 参照仕様書
-- [spec/semantic_versioning.md](./spec/semantic_versioning.md)
-- [research/20260211_1153_semantic_versioning_strategy.md](./research/20260211_1153_semantic_versioning_strategy.md)
-- [README_DEVELOP.md](./README_DEVELOP.md)（バージョンリリース運用のセクション）
+仕様書 [spec/frontend_er_rendering.md](spec/frontend_er_rendering.md) の「パンスクロール操作」に関する変更に対応する実装タスク。
 
-仕様書の更新により、ViewModel更新時のi18next言語同期の実装方法が明確化されました。以下のタスクを実施します。
+パンスクロール操作に「ホイールボタンドラッグ」を追加し、パンモード中に矩形・テキストのドラッグを無効化する機能を実装する。
 
-### 変更概要
+## 現状分析
 
-1. **ViewModel更新時のi18next言語同期の自動化**
-   - `App.tsx`で`useViewModel`を使ってlocaleを監視し、変更があれば`i18n.changeLanguage(locale)`を呼ぶ
-   - これにより、初期化時・言語選択時・インポート時のすべてで自動的に言語が同期される
+### 既に実装済みの機能
+- スペースキー押下によるパンモード（`useKeyPress('Space')`）
+- テキスト編集中のスペースキー無効化（`effectiveSpacePressed`）
+- スペースキー押下時のホバー状態クリア
+- スペースキー押下時のエンティティドラッグ無効化（`nodesDraggable={!effectiveSpacePressed}`）
+- スペースキー押下時のカーソル変更（`grab`/`grabbing`）
+- `panOnDrag={true}`の設定（ホイールボタンドラッグは既に有効）
 
-2. **統合テストの強化**
-   - インポート後のUI表示確認を追加
+### 未実装の機能
+- パンモード中（スペースキー押下中またはホイールボタンドラッグ中）の矩形・テキストのドラッグ無効化
 
 ## 実装タスク
 
-### □ `App.tsx`にlocale監視のuseEffectを追加
+### 矩形のドラッグ無効化処理を追加
 
-### バージョニングフロー全体像
+**対象ファイル**: `public/src/components/ERCanvas.tsx`
 
-**変更内容**:
-- `useViewModel`を使って`settings.locale`を監視する新しい`useEffect`を追加
-- localeが変更された場合、`i18n.changeLanguage(locale)`を呼び出す
-- これにより、以下のすべてのシナリオで自動的に言語が同期される：
-  - 初期化時（`commandInitialize`で`ViewModel.settings.locale`が設定される）
-  - 言語選択時（`actionSetLocale`でlocaleが更新される）
-  - インポート時（`importViewModel`でlocaleが設定される）
-
-**実装場所**:
-- 既存のuseEffectの後に追加
-- `i18n`は`useTranslation()`から取得（既にインポート済み）
-
-**参考**: 仕様書 [spec/internationalization.md](/spec/internationalization.md) の「実装時の注意事項」セクション
-
-### □ `LocaleSelector.tsx`から手動の`i18n.changeLanguage`呼び出しを削除
-
-**ファイル**: `public/src/components/LocaleSelector.tsx`
+**変更箇所**: `handleRectangleMouseDown`関数
 
 **変更内容**:
-- `handleLocaleChange`関数内の`i18n.changeLanguage(locale)`呼び出しを削除
-- `actionSetLocale`のdispatchのみを残す
-- 理由: `App.tsx`のlocale監視により自動的に言語が同期されるため、手動呼び出しは不要（重複を避ける）
+- 関数の冒頭に以下の早期リターン処理を追加：
+  1. `effectiveSpacePressed === true`の場合、`return`（ドラッグを開始しない）
+  2. `e.button === 1`（ホイールボタン）の場合、`return`（ドラッグを開始しない）
+- 早期リターンは`e.stopPropagation()`の後に配置する
 
-**変更箇所**:
-- 42-46行目の`handleLocaleChange`関数
+**実装の意図**:
+- スペースキー押下中は矩形のドラッグを無効化し、パンスクロールのみを実行する
+- ホイールボタンでのドラッグ時も矩形のドラッグを無効化し、React Flowのデフォルトのパン機能に処理を委譲する
 
-**変更前**:
-```typescript
-const handleLocaleChange = (locale: AppSettings.locale) => {
-  dispatch(actionSetLocale, locale)
-  i18n.changeLanguage(locale)
-  setIsOpen(false)
-}
-```
+**参照仕様**: [spec/frontend_er_rendering.md](spec/frontend_er_rendering.md) の「矩形・テキストのドラッグ無効化」セクション（375-382行目）
 
-**変更後**:
-```typescript
-const handleLocaleChange = (locale: AppSettings.locale) => {
-  dispatch(actionSetLocale, locale)
-  setIsOpen(false)
-}
-```
+---
 
-**注意**: 
-- `i18n`のインポートと`useTranslation()`の呼び出しも不要になる可能性がある（他で使用されていなければ削除）
+### テキストのドラッグ無効化処理を追加
 
-## テストタスク
+**対象ファイル**: `public/src/components/ERCanvas.tsx`
 
-### □ インポート後のUI表示確認の統合テストを追加
+**変更箇所**: `handleTextMouseDown`関数
 
-**ファイル**: 新規作成 `public/tests/integration/i18n.test.tsx`
+**変更内容**:
+- 関数の冒頭に以下の早期リターン処理を追加：
+  1. `effectiveSpacePressed === true`の場合、`return`（ドラッグを開始しない）
+  2. `e.button === 1`（ホイールボタン）の場合、`return`（ドラッグを開始しない）
+- 早期リターンは`e.stopPropagation()`の後に配置する
 
-**テスト内容**:
-1. **言語切り替え後、UIが正しく翻訳されることを確認**
-   - 各言語（ja, en, zh）に切り替えて、ヘッダーのボタンテキストが正しく表示されることを確認
+**実装の意図**:
+- スペースキー押下中はテキストのドラッグを無効化し、パンスクロールのみを実行する
+- ホイールボタンでのドラッグ時もテキストのドラッグを無効化し、React Flowのデフォルトのパン機能に処理を委譲する
 
-2. **エクスポート/インポート時に言語設定が保持され、インポート後に言語が正しく反映されることを確認**
-   - 日本語でViewModelをエクスポート
-   - ViewModelをインポート
-   - インポート後のUIがすべて日本語で表示されることを確認
-   - 同様に英語、中国語でもテスト
+**参照仕様**: [spec/frontend_er_rendering.md](spec/frontend_er_rendering.md) の「矩形・テキストのドラッグ無効化」セクション（375-382行目）
 
-3. **ブラウザ言語検出が正しく動作することを確認**
-   - localeが未設定のViewModelをインポート
-   - ブラウザ言語が検出され、適切な言語で表示されることを確認
+---
 
-**参考**: 
-- 仕様書 [spec/internationalization.md](/spec/internationalization.md) の「統合テスト」セクション
-- 既存のテストファイル `public/tests/actions/globalUIActions.test.ts` を参考
+### ビルドの確認
 
-**注意**:
-- React Testing LibraryやVitestを使用
-- `@testing-library/react`の`render`を使用してコンポーネントをレンダリング
-- `screen.getByText()`などを使用してUI要素の翻訳を確認
-
-### □ ビルドの確認
-
-**実行コマンド**:
-```bash
-npm run generate && npm run build
-```
+**実行コマンド**: `npm run generate && npm run build`
 
 **確認内容**:
-- TypeScriptのコンパイルエラーがないこと
-- ビルドが正常に完了すること
+- 型生成が正常に完了すること
+- ビルドエラーが発生しないこと
 
-### □ テストの実行
+---
 
-**実行コマンド**:
-```bash
-npm run test
-```
+### テストの実行
+
+**実行コマンド**: `npm run test`
 
 **確認内容**:
-- すべてのテストがパスすること
-- 特に以下のテストが正常に動作すること：
-  - `public/tests/actions/globalUIActions.test.ts` の `actionSetLocale` テスト
-  - 新規追加した `public/tests/integration/i18n.test.tsx` の統合テスト
+- 既存のテストが全て成功すること
+- 新たなテストエラーが発生していないこと
+
+**補足**:
+- 今回の変更は操作系の処理追加であり、既存のロジックを変更するものではないため、新規テストコードの作成は不要
+- ただし、既存テストが正常に動作することを確認する
+
+---
+
+## 事前修正提案
+
+なし
 
 ## 備考
 
-- 本タスクは小規模な修正のため、フェーズ分けは不要
-- 既存の`actionSetLocale`の実装とテストは変更不要（正常に動作している）
-- `importViewModel`の実装は既に仕様に準拠しているため、変更不要
+### ホイールボタンドラッグについて
+- React Flowは`panOnDrag={true}`設定により、デフォルトでホイールボタンドラッグによるパンをサポートしている
+- 既に`panOnDrag={true}`は設定済みのため、ホイールボタンドラッグ自体の実装は不要
+- 矩形・テキストの`onMouseDown`でホイールボタン（`e.button === 1`）を除外することで、React Flowのデフォルト動作に処理を委譲する
+
+### パンモードの判定
+- スペースキー押下中: `effectiveSpacePressed`変数で判定（既存の実装）
+- ホイールボタンドラッグ中: `e.button === 1`で判定（今回追加）
+
+### 修正対象ファイル数
+- 修正: 1ファイル（`public/src/components/ERCanvas.tsx`）
+- フェーズ分けは不要
