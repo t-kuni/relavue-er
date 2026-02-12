@@ -30,6 +30,8 @@ ER図のデータをJSON形式でエクスポート・インポートする機�
 - `erDiagram.ui.highlightedNodeIds` - ハイライト状態を初期化
 - `erDiagram.ui.highlightedEdgeIds` - ハイライト状態を初期化
 - `erDiagram.ui.highlightedColumnIds` - ハイライト状態を初期化
+- `erDiagram.ui.isDraggingEntity` - `false` をセット
+- `erDiagram.ui.isPanModeActive` - `false` をセット
 - `erDiagram.ui.layerOrder` - **維持する**（レイヤー順序はエクスポート対象）
 - `erDiagram.loading` - `false` をセット
 
@@ -70,6 +72,8 @@ ER図のデータをJSON形式でエクスポート・インポートする機�
 - `erDiagram.ui.highlightedNodeIds` - 初期値をセット
 - `erDiagram.ui.highlightedEdgeIds` - 初期値をセット
 - `erDiagram.ui.highlightedColumnIds` - 初期値をセット
+- `erDiagram.ui.isDraggingEntity` - `false` をセット（古いデータに存在しない場合のデフォルト値）
+- `erDiagram.ui.isPanModeActive` - `false` をセット（古いデータに存在しない場合のデフォルト値）
 
 ### ファイル形式
 

@@ -224,6 +224,7 @@ model ERDiagramUIState {
   highlightedColumnIds: string[]; // Column IDs (UUID)
   layerOrder: LayerOrder; // レイヤー順序
   isDraggingEntity: boolean; // エンティティドラッグ中フラグ（true: ドラッグ中、false: 通常状態）
+  isPanModeActive: boolean; // パンモード中フラグ（true: スペースキー押下中またはホイールボタンドラッグ中、false: 通常状態）
 }
 
 // Reverse engineering history models

@@ -47,6 +47,8 @@ GET /api/init
   - `ui.highlightedColumnIds`: `[]`
   - `ui.layerOrder.backgroundItems`: `[]`
   - `ui.layerOrder.foregroundItems`: `[]`
+  - `ui.isDraggingEntity`: `false`
+  - `ui.isPanModeActive`: `false`
   - `loading`: `false`
   - `history`: `[]`（空配列）
 - `ui`: 初期のグローバルUI状態

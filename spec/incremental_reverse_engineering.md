@@ -165,7 +165,7 @@ init.sqlの`erviewer`と`erviewer-2`スキーマの差分を参考にした主�
 6. 新規エンティティの配置計算
    - 既存エンティティの最大座標を基準に右側・下側に配置
 7. 削除されたエンティティの参照をレイヤー順序から削除
-8. UI状態のクリア（highlightedNodeIds、highlightedEdgeIds、highlightedColumnIds）
+8. UI状態のクリア（highlightedNodeIds、highlightedEdgeIds、highlightedColumnIds、isDraggingEntity、isPanModeActive）
 9. 矩形とテキストは維持
 10. 逆引きインデックスを再計算
 11. `settings.lastDatabaseConnection`を更新
