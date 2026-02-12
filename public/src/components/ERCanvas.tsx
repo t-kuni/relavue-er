@@ -407,6 +407,11 @@ function ERCanvasInner({
   
   // 矩形のドラッグ処理
   const handleRectangleMouseDown = useCallback((e: React.MouseEvent, rectangleId: string) => {
+    // パンモード中は矩形のドラッグを無効化（イベント伝播は許可してReact Flowにパン処理を委譲）
+    if (effectiveSpacePressed) return
+    if (e.button === 1) return // ホイールボタン
+    
+    // 通常のドラッグ処理の場合のみイベント伝播を止める
     e.stopPropagation()
     
     const rectangle = rectangles[rectangleId]
@@ -422,7 +427,7 @@ function ERCanvasInner({
       rectStartX: rectangle.x,
       rectStartY: rectangle.y,
     })
-  }, [rectangles, dispatch])
+  }, [rectangles, dispatch, effectiveSpacePressed])
   
   // マウスムーブ時のドラッグ処理（矩形）
   useEffect(() => {
@@ -596,6 +601,11 @@ function ERCanvasInner({
   
   // テキストのドラッグ処理
   const handleTextMouseDown = useCallback((e: React.MouseEvent, textId: string) => {
+    // パンモード中はテキストのドラッグを無効化（イベント伝播は許可してReact Flowにパン処理を委譲）
+    if (effectiveSpacePressed) return
+    if (e.button === 1) return // ホイールボタン
+    
+    // 通常のドラッグ処理の場合のみイベント伝播を止める
     e.stopPropagation()
     
     const text = texts[textId]
@@ -611,7 +621,7 @@ function ERCanvasInner({
       textStartX: text.x,
       textStartY: text.y,
     })
-  }, [texts, dispatch])
+  }, [texts, dispatch, effectiveSpacePressed])
   
   // リサイズハンドラー（テキスト）
   const handleTextResize = useCallback((textId: string, newBounds: { x: number; y: number; width: number; height: number }) => {
