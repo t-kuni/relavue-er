@@ -1,140 +1,338 @@
-# タスク一覧
+# ロック機能実装タスク
 
-## フェーズ1: 型生成とバックエンド実装 ✅ 完了
+本タスクは、React Flowのtoggle interactiveボタンと連動して、ER図キャンバス上のすべてのオブジェクト（エンティティノード、矩形、テキスト）の編集を一括で禁止/許可するロック機能を実装するものです。
 
-### - [x] 型生成の実行
+**参照仕様書**: [spec/lock_feature.md](./spec/lock_feature.md)
 
-- コマンド: `npm run generate`
-- 目的: `scheme/main.tsp`に追加された`isPanModeActive`フィールドを型定義に反映する
-- 生成される対象ファイル:
-  - `lib/generated/api-types.ts` (バックエンド用)
-  - `public/src/api/client/index.ts` (フロントエンド用)
-- ✅ 完了: 型生成が正常に完了しました
+## 型生成
 
-### - [x] バックエンド: GetInitialViewModelUsecaseの修正
+- [ ] 型の再生成
+  - **コマンド**: `npm run generate`
+  - **目的**: `scheme/main.tsp`の`ERDiagramUIState`に追加された`isLocked`フィールドから型定義を生成
+  - **生成されるファイル**: `lib/generated/api-types.ts`, `public/src/api/client/index.ts`
 
-- ファイル: `lib/usecases/GetInitialViewModelUsecase.ts`
-- 修正内容:
-  - `ERDiagramUIState`の初期化時に`isPanModeActive: false`を追加（38行目付近）
-- 参照仕様: [viewmodel_based_api.md](spec/viewmodel_based_api.md)の初期値仕様
-- ✅ 完了: 39行目に`isPanModeActive: false`を追加しました
+## バックエンド実装
 
-### - [x] ビルドの確認
-
-- コマンド: `npm run build` または TypeScriptのビルドコマンド
-- 型エラーが発生しないことを確認
-- ✅ 完了: ビルドが正常に完了しました
-
-### - [x] テストの実行
-
-- コマンド: `npm run test`
-- バックエンドのテストが通過することを確認
-- ✅ 完了: 全てのテスト（268件）が通過しました
-
-## フェーズ2: フロントエンド実装 ✅ 完了
-
-### - [x] getInitialViewModelValuesの修正
-
-- ファイル: `public/src/utils/getInitialViewModelValues.ts`
-- 修正内容:
-  - `getInitialErDiagramUIState()`関数の戻り値に`isPanModeActive: false`を追加（17行目付近）
-- 参照仕様: [viewmodel_based_api.md](spec/viewmodel_based_api.md)
-- ✅ 完了: 18行目に`isPanModeActive: false`を追加しました
-
-### - [x] importViewModelの修正
-
-- ファイル: `public/src/utils/importViewModel.ts`
-- 修正内容:
-  - ViewModelインポート時の初期化処理に`isPanModeActive: false`を追加（144行目付近の`ui`オブジェクト）
-  - 古いデータに`isPanModeActive`が存在しない場合のデフォルト値として`false`を設定
-- 参照仕様: [import_export_feature.md](spec/import_export_feature.md)
-- ✅ 完了: 145行目に`isPanModeActive: false`を追加しました
-
-### - [x] exportViewModelの修正
-
-- ファイル: `public/src/utils/exportViewModel.ts`
-- 修正内容:
-  - エクスポート時の初期化処理に`isPanModeActive: false`を追加（40行目付近の`ui`オブジェクト）
-- 参照仕様: [import_export_feature.md](spec/import_export_feature.md)
-- ✅ 完了: 41行目に`isPanModeActive: false`を追加しました
-
-### - [x] hoverActionsの修正（パンモード対応）
-
-- ファイル: `public/src/actions/hoverActions.ts`
-- 修正内容:
-  - `actionHoverEntity`関数: 冒頭に`isPanModeActive`チェックを追加し、trueの場合は早期リターン（76行目付近、`isDraggingEntity`チェックの直後）
-  - `actionHoverEdge`関数: 冒頭に`isPanModeActive`チェックを追加し、trueの場合は早期リターン（132行目付近、`isDraggingEntity`チェックの直後）
-  - `actionHoverColumn`関数: 冒頭に`isPanModeActive`チェックを追加し、trueの場合は早期リターン（196行目付近、`isDraggingEntity`チェックの直後）
-  - 新規Actionの追加:
-    - `actionSetPanModeActive(viewModel: ViewModel, isActive: boolean): ViewModel` - `isPanModeActive`を設定する
-- 参照仕様: [frontend_er_rendering.md](spec/frontend_er_rendering.md)のパンモード仕様
-- ✅ 完了: 各Hover関数の冒頭にパンモードチェックを追加し、新規Action `actionSetPanModeActive`を追加しました
-
-### - [x] ERCanvasの修正（パンモード状態管理）
-
-- ファイル: `public/src/components/ERCanvas.tsx`
-- 修正内容:
-  - Storeから`isPanModeActive`を購読する処理を追加（ERCanvasInner内）
+- [ ] 初期ViewModelに`isLocked`フィールドを追加
+  - **ファイル**: `lib/usecases/GetInitialViewModelUsecase.ts`
+  - **変更内容**: `getInitialErDiagramUIState`関数で返すオブジェクトに`isLocked: false`を追加
     ```typescript
-    const isPanModeActive = useViewModel((vm) => vm.erDiagram.ui.isPanModeActive)
+    const erDiagramUIState: ERDiagramUIState = {
+      hover: null,
+      highlightedNodeIds: [],
+      highlightedEdgeIds: [],
+      highlightedColumnIds: [],
+      layerOrder,
+      isDraggingEntity: false,
+      isPanModeActive: false,
+      isLocked: false, // 追加
+    };
     ```
-  - スペースキー押下/解放時に`actionSetPanModeActive`をdispatchする処理を追加
-    - `useEffect`フックでスペースキー状態の変化を監視
-    - 押下時（false→true）: `dispatch(actionSetPanModeActive, true)`
-    - 解放時（true→false）: `dispatch(actionSetPanModeActive, false)`
-    - テキスト編集中は無視する（`editingTextId !== null`の場合は早期リターン）
-  - 既存の`effectiveSpacePressed`によるホバークリア処理（283-287行目）を削除（不要になる）
-  - `nodesDraggable`の制御を`effectiveSpacePressed`から`isPanModeActive`を参照するように変更（992行目）
-  - 矩形・テキストのドラッグ無効化判定を`effectiveSpacePressed`から`isPanModeActive`を参照するように変更（411行目、605行目）
-  - カーソルスタイルの制御:
-    - `effectiveSpacePressed`の代わりに`spacePressed && !isPanModeActive`を使用してカーソル制御
-    - または`isPanModeActive`を直接参照（実装時に判断）
-- 注意事項:
-  - テキスト編集中のスペースキー無効化は維持する（276-277行目）
-  - ホイールボタンドラッグ時の処理は追加実装不要（既存のReact Flowのデフォルト機能で動作）
-  - `effectiveSpacePressed`変数は削除しないが、用途を限定する（カーソル制御のみ）
-- 参照仕様: [frontend_er_rendering.md](spec/frontend_er_rendering.md)のパンモード実装方針
-- ✅ 完了: 全ての修正を実施し、`isPanModeActive`を直接参照するカーソル制御を採用しました
+  - **参照**: [spec/viewmodel_based_api.md](./spec/viewmodel_based_api.md) - `/api/init`の初期値
+  - **参照**: [spec/lock_feature.md](./spec/lock_feature.md) - ロック状態の初期値
 
-### - [x] dataActionsの修正（actionMergeERData）
+## フロントエンド実装
 
-- ファイル: `public/src/actions/dataActions.ts`
-- 修正内容:
-  - `actionMergeERData`関数: UI状態のクリア処理に`isDraggingEntity: false`と`isPanModeActive: false`を追加（556-559行目付近）
-- 参照仕様: [incremental_reverse_engineering.md](spec/incremental_reverse_engineering.md)
-- ✅ 完了: 558-559行目に`isDraggingEntity: false`と`isPanModeActive: false`を追加しました
+### ユーティリティ層の実装
 
-### - [x] ビルドの確認
+- [ ] 初期状態に`isLocked`を追加
+  - **ファイル**: `public/src/utils/getInitialViewModelValues.ts`
+  - **関数**: `getInitialErDiagramUIState`
+  - **変更内容**: 返却するオブジェクトに`isLocked: false`を追加
+    ```typescript
+    export function getInitialErDiagramUIState(): ERDiagramUIState {
+      return {
+        hover: null,
+        highlightedNodeIds: [],
+        highlightedEdgeIds: [],
+        highlightedColumnIds: [],
+        layerOrder: {
+          backgroundItems: [],
+          foregroundItems: [],
+        },
+        isDraggingEntity: false,
+        isPanModeActive: false,
+        isLocked: false, // 追加
+      };
+    }
+    ```
+  - **参照**: [spec/lock_feature.md](./spec/lock_feature.md) - ロック状態の初期値
 
-- コマンド: フロントエンドのビルドコマンド
-- 型エラーやビルドエラーが発生しないことを確認
-- ✅ 完了: `npm run build`が正常に完了しました
+- [ ] エクスポート時に`isLocked`を初期化
+  - **ファイル**: `public/src/utils/exportViewModel.ts`
+  - **関数**: `exportViewModel`
+  - **変更内容**: エクスポート時に`isLocked: false`を設定
+    ```typescript
+    ui: {
+      hover: null,
+      highlightedNodeIds: [],
+      highlightedEdgeIds: [],
+      highlightedColumnIds: [],
+      layerOrder: viewModel.erDiagram.ui.layerOrder,
+      isDraggingEntity: false,
+      isPanModeActive: false,
+      isLocked: false, // 追加
+    },
+    ```
+  - **参照**: [spec/import_export_feature.md](./spec/import_export_feature.md) - エクスポート時の処理
+  - **参照**: [spec/lock_feature.md](./spec/lock_feature.md) - インポート・エクスポート時の処理
 
-### - [x] テストの実行
+- [ ] インポート時に`isLocked`を設定
+  - **ファイル**: `public/src/utils/importViewModel.ts`
+  - **関数**: `importViewModel`
+  - **変更内容**: インポート時に`isLocked: true`を設定（インポート直後はロック状態にする）
+    ```typescript
+    ui: {
+      hover: null,
+      highlightedNodeIds: [],
+      highlightedEdgeIds: [],
+      highlightedColumnIds: [],
+      layerOrder:
+        importedViewModel.erDiagram?.ui?.layerOrder || {
+          backgroundItems: [],
+          foregroundItems: [],
+        },
+      isDraggingEntity: false,
+      isPanModeActive: false,
+      isLocked: true, // 追加（インポート直後はロック状態）
+    },
+    ```
+  - **参照**: [spec/import_export_feature.md](./spec/import_export_feature.md) - インポート時の処理
+  - **参照**: [spec/lock_feature.md](./spec/lock_feature.md) - インポート・エクスポート時の処理
 
-- コマンド: `npm run test`
-- 全てのテストが通過することを確認
-- ✅ 完了: 全てのテスト（268件）が通過しました
+### アクション層の実装
 
-## 補足事項
+- [ ] ロック状態トグルアクションの実装
+  - **ファイル**: `public/src/actions/globalUIActions.ts`
+  - **新規関数**: `actionToggleLock`
+  - **シグネチャ**: `actionToggleLock(viewModel: ViewModel): ViewModel`
+  - **動作**: `viewModel.erDiagram.ui.isLocked`を反転させる
+  - **実装内容**:
+    ```typescript
+    /**
+     * ロック状態をトグルする
+     */
+    export function actionToggleLock(
+      viewModel: ViewModel
+    ): ViewModel {
+      const newIsLocked = !viewModel.erDiagram.ui.isLocked;
+      
+      // 変化がない場合は同一参照を返す（再レンダリング抑制）
+      if (viewModel.erDiagram.ui.isLocked === newIsLocked) {
+        return viewModel;
+      }
+      
+      return {
+        ...viewModel,
+        erDiagram: {
+          ...viewModel.erDiagram,
+          ui: {
+            ...viewModel.erDiagram.ui,
+            isLocked: newIsLocked,
+          },
+        },
+      };
+    }
+    ```
+  - **参照**: [spec/frontend_state_management.md](./spec/frontend_state_management.md) - Action層の設計
+  - **参照**: [spec/lock_feature.md](./spec/lock_feature.md) - Action層の設計
 
-### 実装の考え方
+### UI層の実装
 
-- `isPanModeActive`はスペースキー押下状態やホイールボタンドラッグ状態を表す一時的なフラグ
-- ViewModelで管理することで、ホバーActionの先頭で統一的にチェック可能になる
-- エンティティ選択状態によるハイライトは`selectedItem`で別管理されているため、パンモード中も表示が維持される
+- [ ] ERCanvasコンポーネントにロック機能を実装
+  - **ファイル**: `public/src/components/ERCanvas.tsx`
+  - **変更内容**: 以下の実装を追加
 
-### フェーズ分けの理由
+  **1. ロック状態の購読**:
+  ```typescript
+  const isLocked = useViewModel((vm) => vm.erDiagram.ui.isLocked)
+  ```
 
-- フェーズ1: 型生成とバックエンドのみ（変更が少ない）
-- フェーズ2: フロントエンドの実装（複数ファイルの修正が必要）
-- 各フェーズの最後にビルド・テストを実行することで、段階的に動作確認できる
+  **2. React Flowコンポーネントのプロパティ設定**:
+  - `ERCanvasInner`コンポーネント内の`<ReactFlow>`コンポーネントのプロパティを修正
+  ```typescript
+  <ReactFlow
+    // ... 既存のプロパティ ...
+    nodesDraggable={!isPanModeActive && !isLocked}  // 修正
+    nodesConnectable={!isLocked}  // 追加
+    elementsSelectable={!isLocked}  // 追加
+    // ... 既存のプロパティ ...
+  >
+  ```
 
-### 動作確認の観点（手動確認時の参考）
+  **3. React Flow Controlsのロック状態連動**:
+  - `<Controls>`コンポーネントに`onInteractiveChange`コールバックを追加
+  ```typescript
+  <Controls 
+    onInteractiveChange={(interactiveStatus) => {
+      dispatch(actionToggleLock, undefined)  // interactiveStatusの反転がisLockedに対応
+    }}
+  />
+  ```
 
-1. スペースキー押下中にホバーイベントが無視されること
-2. スペースキー押下中でもエンティティ選択によるハイライトは表示されたままであること
-3. スペースキー押下中はエンティティ・矩形・テキストのドラッグが無効化されること
-4. カーソルが`grab`/`grabbing`に変化すること
-5. テキスト編集中のスペースキーは無視されること
-6. JSONインポート時に古いデータでも正しく動作すること
+  **4. ViewportPortal内の矩形・テキストのpointer-events制御**:
+  - 矩形とテキストを包むコンテナに`pointer-events`を追加
+  ```typescript
+  // renderRectangles関数内
+  <div
+    style={{
+      position: 'absolute',
+      left: rectangle.x,
+      top: rectangle.y,
+      width: rectangle.width,
+      height: rectangle.height,
+      // ... 既存のスタイル ...
+      pointerEvents: isLocked ? 'none' : 'auto',  // 追加
+    }}
+    // ... イベントハンドラー ...
+  >
+  
+  // renderTexts関数内
+  <div
+    style={{
+      position: 'absolute',
+      left: text.x,
+      top: text.y,
+      width: text.width,
+      height: text.height,
+      // ... 既存のスタイル ...
+      pointerEvents: isLocked ? 'none' : 'auto',  // 追加
+    }}
+    // ... イベントハンドラー ...
+  >
+  ```
+
+  **5. 矩形・テキストのイベントハンドラーに早期リターンを追加**:
+  - `handleRectangleMouseDown`関数に早期リターンを追加
+  ```typescript
+  const handleRectangleMouseDown = useCallback((e: React.MouseEvent, rectangleId: string) => {
+    if (isLocked) return  // 追加
+    if (isPanModeActive) return
+    // ... 既存の処理 ...
+  }, [rectangles, dispatch, isPanModeActive, isLocked])  // 依存配列にisLockedを追加
+  ```
+  - `handleTextMouseDown`関数に早期リターンを追加
+  ```typescript
+  const handleTextMouseDown = useCallback((e: React.MouseEvent, textId: string) => {
+    if (isLocked) return  // 追加
+    if (isPanModeActive) return
+    // ... 既存の処理 ...
+  }, [texts, dispatch, isPanModeActive, isLocked])  // 依存配列にisLockedを追加
+  ```
+  - renderTexts関数内の`onDoubleClick`ハンドラーに早期リターンを追加
+  ```typescript
+  onDoubleClick={(e) => {
+    if (isLocked) return  // 追加
+    e.stopPropagation()
+    setEditingTextId(item.id)
+    setDraftContent(text.content)
+  }}
+  ```
+
+  **6. テキスト編集UIの表示制御**:
+  - テキスト編集UI（ViewportPortal内のtextarea）を条件付きレンダリング
+  ```typescript
+  {(!isLocked && editingTextId && texts[editingTextId]) && (
+    <ViewportPortal>
+      {/* テキスト編集UI */}
+    </ViewportPortal>
+  )}
+  ```
+
+  **7. キーボードショートカット（Ctrl+E / Cmd+E）の実装**:
+  - ロック状態をトグルするキーボードショートカットを実装
+  ```typescript
+  // キーボードショートカット: ロック状態トグル
+  const ctrlEPressed = useKeyPress('Control+e')
+  const metaEPressed = useKeyPress('Meta+e')
+  
+  // 前回のキー押下状態を保持（エッジ検知用）
+  const prevCtrlEPressed = useRef(false)
+  const prevMetaEPressed = useRef(false)
+  
+  // ロックトグル処理（キーが押された瞬間だけ実行）
+  useEffect(() => {
+    // 前回の状態を保存（早期リターンより前に実行）
+    const prevCtrlE = prevCtrlEPressed.current
+    const prevMetaE = prevMetaEPressed.current
+    
+    // 前回の状態を更新
+    prevCtrlEPressed.current = ctrlEPressed
+    prevMetaEPressed.current = metaEPressed
+    
+    // テキスト編集モード中は無効化
+    if (editingTextId !== null) return
+    
+    // HTML入力要素にフォーカスがある場合は無効化（ブラウザのデフォルト動作を優先）
+    const activeElement = document.activeElement
+    const isInputElement = 
+      activeElement instanceof HTMLInputElement ||
+      activeElement instanceof HTMLTextAreaElement ||
+      (activeElement instanceof HTMLElement && activeElement.isContentEditable)
+    if (isInputElement) return
+    
+    // false → true の変化を検知（キーが押された瞬間）
+    const ctrlEJustPressed = !prevCtrlE && ctrlEPressed
+    const metaEJustPressed = !prevMetaE && metaEPressed
+    
+    if (ctrlEJustPressed || metaEJustPressed) {
+      // ブラウザのデフォルト動作を抑制（検索バー/アドレスバーへのフォーカス）
+      window.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'e') {
+          e.preventDefault()
+        }
+      }, { once: true })
+      
+      dispatch(actionToggleLock)
+    }
+  }, [ctrlEPressed, metaEPressed, editingTextId, dispatch])
+  ```
+  - **注意**: キーボードショートカットは[spec/copy_paste_feature.md](./spec/copy_paste_feature.md)のパターンに従う
+    - エッジ検知（false → true）で実行
+    - 前回の状態更新は早期リターンの前に実行
+    - テキスト編集モード中とHTML入力要素にフォーカスがある場合は無効化
+
+  - **参照**: [spec/lock_feature.md](./spec/lock_feature.md) - ロック状態による制御、React Flow Controlsとの連動、キーボードショートカット
+  - **参照**: [spec/copy_paste_feature.md](./spec/copy_paste_feature.md) - キーボードショートカットの実装パターン
+
+## テスト更新
+
+- [ ] GetInitialViewModelUsecaseのテスト更新
+  - **ファイル**: `tests/usecases/GetInitialViewModelUsecase.test.ts`
+  - **変更内容**: テスト内で`isLocked: false`が初期値として設定されているか検証
+  - **確認事項**: 既存テストが新しいフィールドの追加でエラーになる場合は修正
+
+- [ ] exportViewModelのテスト更新
+  - **ファイル**: `public/tests/utils/exportViewModel.test.ts`
+  - **変更内容**: エクスポート後のViewModelに`isLocked: false`が設定されているか検証
+  - **確認事項**: 既存テストが新しいフィールドの追加でエラーになる場合は修正
+
+## ビルドとテスト
+
+- [ ] ビルド確認
+  - **コマンド**: `npm run generate && npm run build`（または適切なビルドコマンド）
+  - **確認事項**: TypeScriptのコンパイルエラーがないこと
+
+- [ ] テスト実行
+  - **コマンド**: `npm run test`
+  - **確認事項**: すべてのテストがパスすること
+
+## 備考
+
+### 仕様書の参照先
+
+- [spec/lock_feature.md](./spec/lock_feature.md) - ロック機能の詳細仕様
+- [spec/frontend_state_management.md](./spec/frontend_state_management.md) - フロントエンド状態管理とアクション設計
+- [spec/import_export_feature.md](./spec/import_export_feature.md) - インポート・エクスポート時の処理
+- [spec/viewmodel_based_api.md](./spec/viewmodel_based_api.md) - APIの初期値
+- [spec/copy_paste_feature.md](./spec/copy_paste_feature.md) - キーボードショートカットの実装パターン
+- [research/20260213_2236_react_flow_lock_state_control.md](./research/20260213_2236_react_flow_lock_state_control.md) - リサーチレポート
+
+### 実装の注意点
+
+1. **型生成を最初に実行**: `npm run generate`でmain.tspから型を生成してから実装を開始
+2. **変化がない場合は同一参照を返す**: Actionで`isLocked`の値が変化しない場合は同一参照を返し、再レンダリングを抑制
+3. **キーボードショートカットの状態管理**: エッジ検知で実行し、前回の状態更新は早期リターンの前に実行
+4. **pointer-eventsとイベントハンドラーの両方で制御**: `pointer-events: none`で基本的にイベントを無効化し、イベントハンドラーでも早期リターン（保険）
+5. **ロック状態の初期値**: 画面を開いた直後は`false`（ロック解除状態）、インポート直後は`true`（ロック状態）
+6. **React Flow Controlsとの連動**: `onInteractiveChange`コールバックで`actionToggleLock`をdispatch
