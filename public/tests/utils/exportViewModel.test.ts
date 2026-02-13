@@ -231,6 +231,8 @@ describe('exportViewModel', () => {
     expect(exportedData.erDiagram.ui.highlightedEdgeIds).toEqual([]);
     expect(exportedData.erDiagram.ui.highlightedColumnIds).toEqual([]);
     expect(exportedData.erDiagram.ui.isDraggingEntity).toBe(false);
+    expect(exportedData.erDiagram.ui.isPanModeActive).toBe(false);
+    expect(exportedData.erDiagram.ui.isLocked).toBe(false);
     expect(exportedData.erDiagram.loading).toBe(false);
   });
   

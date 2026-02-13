@@ -6,14 +6,14 @@
 
 ## 型生成
 
-- [ ] 型の再生成
+- [x] 型の再生成
   - **コマンド**: `npm run generate`
   - **目的**: `scheme/main.tsp`の`ERDiagramUIState`に追加された`isLocked`フィールドから型定義を生成
   - **生成されるファイル**: `lib/generated/api-types.ts`, `public/src/api/client/index.ts`
 
 ## バックエンド実装
 
-- [ ] 初期ViewModelに`isLocked`フィールドを追加
+- [x] 初期ViewModelに`isLocked`フィールドを追加
   - **ファイル**: `lib/usecases/GetInitialViewModelUsecase.ts`
   - **変更内容**: `getInitialErDiagramUIState`関数で返すオブジェクトに`isLocked: false`を追加
     ```typescript
@@ -35,7 +35,7 @@
 
 ### ユーティリティ層の実装
 
-- [ ] 初期状態に`isLocked`を追加
+- [x] 初期状態に`isLocked`を追加
   - **ファイル**: `public/src/utils/getInitialViewModelValues.ts`
   - **関数**: `getInitialErDiagramUIState`
   - **変更内容**: 返却するオブジェクトに`isLocked: false`を追加
@@ -58,7 +58,7 @@
     ```
   - **参照**: [spec/lock_feature.md](./spec/lock_feature.md) - ロック状態の初期値
 
-- [ ] エクスポート時に`isLocked`を初期化
+- [x] エクスポート時に`isLocked`を初期化
   - **ファイル**: `public/src/utils/exportViewModel.ts`
   - **関数**: `exportViewModel`
   - **変更内容**: エクスポート時に`isLocked: false`を設定
@@ -77,7 +77,7 @@
   - **参照**: [spec/import_export_feature.md](./spec/import_export_feature.md) - エクスポート時の処理
   - **参照**: [spec/lock_feature.md](./spec/lock_feature.md) - インポート・エクスポート時の処理
 
-- [ ] インポート時に`isLocked`を設定
+- [x] インポート時に`isLocked`を設定
   - **ファイル**: `public/src/utils/importViewModel.ts`
   - **関数**: `importViewModel`
   - **変更内容**: インポート時に`isLocked: true`を設定（インポート直後はロック状態にする）
@@ -102,7 +102,7 @@
 
 ### アクション層の実装
 
-- [ ] ロック状態トグルアクションの実装
+- [x] ロック状態トグルアクションの実装
   - **ファイル**: `public/src/actions/globalUIActions.ts`
   - **新規関数**: `actionToggleLock`
   - **シグネチャ**: `actionToggleLock(viewModel: ViewModel): ViewModel`
@@ -139,7 +139,7 @@
 
 ### UI層の実装
 
-- [ ] ERCanvasコンポーネントにロック機能を実装
+- [x] ERCanvasコンポーネントにロック機能を実装
   - **ファイル**: `public/src/components/ERCanvas.tsx`
   - **変更内容**: 以下の実装を追加
 
@@ -297,25 +297,27 @@
 
 ## テスト更新
 
-- [ ] GetInitialViewModelUsecaseのテスト更新
+- [x] GetInitialViewModelUsecaseのテスト更新
   - **ファイル**: `tests/usecases/GetInitialViewModelUsecase.test.ts`
   - **変更内容**: テスト内で`isLocked: false`が初期値として設定されているか検証
   - **確認事項**: 既存テストが新しいフィールドの追加でエラーになる場合は修正
 
-- [ ] exportViewModelのテスト更新
+- [x] exportViewModelのテスト更新
   - **ファイル**: `public/tests/utils/exportViewModel.test.ts`
   - **変更内容**: エクスポート後のViewModelに`isLocked: false`が設定されているか検証
   - **確認事項**: 既存テストが新しいフィールドの追加でエラーになる場合は修正
 
 ## ビルドとテスト
 
-- [ ] ビルド確認
+- [x] ビルド確認
   - **コマンド**: `npm run generate && npm run build`（または適切なビルドコマンド）
   - **確認事項**: TypeScriptのコンパイルエラーがないこと
+  - **結果**: ビルドが成功しました。コンパイルエラーはありません
 
-- [ ] テスト実行
+- [x] テスト実行
   - **コマンド**: `npm run test`
   - **確認事項**: すべてのテストがパスすること
+  - **結果**: 268個のテストがすべてパスしました
 
 ## 備考
 

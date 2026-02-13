@@ -39,6 +39,7 @@ export function exportViewModel(viewModel: ViewModel): void {
           layerOrder: viewModel.erDiagram.ui.layerOrder, // 維持する
           isDraggingEntity: false,
           isPanModeActive: false,
+          isLocked: false,
         },
         loading: false,
       },

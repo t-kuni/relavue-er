@@ -16,6 +16,7 @@ export function getInitialErDiagramUIState(): ERDiagramUIState {
     },
     isDraggingEntity: false,
     isPanModeActive: false,
+    isLocked: false,
   };
 }
 

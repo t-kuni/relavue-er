@@ -32,6 +32,7 @@ import { actionAddText, actionRemoveText, actionUpdateTextPosition, actionUpdate
 import { actionSelectItem } from '../actions/layerActions'
 import { actionStartEntityDrag, actionStopEntityDrag, actionClearHover, actionSetPanModeActive } from '../actions/hoverActions'
 import { actionCopyItem, actionPasteItem, actionUpdateMousePosition } from '../actions/clipboardActions'
+import { actionToggleLock } from '../actions/globalUIActions'
 import type { Rectangle, LayerItemRef } from '../api/client'
 import { TextBox } from '../api/client'
 
@@ -235,6 +236,7 @@ function ERCanvasInner({
   const clipboard = useViewModel((vm) => vm.ui.clipboard)
   const lastMousePosition = useViewModel((vm) => vm.ui.lastMousePosition)
   const isPanModeActive = useViewModel((vm) => vm.erDiagram.ui.isPanModeActive)
+  const isLocked = useViewModel((vm) => vm.erDiagram.ui.isLocked)
   
   // 空テキストの自動削除
   const prevSelectedItem = useRef<typeof selectedItem>(null)
@@ -418,6 +420,7 @@ function ERCanvasInner({
   
   // 矩形のドラッグ処理
   const handleRectangleMouseDown = useCallback((e: React.MouseEvent, rectangleId: string) => {
+    if (isLocked) return
     // パンモード中は矩形のドラッグを無効化（イベント伝播は許可してReact Flowにパン処理を委譲）
     if (isPanModeActive) return
     if (e.button === 1) return // ホイールボタン
@@ -438,7 +441,7 @@ function ERCanvasInner({
       rectStartX: rectangle.x,
       rectStartY: rectangle.y,
     })
-  }, [rectangles, dispatch, isPanModeActive])
+  }, [rectangles, dispatch, isPanModeActive, isLocked])
   
   // マウスムーブ時のドラッグ処理（矩形）
   useEffect(() => {
@@ -587,6 +590,51 @@ function ERCanvasInner({
     }
   }, [ctrlVPressed, metaVPressed, editingTextId, clipboard, lastMousePosition, viewport, screenToFlowPosition, dispatch])
   
+  // キーボードショートカット：ロック状態トグル
+  const ctrlEPressed = useKeyPress('Control+e')
+  const metaEPressed = useKeyPress('Meta+e')
+  
+  // 前回のキー押下状態を保持（エッジ検知用）
+  const prevCtrlEPressed = useRef(false)
+  const prevMetaEPressed = useRef(false)
+  
+  // ロックトグル処理（キーが押された瞬間だけ実行）
+  useEffect(() => {
+    // 前回の状態を保存（早期リターンより前に実行）
+    const prevCtrlE = prevCtrlEPressed.current
+    const prevMetaE = prevMetaEPressed.current
+    
+    // 前回の状態を更新
+    prevCtrlEPressed.current = ctrlEPressed
+    prevMetaEPressed.current = metaEPressed
+    
+    // テキスト編集モード中は無効化
+    if (editingTextId !== null) return
+    
+    // HTML入力要素にフォーカスがある場合は無効化（ブラウザのデフォルト動作を優先）
+    const activeElement = document.activeElement
+    const isInputElement = 
+      activeElement instanceof HTMLInputElement ||
+      activeElement instanceof HTMLTextAreaElement ||
+      (activeElement instanceof HTMLElement && activeElement.isContentEditable)
+    if (isInputElement) return
+    
+    // false → true の変化を検知（キーが押された瞬間）
+    const ctrlEJustPressed = !prevCtrlE && ctrlEPressed
+    const metaEJustPressed = !prevMetaE && metaEPressed
+    
+    if (ctrlEJustPressed || metaEJustPressed) {
+      // ブラウザのデフォルト動作を抑制（検索バー/アドレスバーへのフォーカス）
+      window.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'e') {
+          e.preventDefault()
+        }
+      }, { once: true })
+      
+      dispatch(actionToggleLock)
+    }
+  }, [ctrlEPressed, metaEPressed, editingTextId, dispatch])
+  
   // F2キーでテキスト編集モード開始
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -612,6 +660,7 @@ function ERCanvasInner({
   
   // テキストのドラッグ処理
   const handleTextMouseDown = useCallback((e: React.MouseEvent, textId: string) => {
+    if (isLocked) return
     // パンモード中はテキストのドラッグを無効化（イベント伝播は許可してReact Flowにパン処理を委譲）
     if (isPanModeActive) return
     if (e.button === 1) return // ホイールボタン
@@ -632,7 +681,7 @@ function ERCanvasInner({
       textStartX: text.x,
       textStartY: text.y,
     })
-  }, [texts, dispatch, isPanModeActive])
+  }, [texts, dispatch, isPanModeActive, isLocked])
   
   // リサイズハンドラー（テキスト）
   const handleTextResize = useCallback((textId: string, newBounds: { x: number; y: number; width: number; height: number }) => {
@@ -672,7 +721,7 @@ function ERCanvasInner({
             boxSizing: 'border-box',
             outline: isSelected ? '2px solid #1976d2' : 'none',
             outlineOffset: '2px',
-            pointerEvents: 'auto',
+            pointerEvents: isLocked ? 'none' : 'auto',
           }}
           onMouseDown={(e) => handleRectangleMouseDown(e, item.id)}
           onClick={(e) => {
@@ -750,7 +799,7 @@ function ERCanvasInner({
             boxSizing: 'border-box',
             outline: isSelected ? '2px solid #1976d2' : 'none',
             outlineOffset: '2px',
-            pointerEvents: 'auto',
+            pointerEvents: isLocked ? 'none' : 'auto',
             zIndex,
             display: 'flex',
             flexDirection: 'column',
@@ -763,6 +812,7 @@ function ERCanvasInner({
             dispatch(actionSelectItem, item)
           }}
           onDoubleClick={(e) => {
+            if (isLocked) return
             e.stopPropagation()
             setEditingTextId(item.id)
             setDraftContent(text.content)
@@ -1000,7 +1050,9 @@ function ERCanvasInner({
         elevateEdgesOnSelect={false}
         zIndexMode="manual"
         panOnDrag={true}
-        nodesDraggable={!isPanModeActive}
+        nodesDraggable={!isPanModeActive && !isLocked}
+        nodesConnectable={!isLocked}
+        elementsSelectable={!isLocked}
         fitView
       >
         {/* 背面レイヤー */}
@@ -1016,7 +1068,7 @@ function ERCanvasInner({
         </ViewportPortal>
         
         {/* テキスト編集UI */}
-        {editingTextId && texts[editingTextId] && (
+        {(!isLocked && editingTextId && texts[editingTextId]) && (
           <ViewportPortal>
             {(() => {
               const text = texts[editingTextId]
@@ -1103,7 +1155,11 @@ function ERCanvasInner({
           </ViewportPortal>
         )}
         
-        <Controls />
+        <Controls 
+          onInteractiveChange={(interactiveStatus) => {
+            dispatch(actionToggleLock, undefined)
+          }}
+        />
         <Background />
       </ReactFlow>
     </div>

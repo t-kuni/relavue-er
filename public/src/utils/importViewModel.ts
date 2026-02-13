@@ -143,6 +143,7 @@ export function importViewModel(
                 },
               isDraggingEntity: false,
               isPanModeActive: false,
+              isLocked: true,
             },
             loading: false,
           },

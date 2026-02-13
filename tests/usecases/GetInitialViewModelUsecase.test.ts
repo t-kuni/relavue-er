@@ -52,6 +52,9 @@ describe('GetInitialViewModelUsecase', () => {
     expect(viewModel.erDiagram.ui.highlightedColumnIds).toEqual([]);
     expect(viewModel.erDiagram.ui.layerOrder.backgroundItems).toEqual([]);
     expect(viewModel.erDiagram.ui.layerOrder.foregroundItems).toEqual([]);
+    expect(viewModel.erDiagram.ui.isDraggingEntity).toBe(false);
+    expect(viewModel.erDiagram.ui.isPanModeActive).toBe(false);
+    expect(viewModel.erDiagram.ui.isLocked).toBe(false);
 
     // uiの検証
     expect(viewModel.ui.selectedItem).toBeNull();

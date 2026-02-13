@@ -119,3 +119,28 @@ export function actionSetLocale(
     },
   };
 }
+
+/**
+ * ロック状態をトグルする
+ */
+export function actionToggleLock(
+  viewModel: ViewModel
+): ViewModel {
+  const newIsLocked = !viewModel.erDiagram.ui.isLocked;
+  
+  // 変化がない場合は同一参照を返す（再レンダリング抑制）
+  if (viewModel.erDiagram.ui.isLocked === newIsLocked) {
+    return viewModel;
+  }
+  
+  return {
+    ...viewModel,
+    erDiagram: {
+      ...viewModel.erDiagram,
+      ui: {
+        ...viewModel.erDiagram.ui,
+        isLocked: newIsLocked,
+      },
+    },
+  };
+}
