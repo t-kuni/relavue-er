@@ -119,3 +119,44 @@ const isLocked = erDiagram.ui.isLocked;
 [3]: https://reactflow.dev/api-reference/react-flow "The ReactFlow component - React Flow"
 [4]: https://reactflow.dev/examples/interaction/interaction-props "Interaction Props - React Flow"
 [5]: https://reactflow.dev/api-reference/components/viewport-portal "The ViewportPortal component - React Flow"
+
+
+------------------
+
+
+追加の要件です。
+
+* ロックを切り替えるボタンはReact Flowのデフォルトのtoggle intaractiveボタンに相乗りする
+* ロック切り替えにショートカットを割り当てたい。デフォルトでショートカットキーが割り当てられているか？
+
+
+--------------------
+
+### 1) デフォルトの “toggle interactivity” ボタンに相乗りする方法
+
+`<Controls />` の `onInteractiveChange(interactiveStatus: boolean)` で、デフォルトのロックボタン押下をフックできます。([React Flow][1])
+この `interactiveStatus`（インタラクティブ有効/無効）をあなたの `isLocked` に同期し、**React Flow の props** と **ViewportPortal 側の pointer-events / 編集UI表示**を同じ状態で切り替えれば相乗りできます。
+
+* 例（概念）: `isLocked = !interactiveStatus`
+* 反映先:
+
+  * `<ReactFlow />`: `nodesDraggable / nodesConnectable / elementsSelectable` などを `!isLocked` で制御
+  * `<ViewportPortal />`: まとめて包む要素に `pointer-events: none`（ロック中）を適用、編集UIはロック中表示しない
+
+※ `Controls` のロックボタンが切り替える対象は「インタラクション（選択/ドラッグ/接続）」で、コールバックも“クリック時”に発火します。([React Flow][1])
+
+---
+
+### 2) ロック切り替えのショートカットはデフォルトであるか？
+
+**専用のデフォルトショートカットは用意されていません。**
+React Flow がデフォルトで持つ “Keyboard props” は `deleteKeyCode / selectionKeyCode / multiSelectionKeyCode / zoomActivationKeyCode / panActivationKeyCode` 等で、ロック切り替えに対応する項目はありません。([React Flow][2])
+
+ただし、キーボード操作としては **Tab でフォーカス移動 → Enter/Space で操作**は可能です（アクセシビリティ機能）。([React Flow][3])
+
+ショートカットを割り当てる場合は、`useKeyPress` などで任意のキー入力を検知して、上記の `isLocked`（または `interactiveStatus` 相当の状態）をトグルする実装になります。([React Flow][4])
+
+[1]: https://reactflow.dev/api-reference/components/controls "The Controls component - React Flow"
+[2]: https://reactflow.dev/api-reference/react-flow "The ReactFlow component - React Flow"
+[3]: https://reactflow.dev/learn/advanced-use/accessibility "Accessibility - React Flow"
+[4]: https://reactflow.dev/api-reference/hooks/use-key-press "useKeyPress() - React Flow"
