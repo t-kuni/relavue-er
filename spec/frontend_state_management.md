@@ -178,6 +178,13 @@ Actionは `ViewModel` 全体を受け取り、新しい `ViewModel` を返す。
   
 * `actionSetLoading(viewModel, loading)`: ローディング状態の更新（リバースエンジニア処理）
 
+##### ロック関連
+
+* `actionToggleLock(viewModel)`: ロック状態をトグル
+  - `viewModel.erDiagram.ui.isLocked` を反転
+  - 変化がない場合は同一参照を返す（再レンダリング抑制）
+  - 詳細は[lock_feature.md](./lock_feature.md)を参照
+
 ##### 矩形・テキスト関連
 
 * `actionAddRectangle(viewModel, rectangle)`: 矩形を追加

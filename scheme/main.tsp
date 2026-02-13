@@ -225,6 +225,7 @@ model ERDiagramUIState {
   layerOrder: LayerOrder; // レイヤー順序
   isDraggingEntity: boolean; // エンティティドラッグ中フラグ（true: ドラッグ中、false: 通常状態）
   isPanModeActive: boolean; // パンモード中フラグ（true: スペースキー押下中またはホイールボタンドラッグ中、false: 通常状態）
+  isLocked: boolean; // ロック状態フラグ（true: ロック状態（編集不可）、false: ロック解除状態（編集可能））
 }
 
 // Reverse engineering history models

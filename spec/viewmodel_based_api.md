@@ -49,6 +49,7 @@ GET /api/init
   - `ui.layerOrder.foregroundItems`: `[]`
   - `ui.isDraggingEntity`: `false`
   - `ui.isPanModeActive`: `false`
+  - `ui.isLocked`: `false`（詳細は[ロック機能仕様](/spec/lock_feature.md)を参照）
   - `loading`: `false`
   - `history`: `[]`（空配列）
 - `ui`: 初期のグローバルUI状態

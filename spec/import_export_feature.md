@@ -32,6 +32,7 @@ ER図のデータをJSON形式でエクスポート・インポートする機�
 - `erDiagram.ui.highlightedColumnIds` - ハイライト状態を初期化
 - `erDiagram.ui.isDraggingEntity` - `false` をセット
 - `erDiagram.ui.isPanModeActive` - `false` をセット
+- `erDiagram.ui.isLocked` - `false` をセット（詳細は[ロック機能仕様](/spec/lock_feature.md)を参照）
 - `erDiagram.ui.layerOrder` - **維持する**（レイヤー順序はエクスポート対象）
 - `erDiagram.loading` - `false` をセット
 
@@ -74,6 +75,7 @@ ER図のデータをJSON形式でエクスポート・インポートする機�
 - `erDiagram.ui.highlightedColumnIds` - 初期値をセット
 - `erDiagram.ui.isDraggingEntity` - `false` をセット（古いデータに存在しない場合のデフォルト値）
 - `erDiagram.ui.isPanModeActive` - `false` をセット（古いデータに存在しない場合のデフォルト値）
+- `erDiagram.ui.isLocked` - `true` をセット（インポート直後はロック状態にする。古いデータに存在しない場合もデフォルト値として`true`を設定。詳細は[ロック機能仕様](/spec/lock_feature.md)を参照）
 
 ### ファイル形式
 
