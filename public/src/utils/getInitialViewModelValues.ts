@@ -31,11 +31,14 @@ export function getInitialGlobalUIState(): GlobalUIState {
     showLayerPanel: false,
     showDatabaseConnectionModal: false,
     showHistoryPanel: false,
+    showShortcutHelp: true,
     layoutOptimization: {
       isRunning: false,
       progress: 0,
       currentStage: null,
     },
+    clipboard: null,
+    lastMousePosition: null,
   };
 }
 

@@ -32,7 +32,7 @@ import { actionAddText, actionRemoveText, actionUpdateTextPosition, actionUpdate
 import { actionSelectItem } from '../actions/layerActions'
 import { actionStartEntityDrag, actionStopEntityDrag, actionClearHover, actionSetPanModeActive } from '../actions/hoverActions'
 import { actionCopyItem, actionPasteItem, actionUpdateMousePosition } from '../actions/clipboardActions'
-import { actionToggleLock } from '../actions/globalUIActions'
+import { actionToggleLock, actionToggleShortcutHelp } from '../actions/globalUIActions'
 import type { Rectangle, LayerItemRef } from '../api/client'
 import { TextBox } from '../api/client'
 
@@ -1181,12 +1181,17 @@ function ERCanvas({ onSelectionChange, onNodesInitialized }: ERCanvasProps = {})
   const viewModelNodes = useViewModel((vm) => vm.erDiagram.nodes)
   const viewModelEdges = useViewModel((vm) => vm.erDiagram.edges)
   const highlightedEdgeIds = useViewModel((vm) => vm.erDiagram.ui.highlightedEdgeIds)
+  const showShortcutHelp = useViewModel((vm) => vm.ui.showShortcutHelp)
+  const isLocked = useViewModel((vm) => vm.erDiagram.ui.isLocked)
   
   // ホバー状態を購読（真偽値のみ）
   const hasHover = useViewModel(
     (vm) => vm.erDiagram.ui.hover !== null,
     (a, b) => a === b
   )
+  
+  // プラットフォーム判定（Mac環境かどうか）
+  const isMac = navigator.platform.includes('Mac')
   
   // ERCanvasInner内のハンドラーへの参照
   const addRectangleRef = useRef<(() => void) | null>(null)
@@ -1245,6 +1250,102 @@ function ERCanvas({ onSelectionChange, onNodesInitialized }: ERCanvasProps = {})
         >
           {t('common.add_text')}
         </button>
+      </div>
+      
+      {/* ショートカットヘルプUI */}
+      <div style={{ position: 'absolute', top: 55, left: 10, zIndex: 10 }}>
+        {showShortcutHelp ? (
+          // 展開状態
+          <div
+            style={{
+              background: 'rgba(255, 255, 255, 0.95)',
+              border: '1px solid #ddd',
+              borderRadius: '4px',
+              padding: '0.75rem',
+              fontSize: '14px',
+              lineHeight: 1.6,
+              minWidth: '250px',
+            }}
+          >
+            {/* ヘッダー */}
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center',
+              borderBottom: '1px solid #ddd',
+              paddingBottom: '0.5rem',
+              marginBottom: '0.5rem'
+            }}>
+              <div style={{ fontWeight: 'bold' }}>{t('shortcut_help.title')}</div>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  dispatch(actionToggleShortcutHelp, undefined)
+                }}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: '18px',
+                  padding: '0',
+                  lineHeight: 1,
+                  color: '#666',
+                }}
+                title={t('shortcut_help.close')}
+              >
+                ×
+              </button>
+            </div>
+            
+            {/* 常時有効な操作 */}
+            <div>
+              <div>{t('shortcut_help.mouse_wheel_zoom')}</div>
+              <div>{t('shortcut_help.space_drag_pan')}</div>
+              <div>{t('shortcut_help.save', { key: isMac ? 'Cmd' : 'Ctrl' })}</div>
+              <div>{t('shortcut_help.toggle_edit_mode', { key: isMac ? 'Cmd' : 'Ctrl' })}</div>
+            </div>
+            
+            {/* 編集モード中のみ有効な操作 */}
+            {!isLocked && (
+              <div style={{ marginTop: '0.5rem' }}>
+                <div style={{ fontWeight: 'bold' }}>{t('shortcut_help.edit_mode_section')}</div>
+                <div style={{ marginLeft: '16px' }}>
+                  {t('shortcut_help.shift_drag_select')}
+                </div>
+              </div>
+            )}
+          </div>
+        ) : (
+          // 折りたたみ状態
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              dispatch(actionToggleShortcutHelp, undefined)
+            }}
+            style={{
+              width: '36px',
+              height: '36px',
+              borderRadius: '50%',
+              background: 'rgba(255, 255, 255, 0.95)',
+              border: '1px solid #ddd',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              fontSize: '20px',
+              fontWeight: 'bold',
+              color: '#333',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 1)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.95)'
+            }}
+          >
+            ?
+          </button>
+        )}
       </div>
       <ReactFlowProvider>
         <ERCanvasInner 

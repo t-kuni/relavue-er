@@ -358,6 +358,7 @@ model GlobalUIState {
   showLayerPanel: boolean; // レイヤーパネル表示フラグ
   showDatabaseConnectionModal: boolean; // データベース接続設定モーダル表示フラグ
   showHistoryPanel: boolean; // 履歴パネル表示フラグ
+  showShortcutHelp: boolean; // ショートカットヘルプの展開/折りたたみ状態（true: 展開, false: 折りたたみ）
   layoutOptimization: LayoutOptimizationState; // 配置最適化の状態
   clipboard: ClipboardData | null; // クリップボードデータ（コピー&ペースト用）
   lastMousePosition: CanvasMousePosition | null; // キャンバス上の最後のマウス位置（ペースト位置決定用）

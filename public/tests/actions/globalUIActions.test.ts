@@ -6,6 +6,7 @@ import {
   actionHideDatabaseConnectionModal,
   actionToggleHistoryPanel,
   actionSetLocale,
+  actionToggleShortcutHelp,
 } from '../../src/actions/globalUIActions';
 import type { components } from '../../../lib/generated/api-types';
 
@@ -14,6 +15,8 @@ type ViewModel = components['schemas']['ViewModel'];
 describe('globalUIActions', () => {
   // テスト用のViewModelを作成
   const createMockViewModel = (): ViewModel => ({
+    format: 'er-viewer',
+    version: 1,
     erDiagram: {
       nodes: {},
       edges: {},
@@ -34,6 +37,8 @@ describe('globalUIActions', () => {
           foregroundItems: [],
         },
         isDraggingEntity: false,
+        isPanModeActive: false,
+        isLocked: false,
       },
       loading: false,
       history: [],
@@ -44,11 +49,14 @@ describe('globalUIActions', () => {
       showLayerPanel: false,
       showDatabaseConnectionModal: false,
       showHistoryPanel: false,
+      showShortcutHelp: false,
       layoutOptimization: {
         isRunning: false,
         progress: 0,
         currentStage: null,
       },
+      clipboard: null,
+      lastMousePosition: null,
     },
     buildInfo: {
       data: null,
@@ -227,6 +235,30 @@ describe('globalUIActions', () => {
       actionSetLocale(viewModel, 'ja');
 
       expect(viewModel.settings?.locale).toBe(originalLocale);
+    });
+  });
+
+  describe('actionToggleShortcutHelp', () => {
+    it('ショートカットヘルプの表示がfalseからtrueに切り替わる', () => {
+      const viewModel = createMockViewModel();
+      
+      const result = actionToggleShortcutHelp(viewModel);
+
+      expect(result.ui.showShortcutHelp).toBe(true);
+    });
+
+    it('ショートカットヘルプの表示がtrueからfalseに切り替わる', () => {
+      const viewModel: ViewModel = {
+        ...createMockViewModel(),
+        ui: {
+          ...createMockViewModel().ui,
+          showShortcutHelp: true,
+        },
+      };
+      
+      const result = actionToggleShortcutHelp(viewModel);
+
+      expect(result.ui.showShortcutHelp).toBe(false);
     });
   });
 });

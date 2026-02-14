@@ -144,3 +144,25 @@ export function actionToggleLock(
     },
   };
 }
+
+/**
+ * ショートカットヘルプの展開/折りたたみ状態をトグルする
+ */
+export function actionToggleShortcutHelp(
+  viewModel: ViewModel
+): ViewModel {
+  const newShowShortcutHelp = !viewModel.ui.showShortcutHelp;
+  
+  // 変化がない場合は同一参照を返す（再レンダリング抑制）
+  if (viewModel.ui.showShortcutHelp === newShowShortcutHelp) {
+    return viewModel;
+  }
+  
+  return {
+    ...viewModel,
+    ui: {
+      ...viewModel.ui,
+      showShortcutHelp: newShowShortcutHelp,
+    },
+  };
+}

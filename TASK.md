@@ -8,13 +8,13 @@
 
 ### TypeSpec定義の更新
 
-- [ ] `scheme/main.tsp` の `GlobalUIState` モデルに `showShortcutHelp: boolean` フィールドを追加
+- [x] `scheme/main.tsp` の `GlobalUIState` モデルに `showShortcutHelp: boolean` フィールドを追加
   - コメント: `// ショートカットヘルプの展開/折りたたみ状態（true: 展開, false: 折りたたみ）`
   - デフォルト値は `true` で初期化（アプリケーション起動時、インポート時は展開状態）
 
 ### 型の再生成
 
-- [ ] TypeSpecの型定義を再生成
+- [x] TypeSpecの型定義を再生成
   - コマンド: `npm run generate`
   - 生成される型:
     - `lib/generated/api-types.ts` (バックエンド用)
@@ -22,13 +22,13 @@
 
 ### 初期値設定の更新
 
-- [ ] `public/src/utils/getInitialViewModelValues.ts` の `getInitialGlobalUIState()` 関数に `showShortcutHelp: true` を追加
+- [x] `public/src/utils/getInitialViewModelValues.ts` の `getInitialGlobalUIState()` 関数に `showShortcutHelp: true` を追加
   - この関数はアプリケーション起動時とファイルインポート時に呼ばれる
   - インポート時に常に `true` になることで、ユーザーがショートカットキーを確認しやすくする
 
 ### Action実装
 
-- [ ] `public/src/actions/globalUIActions.ts` に `actionToggleShortcutHelp` を追加
+- [x] `public/src/actions/globalUIActions.ts` に `actionToggleShortcutHelp` を追加
   - 関数シグネチャ: `actionToggleShortcutHelp(viewModel: ViewModel): ViewModel`
   - 実装内容:
     - `viewModel.ui.showShortcutHelp` の真偽値を反転
@@ -37,7 +37,7 @@
 
 ### テストコード作成
 
-- [ ] `public/tests/actions/globalUIActions.test.ts` にテストを追加
+- [x] `public/tests/actions/globalUIActions.test.ts` にテストを追加
   - テスト対象: `actionToggleShortcutHelp`
   - テストケース:
     - `showShortcutHelp` が `false` から `true` に切り替わること
@@ -46,7 +46,7 @@
 
 ### UI実装
 
-- [ ] `public/src/components/ERCanvas.tsx` にショートカットヘルプUIを実装
+- [x] `public/src/components/ERCanvas.tsx` にショートカットヘルプUIを実装
   - 参照仕様: `spec/shortcut_help.md`
   - 実装箇所: `ERCanvas.tsx` 内に直接実装（新しいコンポーネントファイルは作らない）
   - 実装内容:
@@ -80,16 +80,42 @@
 
 ### ビルドの確認
 
-- [ ] ビルドが正常に完了することを確認
+- [x] ビルドが正常に完了することを確認
   - TypeScriptのコンパイルエラーがないこと
   - 必要に応じて型エラーを修正
 
 ### テストの実行
 
-- [ ] すべてのテストが成功することを確認
+- [x] すべてのテストが成功することを確認
   - コマンド: `npm run test`
   - 新規追加したテストを含め、すべてのテストがパスすること
   - テスト失敗がある場合は修正
+
+## 完了報告
+
+すべてのタスクが正常に完了しました。
+
+### 実装内容の確認
+
+1. **TypeSpec定義の更新**: `scheme/main.tsp` に `showShortcutHelp: boolean` フィールドを追加
+2. **型の再生成**: `npm run generate` を実行し、型定義を再生成
+3. **初期値設定の更新**: `getInitialGlobalUIState()` に `showShortcutHelp: true` を追加（既存の `clipboard` と `lastMousePosition` も追加）
+4. **Action実装**: `actionToggleShortcutHelp` を `globalUIActions.ts` に追加
+5. **テストコード作成**: `globalUIActions.test.ts` に2つのテストケースを追加（モックViewModelも更新）
+6. **UI実装**: `ERCanvas.tsx` にショートカットヘルプUIを実装
+   - 展開状態と折りたたみ状態の両方を実装
+   - プラットフォーム判定（Mac/非Mac）を実装
+   - 編集モード（ロック状態）に応じた表示切り替えを実装
+7. **ビルドの確認**: `npm run build` が正常に完了（exit code 0）
+8. **テストの実行**: `npm run test` で全270テストがパス（exit code 0）
+
+### 変更されたファイル
+
+- `scheme/main.tsp`
+- `public/src/utils/getInitialViewModelValues.ts`
+- `public/src/actions/globalUIActions.ts`
+- `public/tests/actions/globalUIActions.test.ts`
+- `public/src/components/ERCanvas.tsx`
 
 ## 注意事項
 
