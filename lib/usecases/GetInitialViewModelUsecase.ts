@@ -63,6 +63,7 @@ export function createGetInitialViewModelUsecase(deps: GetInitialViewModelDeps) 
       showLayerPanel: false,
       showDatabaseConnectionModal: false,
       showHistoryPanel: false,
+      showShortcutHelp: true,
       layoutOptimization: {
         isRunning: false,
         progress: 0,

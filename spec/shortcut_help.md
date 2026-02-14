@@ -106,6 +106,7 @@ model GlobalUIState {
 ### デフォルト値
 
 * `showShortcutHelp`: `true`（初回表示時は展開状態）
+* フロントエンド（`getInitialGlobalUIState()`）とバックエンド（`GetInitialViewModelUsecase`）の両方で `true` を設定する
 
 ### 状態の永続化
 
@@ -161,7 +162,9 @@ model GlobalUIState {
 * プラットフォーム判定は`navigator.platform`を使用し、`Mac`を含む場合は「Cmd」、それ以外は「Ctrl」と表示
 * ロック状態の変更を`useViewModel`で購読し、リアルタイムに「編集モード中」セクションの表示を切り替え
 * TypeSpecの`GlobalUIState`に`showShortcutHelp`を追加し、`npm run generate`で型を再生成する
-* `getInitialViewModelValues.ts`の`getInitialGlobalUIState()`に`showShortcutHelp: true`を追加する（アプリケーション起動時とファイルインポート時に初期値として使用される）
+* フロントエンドとバックエンドの両方で初期値を設定する：
+  - `public/src/utils/getInitialViewModelValues.ts`の`getInitialGlobalUIState()`に`showShortcutHelp: true`を追加（アプリケーション起動時とファイルインポート時に使用される）
+  - `lib/usecases/GetInitialViewModelUsecase.ts`の`GlobalUIState`初期化に`showShortcutHelp: true`を追加（バックエンドからの初期ViewModel取得時に使用される）
 
 ## 段階的実装アプローチ
 
