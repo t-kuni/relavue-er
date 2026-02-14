@@ -171,5 +171,15 @@
     "ja": "日本語",
     "en": "English",
     "zh": "中文"
+  },
+  "shortcut_help": {
+    "title": "快捷键",
+    "close": "关闭",
+    "mouse_wheel_zoom": "鼠标滚轮: 缩放",
+    "space_drag_pan": "Space + 拖动: 平移",
+    "save": "{{key}} + S: 保存（导出）",
+    "toggle_edit_mode": "{{key}} + E: 切换编辑模式",
+    "edit_mode_section": "编辑模式中",
+    "shift_drag_select": "Shift + 拖动: 选择区域"
   }
 }

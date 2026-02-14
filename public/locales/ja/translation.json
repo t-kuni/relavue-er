@@ -171,5 +171,15 @@
     "ja": "日本語",
     "en": "English",
     "zh": "中文"
+  },
+  "shortcut_help": {
+    "title": "ショートカットキー",
+    "close": "閉じる",
+    "mouse_wheel_zoom": "マウスホイール: ズーム",
+    "space_drag_pan": "Space + ドラッグ: パン",
+    "save": "{{key}} + S: 保存（エクスポート）",
+    "toggle_edit_mode": "{{key}} + E: 編集モード切り替え",
+    "edit_mode_section": "編集モード中",
+    "shift_drag_select": "Shift + ドラッグ: 矩形選択"
   }
 }

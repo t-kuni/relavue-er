@@ -171,5 +171,15 @@
     "ja": "日本語",
     "en": "English",
     "zh": "中文"
+  },
+  "shortcut_help": {
+    "title": "Shortcuts",
+    "close": "Close",
+    "mouse_wheel_zoom": "Mouse Wheel: Zoom",
+    "space_drag_pan": "Space + Drag: Pan",
+    "save": "{{key}} + S: Save (Export)",
+    "toggle_edit_mode": "{{key}} + E: Toggle Edit Mode",
+    "edit_mode_section": "Edit Mode",
+    "shift_drag_select": "Shift + Drag: Select Area"
   }
 }
