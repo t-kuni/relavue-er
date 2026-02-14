@@ -4,6 +4,8 @@
 
 React Flowのtoggle interactiveボタンと連動して、ER図キャンバス上のすべてのオブジェクト（エンティティノード、矩形、テキスト）の編集を一括で禁止/許可する機能。
 
+ロック機能の目的は編集操作の禁止であり、閲覧操作（エンティティの選択、ホバーによるハイライト表示）は有効のまま維持する。これにより、ロック状態でもER図の構造を確認したり、エンティティのDDLを閲覧したりできる。
+
 ## 背景
 
 React Flowの`<Controls />`コンポーネントにあるtoggle interactiveボタンは、`nodesDraggable`/`nodesConnectable`/`elementsSelectable`の3つのプロパティを切り替えるが、`ViewportPortal`で描画された矩形・テキストには自動で効かない。そのため、独自にロック状態を管理して矩形・テキストのインタラクションも制御する必要がある。
@@ -31,19 +33,26 @@ React Flowの`<Controls />`コンポーネントにあるtoggle interactiveボ�
 
 React Flowの`<ReactFlow />`コンポーネントのインタラクションプロパティをロック状態と連動させる:
 
-- `nodesDraggable={!isPanModeActive && !isLocked}` - ロック時はノードのドラッグを無効化
-- `nodesConnectable={!isLocked}` - ロック時はノードの接続を無効化
-- `elementsSelectable={!isLocked}` - ロック時は要素の選択を無効化
+- `nodesDraggable={!isPanModeActive && !isLocked}` - ロック時はノードのドラッグを無効化（編集操作）
+- `nodesConnectable={!isLocked}` - ロック時はノードの接続を無効化（編集操作）
+- `elementsSelectable={true}` - ロック状態に関わらず選択を有効化（閲覧操作）
+
+ロック機能の目的は編集操作の禁止であり、閲覧操作（選択・ホバー）は有効のまま維持する。これにより、ロック状態でもエンティティを選択してDDLパネルでDDLを閲覧したり、エンティティ・リレーション・カラムにホバーしてハイライト表示を確認したりできる。
+
+詳細はエンティティ選択機能仕様（[entity_selection_and_ddl_panel.md](./entity_selection_and_ddl_panel.md)）を参照。
 
 ### ViewportPortalで描画された矩形・テキスト
 
 `ViewportPortal`内の矩形・テキストを包むコンテナに対して、ロック状態に応じて`pointer-events`を制御する:
 
 - `isLocked = true`の場合: `pointer-events: none`を適用
-  - すべてのマウス操作を無効化（クリック、ドラッグ、リサイズ）
+  - すべてのマウス操作を無効化（クリック、ドラッグ、リサイズ、選択、ホバー）
   - 選択もできない（クリックイベント自体が発火しない）
+  - ホバーも無効（矩形・テキストはホバー機能がないため、影響はない）
   - プロパティパネルも表示されない
 - `isLocked = false`の場合: `pointer-events: auto`を適用（マウス操作を有効化）
+
+エンティティ・リレーションとは異なり、矩形・テキストはロック状態ですべての操作が無効化される。これは、矩形・テキストが純粋な注釈要素であり、閲覧目的でのインタラクションが不要なためである。
 
 ### イベントハンドラーでの早期リターン（保険）
 
@@ -51,9 +60,10 @@ React Flowの`<ReactFlow />`コンポーネントのインタラクションプ�
 
 - `onMouseDown`: ドラッグ/リサイズ開始時に`isLocked`がtrueなら早期リターン
 - `onDoubleClick`: テキスト編集開始時に`isLocked`がtrueなら早期リターン
-- `onClick`: 選択時に`isLocked`がtrueなら早期リターン
 
 パンモード（`isPanModeActive`）でも同様の制御を行っているため、同じパターンで実装する。
+
+エンティティ・リレーションについては、React Flowの`elementsSelectable`が`true`のため、クリックイベントは発火する（選択操作として正常動作）。
 
 ### テキスト編集UIの表示制御
 
