@@ -1,4 +1,5 @@
 import type { ViewModel } from '../api/client';
+import { getInitialErDiagramUIState, getInitialGlobalUIState } from '../utils/getInitialViewModelValues';
 
 /**
  * Action関数の型定義
@@ -19,6 +20,8 @@ export interface Store {
 
 /**
  * 初期状態
+ * getInitialErDiagramUIState() と getInitialGlobalUIState() を使用して、
+ * すべてのフィールドが正しく初期化されるようにする。
  */
 const initialState: ViewModel = {
   format: 'relavue-er',
@@ -33,29 +36,10 @@ const initialState: ViewModel = {
       columnToEntity: {},
       columnToEdges: {},
     },
-    ui: {
-      hover: null,
-      highlightedNodeIds: [],
-      highlightedEdgeIds: [],
-      highlightedColumnIds: [],
-      layerOrder: { backgroundItems: [], foregroundItems: [] },
-      isDraggingEntity: false,
-    },
+    ui: getInitialErDiagramUIState(),
     loading: false,
   },
-  ui: {
-    selectedItem: null,
-    showBuildInfoModal: false,
-    showLayerPanel: false,
-    showDatabaseConnectionModal: false,
-    layoutOptimization: {
-      isRunning: false,
-      progress: 0,
-      currentStage: null,
-    },
-    clipboard: null,
-    lastMousePosition: null,
-  },
+  ui: getInitialGlobalUIState(),
   buildInfo: {
     data: null,
     loading: false,

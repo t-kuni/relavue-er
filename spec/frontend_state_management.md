@@ -461,6 +461,28 @@ Redux DevTools相当はないが、以下で補完可能：
 **初期ViewModelの内容**:
 初期ViewModelの詳細な値は [ViewModelベースAPI仕様](/spec/viewmodel_based_api.md) の「GET /api/init」を参照。
 
+**Storeの初期状態構築**:
+- `erDiagramStore.ts` の `initialState` を定義する際は、`getInitialErDiagramUIState()` と `getInitialGlobalUIState()` を使用する
+- これにより、TypeSpecに新しいフィールドが追加された際も自動的に反映され、初期値の不整合を防ぐ
+- 例:
+  ```typescript
+  const initialState: ViewModel = {
+    format: 'relavue-er',
+    version: 1,
+    erDiagram: {
+      nodes: {},
+      edges: {},
+      rectangles: {},
+      texts: {},
+      index: { entityToEdges: {}, columnToEntity: {}, columnToEdges: {} },
+      ui: getInitialErDiagramUIState(),  // ← ここで関数を使用
+      loading: false,
+    },
+    ui: getInitialGlobalUIState(),  // ← ここで関数を使用
+    buildInfo: { data: null, loading: false, error: null },
+  };
+  ```
+
 **実装時の注意**:
 - `highlightedNodeIds`、`highlightedEdgeIds`、`highlightedColumnIds`は、配列から`Set`に変換してパフォーマンスを最適化する（O(1)の検索性能）
 
