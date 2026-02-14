@@ -110,7 +110,8 @@ model GlobalUIState {
 ### 状態の永続化
 
 * ユーザーがヘルプを閉じた/開いた状態は、エクスポートしたJSONファイルに保存される
-* インポート時に前回の状態が復元される
+* **インポート時は常に `true`（展開状態）にリセットされる**
+  - ファイルをインポートした後、ユーザーが最初にショートカットキーを確認できるようにするため
 
 ## Action設計
 
@@ -160,19 +161,20 @@ model GlobalUIState {
 * プラットフォーム判定は`navigator.platform`を使用し、`Mac`を含む場合は「Cmd」、それ以外は「Ctrl」と表示
 * ロック状態の変更を`useViewModel`で購読し、リアルタイムに「編集モード中」セクションの表示を切り替え
 * TypeSpecの`GlobalUIState`に`showShortcutHelp`を追加し、`npm run generate`で型を再生成する
+* `getInitialViewModelValues.ts`の`getInitialGlobalUIState()`に`showShortcutHelp: true`を追加する（アプリケーション起動時とファイルインポート時に初期値として使用される）
 
 ## 段階的実装アプローチ
 
 1. TypeSpecの`GlobalUIState`に`showShortcutHelp: boolean`を追加し、型を再生成
-2. `globalUIActions.ts`に`actionToggleShortcutHelp`を追加
-3. 翻訳ファイル（ja/en/zh）に`shortcut_help`キーを追加
-4. `ERCanvas.tsx`内にショートカットヘルプUIを実装
+2. `getInitialViewModelValues.ts`の`getInitialGlobalUIState()`に`showShortcutHelp: true`を追加（アプリケーション起動時とインポート時に使用される）
+3. `globalUIActions.ts`に`actionToggleShortcutHelp`を追加
+4. 翻訳ファイル（ja/en/zh）に`shortcut_help`キーを追加
+5. `ERCanvas.tsx`内にショートカットヘルプUIを実装
    - 展開状態のレイアウト（ヘッダー、ショートカット一覧、閉じるボタン）
    - 折りたたみ状態のレイアウト（丸い?ボタン）
    - プラットフォーム判定ロジック（Ctrl vs Cmd）
    - ロック状態に応じた「編集モード中」セクションの表示切り替え
-5. クリックイベントハンドラを実装（`actionToggleShortcutHelp`をdispatch）
-6. 初期化時のデフォルト値を設定（`showShortcutHelp: true`）
+6. クリックイベントハンドラを実装（`actionToggleShortcutHelp`をdispatch）
 
 ## 懸念事項・確認事項
 

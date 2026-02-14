@@ -1,168 +1,101 @@
-# ロック機能仕様更新に伴う実装タスク
+# タスク一覧
 
-**参照仕様書**: [spec/lock_feature.md](./spec/lock_feature.md)
+## 概要
 
-## 背景
+`spec/shortcut_help.md` の仕様に基づき、ショートカットキーヘルプの表示機能を実装します。
 
-直前のコミットで`spec/lock_feature.md`が更新され、ロック機能の仕様が明確化されました。
+## 実装タスク
 
-### 主な仕様変更
+### TypeSpec定義の更新
 
-1. **ロック機能の目的を明確化**
-   - 編集操作の禁止であり、閲覧操作（エンティティの選択、ホバーによるハイライト表示）は有効のまま維持
-   - ロック状態でもエンティティを選択してDDLパネルでDDLを閲覧したり、エンティティ・リレーション・カラムにホバーしてハイライト表示を確認したりできる
+- [ ] `scheme/main.tsp` の `GlobalUIState` モデルに `showShortcutHelp: boolean` フィールドを追加
+  - コメント: `// ショートカットヘルプの展開/折りたたみ状態（true: 展開, false: 折りたたみ）`
+  - デフォルト値は `true` で初期化（アプリケーション起動時、インポート時は展開状態）
 
-2. **`elementsSelectable`の変更**
-   - 変更前: `elementsSelectable={!isLocked}`（ロック時は選択を無効化）
-   - 変更後: `elementsSelectable={true}`（ロック状態に関わらず選択を有効化）
-   - 理由: エンティティの選択は閲覧操作であり、ロック時も有効にする
+### 型の再生成
 
-3. **矩形・テキストとエンティティ・リレーションの区別**
-   - **エンティティ・リレーション**: 選択・ホバーは有効（閲覧操作として許可）
-   - **矩形・テキスト**: ロック時はすべての操作を無効化（`pointer-events: none`で実装済み）
-   - 理由: 矩形・テキストは純粋な注釈要素であり、閲覧目的でのインタラクションが不要
+- [ ] TypeSpecの型定義を再生成
+  - コマンド: `npm run generate`
+  - 生成される型:
+    - `lib/generated/api-types.ts` (バックエンド用)
+    - `public/src/api/client/models/` (フロントエンド用)
 
-4. **イベントハンドラーの変更**
-   - 矩形・テキストの`onClick`の早期リターンを削除（仕様書から削除された）
-   - 理由: `pointer-events: none`でクリックイベント自体が発火しないため、不要
+### 初期値設定の更新
 
-## タスク一覧
+- [ ] `public/src/utils/getInitialViewModelValues.ts` の `getInitialGlobalUIState()` 関数に `showShortcutHelp: true` を追加
+  - この関数はアプリケーション起動時とファイルインポート時に呼ばれる
+  - インポート時に常に `true` になることで、ユーザーがショートカットキーを確認しやすくする
 
-### - [x] ERCanvas.tsxの`elementsSelectable`プロパティを変更
+### Action実装
 
-**対象ファイル**: `public/src/components/ERCanvas.tsx`
+- [ ] `public/src/actions/globalUIActions.ts` に `actionToggleShortcutHelp` を追加
+  - 関数シグネチャ: `actionToggleShortcutHelp(viewModel: ViewModel): ViewModel`
+  - 実装内容:
+    - `viewModel.ui.showShortcutHelp` の真偽値を反転
+    - 変化がない場合は同一参照を返す（再レンダリング抑制のため）
+  - 既存のactionと同じパターンで実装（`actionShowBuildInfoModal` などを参考）
 
-**変更内容**:
+### テストコード作成
 
-1055行目付近の`elementsSelectable`プロパティを変更:
+- [ ] `public/tests/actions/globalUIActions.test.ts` にテストを追加
+  - テスト対象: `actionToggleShortcutHelp`
+  - テストケース:
+    - `showShortcutHelp` が `false` から `true` に切り替わること
+    - `showShortcutHelp` が `true` から `false` に切り替わること
+    - 既存テストパターンを参考にする
 
-```tsx
-// 変更前
-elementsSelectable={!isLocked}
+### UI実装
 
-// 変更後
-elementsSelectable={true}
-```
+- [ ] `public/src/components/ERCanvas.tsx` にショートカットヘルプUIを実装
+  - 参照仕様: `spec/shortcut_help.md`
+  - 実装箇所: `ERCanvas.tsx` 内に直接実装（新しいコンポーネントファイルは作らない）
+  - 実装内容:
+    - **配置**: 画面左上、「矩形追加」「テキスト追加」ボタンの下（`position: absolute; top: 80px; left: 10px; z-index: 10`）
+    - **展開状態のUI**:
+      - 半透明の白背景（`rgba(255, 255, 255, 0.95)`）、枠線（`1px solid #ddd`）、角丸（`4px`）、パディング（`0.75rem`）
+      - ヘッダー: 左側に「ショートカットキー」タイトル（太字、`t('shortcut_help.title')`）、右側に閉じるボタン（`×`、`t('shortcut_help.close')`）、区切り線
+      - 常時有効な操作セクション:
+        - `t('shortcut_help.mouse_wheel_zoom')`
+        - `t('shortcut_help.space_drag_pan')`
+        - `t('shortcut_help.save', { key: isMac ? 'Cmd' : 'Ctrl' })`
+        - `t('shortcut_help.toggle_edit_mode', { key: isMac ? 'Cmd' : 'Ctrl' })`
+      - 編集モード中セクション（`!isLocked` の場合のみ表示）:
+        - 見出し: `t('shortcut_help.edit_mode_section')`（太字、上部余白）
+        - `t('shortcut_help.shift_drag_select')`（左に16pxの余白）
+    - **折りたたみ状態のUI**:
+      - 円形ボタン（36px × 36px）、半透明の白背景（`rgba(255, 255, 255, 0.95)`）、枠線（`1px solid #ddd`）
+      - 中央に「?」（20px、太字、色: `#333`）
+      - ホバー時: 背景色を `rgba(255, 255, 255, 1)` に変更、カーソル: `pointer`
+    - **プラットフォーム判定**:
+      - `navigator.platform` を使用して判定（`platform.includes('Mac')` → `isMac`）
+      - Mac環境では「Ctrl」を「Cmd」に置き換え
+    - **イベントハンドラ**:
+      - 閉じるボタン/円形ボタンのクリック: `dispatch(actionToggleShortcutHelp, viewModel)` → クリックイベントの伝播を防ぐ（`e.stopPropagation()`）
+    - **状態購読**:
+      - `const showShortcutHelp = useViewModel(vm => vm.ui.showShortcutHelp)`
+      - `const isLocked = useViewModel(vm => vm.erDiagram.ui.isLocked)`
+    - **国際化**:
+      - `useTranslation()` フックで翻訳キーを使用（`t('shortcut_help.*')`）
+      - 翻訳ファイルは既に更新済み（`public/locales/{ja,en,zh}/translation.json`）
 
-**理由**:
-- ロック機能の目的は編集操作の禁止であり、閲覧操作（エンティティの選択、ホバー）は有効のまま維持する
-- エンティティを選択してDDLパネルでDDLを閲覧できるようにする
-- 矩形・テキストは`pointer-events: none`で無効化されているため、選択は無効（クリックイベントが発火しない）
+### ビルドの確認
 
-**参照**: [spec/lock_feature.md](./spec/lock_feature.md) - ロック状態による制御 > React Flowのノード・エッジ
+- [ ] ビルドが正常に完了することを確認
+  - TypeScriptのコンパイルエラーがないこと
+  - 必要に応じて型エラーを修正
 
----
+### テストの実行
 
-### - [x] コード生成の実行
+- [ ] すべてのテストが成功することを確認
+  - コマンド: `npm run test`
+  - 新規追加したテストを含め、すべてのテストがパスすること
+  - テスト失敗がある場合は修正
 
-**コマンド**: `npm run generate`
+## 注意事項
 
-**目的**: main.tspから型定義を生成
-
-**参照**: [.cursor/rules/global.mdc](.cursor/rules/global.mdc) - 利用可能なコマンド
-
----
-
-### - [x] 型チェックの実行
-
-**コマンド**: `npm run typecheck`
-
-**目的**: TypeScriptの型エラーがないことを確認
-
-**確認項目**:
-- バックエンドの型チェック: `tsc -p tsconfig.server.json --noEmit`
-- フロントエンドの型チェック: `tsc -p public/tsconfig.json --noEmit`
-
-**結果**: 既存の型エラーが多数検出されたが、今回の変更とは無関係。テストは全て成功（268件全てパス）しており、動作に問題はない。
-
----
-
-### - [x] テストの実行
-
-**コマンド**: `npm run test`
-
-**目的**: 既存のテストが通ることを確認
-
-**確認項目**:
-- すべてのテストがパスすること
-- テストカバレッジが低下していないこと
-
-**結果**: テストは全て成功（268件全てパス）。今回の変更による影響なし。
-
-**参照**: [.cursor/rules/global.mdc](.cursor/rules/global.mdc) - 利用可能なコマンド
-
----
-
-### - [ ] （オプション）actionToggleLockのユニットテストを追加
-
-**対象ファイル**: `public/tests/actions/globalUIActions.test.ts`
-
-**追加内容**:
-
-`actionToggleLock`のテストケースを追加:
-- ロック状態が`false`から`true`に切り替わること
-- ロック状態が`true`から`false`に切り替わること
-- 既存の不変性が保たれること（元のViewModelが変更されないこと）
-
-**参照**: 
-- [public/tests/actions/globalUIActions.test.ts](./public/tests/actions/globalUIActions.test.ts) - 既存のテストコード（`actionToggleHistoryPanel`を参考にする）
-- [public/src/actions/globalUIActions.ts](./public/src/actions/globalUIActions.ts) - 実装コード
-
-**備考**: このタスクはオプション。時間に余裕があれば実装する。
-
-**状況**: 未実装。既存のテストが全て通っており、今回の変更による影響はないため、オプションとして残す。
-
----
-
-## 実装済みの確認事項
-
-以下の実装は既に仕様通りに実装されていることを確認済み:
-
-✓ 矩形・テキストの`pointer-events`制御（`isLocked ? 'none' : 'auto'`）
-  - `public/src/components/ERCanvas.tsx`: 724行目（矩形）、802行目（テキスト）
-
-✓ 矩形・テキストのイベントハンドラーの早期リターン
-  - `handleRectangleMouseDown`: 423行目に`if (isLocked) return`
-  - `handleTextMouseDown`: 663行目に`if (isLocked) return`
-  - テキストの`onDoubleClick`: 815行目に`if (isLocked) return`
-
-✓ テキスト編集UIの表示制御
-  - 1071行目: `{(!isLocked && editingTextId && texts[editingTextId]) && (...)`
-
-✓ ロックトグルアクションの実装
-  - `public/src/actions/globalUIActions.ts`: `actionToggleLock`
-
-✓ キーボードショートカット（Ctrl+E / Cmd+E）の実装
-  - `public/src/components/ERCanvas.tsx`: 593-620行目
-
-## 関連仕様書
-
-- [spec/lock_feature.md](./spec/lock_feature.md) - ロック機能の詳細仕様
-- [spec/entity_selection_and_ddl_panel.md](./spec/entity_selection_and_ddl_panel.md) - エンティティ選択とDDLパネルの仕様
-- [spec/frontend_state_management.md](./spec/frontend_state_management.md) - フロントエンド状態管理の仕様
-
-## 備考
-
-- 矩形・テキストは`pointer-events: none`で制御されているため、ロック時にはクリックイベント自体が発火しない
-- エンティティ・リレーションは`elementsSelectable={true}`のため、ロック時も選択・ホバーが可能
-- この仕様変更により、ロック状態でもエンティティのDDLを閲覧できるようになり、ユーザビリティが向上する
-
----
-
-## タスク完了サマリー
-
-**実施日**: 2026-02-14
-
-**完了したタスク**:
-1. ✓ ERCanvas.tsxの`elementsSelectable`プロパティを変更（1055行目: `{!isLocked}` → `{true}`）
-2. ✓ コード生成の実行（`npm run generate`）
-3. ✓ 型チェックの実行（既存の型エラーあり、今回の変更とは無関係）
-4. ✓ テストの実行（268件全てパス、今回の変更による影響なし）
-
-**未実施のタスク**:
-- （オプション）actionToggleLockのユニットテストを追加
-
-**結果**:
-- 仕様通りの変更が完了し、すべてのテストが成功
-- ロック時もエンティティの選択・ホバーが可能になり、DDLパネルでDDLを閲覧できるようになった
-- 型チェックで既存の型エラーが検出されたが、テストは全て通っており、動作に問題はない
+- 仕様書（`spec/shortcut_help.md`）に定義された内容を正確に実装すること
+- 翻訳ファイル（`public/locales/{ja,en,zh}/translation.json`）の `shortcut_help` セクションは既に追加済み
+- プラットフォーム判定は `navigator.platform` を使用（一部ブラウザで非推奨だが、現時点では問題ない）
+- ヘルプのクリックイベントは伝播しないようにする（`e.stopPropagation()`）
+- ロック状態に応じて「編集モード中」セクションの表示を動的に切り替える
+- **インポート時の挙動**: ファイルをインポートした際、`showShortcutHelp` は常に `true`（展開状態）にリセットされる。これにより、ユーザーが最初にショートカットキーを確認できるようにする
