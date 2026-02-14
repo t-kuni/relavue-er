@@ -1052,7 +1052,7 @@ function ERCanvasInner({
         panOnDrag={true}
         nodesDraggable={!isPanModeActive && !isLocked}
         nodesConnectable={!isLocked}
-        elementsSelectable={!isLocked}
+        elementsSelectable={true}
         fitView
       >
         {/* 背面レイヤー */}
