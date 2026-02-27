@@ -185,6 +185,7 @@
     "space_drag_pan": "Space + 拖动: 平移",
     "save": "{{key}} + S: 保存（导出）",
     "toggle_edit_mode": "{{key}} + E: 切换编辑模式",
+    "open_table_list": "{{key}} + F: 打开表格列表",
     "edit_mode_section": "编辑模式中",
     "shift_drag_select": "Shift + 拖动: 选择区域"
   }
