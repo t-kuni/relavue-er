@@ -9,7 +9,13 @@
     "reverse_history": "リバース履歴",
     "layout_optimize": "配置最適化",
     "layer": "レイヤー",
+    "table_list": "テーブル一覧",
     "language": "言語"
+  },
+  "table_list_panel": {
+    "title": "テーブル一覧",
+    "filter_placeholder": "テーブル名で絞り込む",
+    "empty": "テーブルが存在しません"
   },
   "layer_panel": {
     "title": "レイヤー",

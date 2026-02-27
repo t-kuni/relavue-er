@@ -223,13 +223,18 @@ export function actionSelectItem(
 
 /**
  * レイヤーパネルの表示/非表示を切り替える
+ * パネルを開く場合、showTableListPanel を false にする（排他表示）
  */
 export function actionToggleLayerPanel(vm: ViewModel): ViewModel {
+  const newShowLayerPanel = !vm.ui.showLayerPanel;
+
   return {
     ...vm,
     ui: {
       ...vm.ui,
-      showLayerPanel: !vm.ui.showLayerPanel,
+      showLayerPanel: newShowLayerPanel,
+      // パネルを開く場合のみ showTableListPanel を false にする（排他表示）
+      ...(newShowLayerPanel ? { showTableListPanel: false } : {}),
     },
   };
 }

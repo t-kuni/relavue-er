@@ -146,6 +146,29 @@ export function actionToggleLock(
 }
 
 /**
+ * テーブル一覧パネルの表示/非表示をトグルする
+ * パネルを開く場合、showLayerPanel を false にする（排他表示）
+ */
+export function actionToggleTableListPanel(vm: ViewModel): ViewModel {
+  const newShowTableListPanel = !vm.ui.showTableListPanel;
+
+  // 変化がない場合は同一参照を返す（再レンダリング抑制）
+  if (vm.ui.showTableListPanel === newShowTableListPanel) {
+    return vm;
+  }
+
+  return {
+    ...vm,
+    ui: {
+      ...vm.ui,
+      showTableListPanel: newShowTableListPanel,
+      // パネルを開く場合のみ showLayerPanel を false にする（排他表示）
+      ...(newShowTableListPanel ? { showLayerPanel: false } : {}),
+    },
+  };
+}
+
+/**
  * ショートカットヘルプの展開/折りたたみ状態をトグルする
  */
 export function actionToggleShortcutHelp(

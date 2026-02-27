@@ -7,6 +7,8 @@ import {
   actionToggleHistoryPanel,
   actionSetLocale,
   actionToggleShortcutHelp,
+  actionToggleLock,
+  actionToggleTableListPanel,
 } from '../../src/actions/globalUIActions';
 import type { components } from '../../../lib/generated/api-types';
 
@@ -47,6 +49,7 @@ describe('globalUIActions', () => {
       selectedItem: null,
       showBuildInfoModal: false,
       showLayerPanel: false,
+      showTableListPanel: false,
       showDatabaseConnectionModal: false,
       showHistoryPanel: false,
       showShortcutHelp: false,
@@ -235,6 +238,89 @@ describe('globalUIActions', () => {
       actionSetLocale(viewModel, 'ja');
 
       expect(viewModel.settings?.locale).toBe(originalLocale);
+    });
+  });
+
+  describe('actionToggleLock', () => {
+    it('isLocked が false から true に切り替わること', () => {
+      const viewModel = createMockViewModel();
+
+      const result = actionToggleLock(viewModel);
+
+      expect(result.erDiagram.ui.isLocked).toBe(true);
+    });
+
+    it('isLocked が true から false に切り替わること', () => {
+      const viewModel: ViewModel = {
+        ...createMockViewModel(),
+        erDiagram: {
+          ...createMockViewModel().erDiagram,
+          ui: {
+            ...createMockViewModel().erDiagram.ui,
+            isLocked: true,
+          },
+        },
+      };
+
+      const result = actionToggleLock(viewModel);
+
+      expect(result.erDiagram.ui.isLocked).toBe(false);
+    });
+  });
+
+  describe('actionToggleTableListPanel', () => {
+    it('showTableListPanel が false から true に切り替わること', () => {
+      const viewModel = createMockViewModel();
+
+      const result = actionToggleTableListPanel(viewModel);
+
+      expect(result.ui.showTableListPanel).toBe(true);
+    });
+
+    it('showTableListPanel が true から false に切り替わること', () => {
+      const viewModel: ViewModel = {
+        ...createMockViewModel(),
+        ui: {
+          ...createMockViewModel().ui,
+          showTableListPanel: true,
+        },
+      };
+
+      const result = actionToggleTableListPanel(viewModel);
+
+      expect(result.ui.showTableListPanel).toBe(false);
+    });
+
+    it('パネルを開く場合（false → true）、showLayerPanel が false になること（排他表示）', () => {
+      const viewModel: ViewModel = {
+        ...createMockViewModel(),
+        ui: {
+          ...createMockViewModel().ui,
+          showTableListPanel: false,
+          showLayerPanel: true,
+        },
+      };
+
+      const result = actionToggleTableListPanel(viewModel);
+
+      expect(result.ui.showTableListPanel).toBe(true);
+      expect(result.ui.showLayerPanel).toBe(false);
+    });
+
+    it('パネルを閉じる場合（true → false）、showLayerPanel は変更されないこと', () => {
+      const viewModel: ViewModel = {
+        ...createMockViewModel(),
+        ui: {
+          ...createMockViewModel().ui,
+          showTableListPanel: true,
+          showLayerPanel: true,
+        },
+      };
+
+      const result = actionToggleTableListPanel(viewModel);
+
+      expect(result.ui.showTableListPanel).toBe(false);
+      expect(result.ui.showLayerPanel).toBe(true);
     });
   });
 

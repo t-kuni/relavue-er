@@ -9,7 +9,13 @@
     "reverse_history": "反向工程历史",
     "layout_optimize": "优化布局",
     "layer": "图层",
+    "table_list": "表列表",
     "language": "语言"
+  },
+  "table_list_panel": {
+    "title": "表列表",
+    "filter_placeholder": "按表名筛选",
+    "empty": "没有表"
   },
   "layer_panel": {
     "title": "图层",

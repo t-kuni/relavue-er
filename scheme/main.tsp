@@ -356,6 +356,7 @@ model GlobalUIState {
   selectedItem: LayerItemRef | null; // 選択中のアイテム（矩形、テキスト、エンティティ）
   showBuildInfoModal: boolean; // ビルド情報モーダル表示フラグ
   showLayerPanel: boolean; // レイヤーパネル表示フラグ
+  showTableListPanel: boolean; // テーブル一覧パネル表示フラグ
   showDatabaseConnectionModal: boolean; // データベース接続設定モーダル表示フラグ
   showHistoryPanel: boolean; // 履歴パネル表示フラグ
   showShortcutHelp: boolean; // ショートカットヘルプの展開/折りたたみ状態（true: 展開, false: 折りたたみ）

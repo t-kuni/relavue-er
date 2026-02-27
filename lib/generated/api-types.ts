@@ -174,6 +174,7 @@ export interface components {
             layerOrder: components["schemas"]["LayerOrder"];
             isDraggingEntity: boolean;
             isPanModeActive: boolean;
+            isLocked: boolean;
         };
         ERDiagramViewModel: {
             nodes: {
@@ -234,8 +235,10 @@ export interface components {
             selectedItem: components["schemas"]["LayerItemRef"] | null;
             showBuildInfoModal: boolean;
             showLayerPanel: boolean;
+            showTableListPanel: boolean;
             showDatabaseConnectionModal: boolean;
             showHistoryPanel: boolean;
+            showShortcutHelp: boolean;
             layoutOptimization: components["schemas"]["LayoutOptimizationState"];
             clipboard: components["schemas"]["ClipboardData"] | null;
             lastMousePosition: components["schemas"]["CanvasMousePosition"] | null;

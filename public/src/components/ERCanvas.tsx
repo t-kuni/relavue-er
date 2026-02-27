@@ -11,7 +11,6 @@ import {
   OnEdgesChange,
   OnSelectionChangeParams,
   useReactFlow,
-  ReactFlowProvider,
   ViewportPortal,
   useViewport,
   NodeTypes,
@@ -1347,19 +1346,17 @@ function ERCanvas({ onSelectionChange, onNodesInitialized }: ERCanvasProps = {})
           </button>
         )}
       </div>
-      <ReactFlowProvider>
-        <ERCanvasInner 
-          nodes={nodes} 
-          edges={edges} 
-          setNodes={setNodes} 
-          setEdges={setEdges} 
-          dispatch={dispatch}
-          onSelectionChange={onSelectionChange}
-          onNodesInitialized={onNodesInitialized}
-          addRectangleRef={addRectangleRef}
-          addTextRef={addTextRef}
-        />
-      </ReactFlowProvider>
+      <ERCanvasInner
+        nodes={nodes}
+        edges={edges}
+        setNodes={setNodes}
+        setEdges={setEdges}
+        dispatch={dispatch}
+        onSelectionChange={onSelectionChange}
+        onNodesInitialized={onNodesInitialized}
+        addRectangleRef={addRectangleRef}
+        addTextRef={addTextRef}
+      />
     </div>
   )
 }

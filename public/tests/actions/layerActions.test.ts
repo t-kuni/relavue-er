@@ -40,6 +40,7 @@ const createInitialViewModel = (): ViewModel => ({
     selectedItem: null,
     showBuildInfoModal: false,
     showLayerPanel: false,
+    showTableListPanel: false,
   },
   buildInfo: {
     data: null,
@@ -370,6 +371,28 @@ describe('actionToggleLayerPanel', () => {
     const result = actionToggleLayerPanel(vm);
 
     expect(result.ui.showLayerPanel).toBe(false);
+  });
+
+  it('パネルを開く場合（false → true）、showTableListPanel が false になること（排他表示）', () => {
+    const vm = createInitialViewModel();
+    vm.ui.showLayerPanel = false;
+    vm.ui.showTableListPanel = true;
+
+    const result = actionToggleLayerPanel(vm);
+
+    expect(result.ui.showLayerPanel).toBe(true);
+    expect(result.ui.showTableListPanel).toBe(false);
+  });
+
+  it('パネルを閉じる場合（true → false）、showTableListPanel は変更されないこと', () => {
+    const vm = createInitialViewModel();
+    vm.ui.showLayerPanel = true;
+    vm.ui.showTableListPanel = true;
+
+    const result = actionToggleLayerPanel(vm);
+
+    expect(result.ui.showLayerPanel).toBe(false);
+    expect(result.ui.showTableListPanel).toBe(true);
   });
 });
 

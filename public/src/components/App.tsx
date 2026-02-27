@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { useTranslation } from 'react-i18next'
+import { ReactFlowProvider } from '@xyflow/react'
 import ERCanvas from './ERCanvas'
 import BuildInfoModal from './BuildInfoModal'
 import DatabaseConnectionModal from './DatabaseConnectionModal'
@@ -8,11 +9,12 @@ import LayoutProgressBar from './LayoutProgressBar'
 import { RectanglePropertyPanel } from './RectanglePropertyPanel'
 import { TextPropertyPanel } from './TextPropertyPanel'
 import { LayerPanel } from './LayerPanel'
+import { TableListPanel } from './TableListPanel'
 import { HistoryPanel } from './HistoryPanel'
 import DDLPanel from './DDLPanel'
 import { LocaleSelector } from './LocaleSelector'
 import { useViewModel, useDispatch } from '../store/hooks'
-import { actionShowBuildInfoModal, actionHideBuildInfoModal, actionShowDatabaseConnectionModal, actionHideDatabaseConnectionModal, actionToggleHistoryPanel } from '../actions/globalUIActions'
+import { actionShowBuildInfoModal, actionHideBuildInfoModal, actionShowDatabaseConnectionModal, actionHideDatabaseConnectionModal, actionToggleHistoryPanel, actionToggleTableListPanel } from '../actions/globalUIActions'
 import { actionSelectItem, actionToggleLayerPanel } from '../actions/layerActions'
 import { actionSetViewModel } from '../actions/dataActions'
 import { commandInitialize } from '../commands/initializeCommand'
@@ -40,6 +42,7 @@ function App() {
   const showBuildInfo = useViewModel((vm) => vm.ui.showBuildInfoModal)
   const showDatabaseConnectionModal = useViewModel((vm) => vm.ui.showDatabaseConnectionModal)
   const showLayerPanel = useViewModel((vm) => vm.ui.showLayerPanel)
+  const showTableListPanel = useViewModel((vm) => vm.ui.showTableListPanel)
   const showHistoryPanel = useViewModel((vm) => vm.ui.showHistoryPanel)
   const viewModel = useViewModel((vm) => vm)
   const buildInfo = useViewModel((vm) => vm.buildInfo)
@@ -162,6 +165,7 @@ function App() {
   return (
     <div className="app" {...getRootProps()}>
       <input {...getInputProps()} />
+      <ReactFlowProvider>
       {isDragActive && (
         <div style={{
           position: 'fixed',
@@ -236,7 +240,7 @@ function App() {
           >
             {t('header.layout_optimize')}
           </button>
-          <button 
+          <button
             onClick={() => dispatch(actionToggleLayerPanel)}
             style={{
               padding: '0.5rem 1rem',
@@ -249,7 +253,20 @@ function App() {
           >
             {t('header.layer')}
           </button>
-          <button 
+          <button
+            onClick={() => dispatch(actionToggleTableListPanel)}
+            style={{
+              padding: '0.5rem 1rem',
+              background: showTableListPanel ? '#777' : '#555',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}
+          >
+            {t('header.table_list')}
+          </button>
+          <button
             onClick={handleExport}
             style={{
               padding: '0.5rem 1rem',
@@ -296,13 +313,23 @@ function App() {
         height: 'calc(100vh - 70px)' 
       }}>
         {showLayerPanel && (
-          <div style={{ 
-            width: '250px', 
-            background: '#f5f5f5', 
-            borderRight: '1px solid #ddd', 
-            overflowY: 'auto' 
+          <div style={{
+            width: '250px',
+            background: '#f5f5f5',
+            borderRight: '1px solid #ddd',
+            overflowY: 'auto'
           }}>
             <LayerPanel />
+          </div>
+        )}
+        {showTableListPanel && (
+          <div style={{
+            width: '250px',
+            background: '#f5f5f5',
+            borderRight: '1px solid #ddd',
+            overflowY: 'auto'
+          }}>
+            <TableListPanel />
           </div>
         )}
         <div style={{ 
@@ -366,6 +393,7 @@ function App() {
         />
       )}
       <LayoutProgressBar />
+      </ReactFlowProvider>
     </div>
   )
 }

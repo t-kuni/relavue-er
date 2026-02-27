@@ -9,7 +9,13 @@
     "reverse_history": "Reverse History",
     "layout_optimize": "Optimize Layout",
     "layer": "Layer",
+    "table_list": "Table List",
     "language": "Language"
+  },
+  "table_list_panel": {
+    "title": "Table List",
+    "filter_placeholder": "Filter by table name",
+    "empty": "No tables found"
   },
   "layer_panel": {
     "title": "Layers",
