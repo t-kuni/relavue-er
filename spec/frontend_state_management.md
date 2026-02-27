@@ -216,9 +216,13 @@ Actionは `ViewModel` 全体を受け取り、新しい `ViewModel` を返す。
 
 * `actionToggleLayerPanel(viewModel)`: レイヤーパネルの表示/非表示を切り替え
   - `viewModel.ui.showLayerPanel` をトグル
+  - テーブル一覧パネルとの排他表示の詳細は[layer_management.md](./layer_management.md)を参照
 
 * `actionToggleHistoryPanel(viewModel)`: 履歴パネルの表示/非表示を切り替え
   - `viewModel.ui.showHistoryPanel` をトグル
+
+* `actionToggleTableListPanel(viewModel)`: テーブル一覧パネルの表示/非表示を切り替え
+  - 詳細は[table_list_panel.md](./table_list_panel.md)を参照
 
 * `actionSetLocale(viewModel, locale)`: 言語設定を変更
   - `viewModel.settings.locale` を更新

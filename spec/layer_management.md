@@ -169,6 +169,9 @@
 * `actionSelectItem(vm, itemRef)`: アイテムを選択
 * `actionDeselectItem(vm)`: 選択を解除
 * `actionToggleLayerPanel(vm)`: レイヤーパネルの表示/非表示を切り替え
+  - パネルを開く場合、`showTableListPanel` を `false` にする（テーブル一覧パネルとの排他表示）
+  - パネルを閉じる場合、`showTableListPanel` は変更しない
+  - テーブル一覧パネルとの排他表示の詳細は[table_list_panel.md](./table_list_panel.md)を参照
 
 すべてのActionは純粋関数で実装され、状態に変化がない場合は同一参照を返す。
 
