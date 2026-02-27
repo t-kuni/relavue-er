@@ -1301,6 +1301,7 @@ function ERCanvas({ onSelectionChange, onNodesInitialized }: ERCanvasProps = {})
               <div>{t('shortcut_help.mouse_wheel_zoom')}</div>
               <div>{t('shortcut_help.space_drag_pan')}</div>
               <div>{t('shortcut_help.save', { key: isMac ? 'Cmd' : 'Ctrl' })}</div>
+              <div>{t('shortcut_help.open_table_list', { key: isMac ? 'Cmd' : 'Ctrl' })}</div>
               <div>{t('shortcut_help.toggle_edit_mode', { key: isMac ? 'Cmd' : 'Ctrl' })}</div>
             </div>
             

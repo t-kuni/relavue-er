@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { useTranslation } from 'react-i18next'
 import { ReactFlowProvider } from '@xyflow/react'
@@ -31,6 +31,8 @@ function App() {
   const dispatch = useDispatch()
   const [dbConnectionError, setDbConnectionError] = useState<string | undefined>(undefined)
   const [nodesInitialized, setNodesInitialized] = useState<boolean>(false)
+  const tableListInputRef = useRef<HTMLInputElement>(null)
+  const [sidebarWidth, setSidebarWidth] = useState<number>(250)
   
   // 初期化処理
   useEffect(() => {
@@ -56,13 +58,37 @@ function App() {
     exportViewModel(viewModel)
   }
   
-  // キーボードショートカット（Ctrl+S / Cmd+S）でエクスポート
+  // キーボードショートカット（Ctrl+S / Cmd+S でエクスポート、Ctrl+F / Cmd+F でテーブル一覧パネル）
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       const isCtrlOrCmd = event.ctrlKey || event.metaKey
+
+      // Ctrl+S / Cmd+S でエクスポート
       if (isCtrlOrCmd && event.key === 's') {
         event.preventDefault()
         handleExport()
+      }
+
+      // Ctrl+F / Cmd+F でテーブル一覧パネルを開く/フォーカス
+      if (isCtrlOrCmd && event.key === 'f') {
+        const inputElement = tableListInputRef.current
+        const isInputFocused = document.activeElement === inputElement
+
+        // パネルが閉じている場合：パネルを開き、入力欄にフォーカス
+        if (!showTableListPanel) {
+          event.preventDefault()
+          dispatch(actionToggleTableListPanel)
+          // パネルが開いた直後にフォーカスするため、次のフレームで実行
+          setTimeout(() => {
+            tableListInputRef.current?.focus()
+          }, 0)
+        }
+        // パネルが開いていて入力欄にフォーカスが当たっていない場合：入力欄にフォーカス
+        else if (!isInputFocused) {
+          event.preventDefault()
+          inputElement?.focus()
+        }
+        // パネルが開いていて入力欄にフォーカスが当たっている場合：ブラウザのデフォルト動作を許可
       }
     }
 
@@ -70,7 +96,7 @@ function App() {
     return () => {
       window.removeEventListener('keydown', handleKeyDown)
     }
-  }, [viewModel])
+  }, [viewModel, showTableListPanel, dispatch])
   
   // ViewModel更新時にi18nextの言語を同期
   useEffect(() => {
@@ -150,12 +176,34 @@ function App() {
   
   // 配置最適化ボタンの有効/無効判定
   const hasValidNodeSize = Object.values(erDiagram.nodes).some(node => node.width > 0)
-  const isLayoutOptimizeDisabled = 
-    erDiagram.loading || 
-    layoutOptimization.isRunning || 
+  const isLayoutOptimizeDisabled =
+    erDiagram.loading ||
+    layoutOptimization.isRunning ||
     Object.keys(erDiagram.nodes).length === 0 ||
     !nodesInitialized ||
     !hasValidNodeSize
+
+  // サイドバーリサイズハンドラー
+  const handleResizeStart = (event: React.MouseEvent) => {
+    event.preventDefault()
+    const startX = event.clientX
+    const startWidth = sidebarWidth
+
+    const handleMouseMove = (e: MouseEvent) => {
+      e.preventDefault()
+      const delta = e.clientX - startX
+      const newWidth = Math.max(150, Math.min(600, startWidth + delta))
+      setSidebarWidth(newWidth)
+    }
+
+    const handleMouseUp = () => {
+      window.removeEventListener('mousemove', handleMouseMove)
+      window.removeEventListener('mouseup', handleMouseUp)
+    }
+
+    window.addEventListener('mousemove', handleMouseMove)
+    window.addEventListener('mouseup', handleMouseUp)
+  }
   
   // リバースエンジニアボタンのラベルを動的に決定
   const reverseButtonLabel = (erDiagram.history?.length ?? 0) >= 1 
@@ -314,22 +362,50 @@ function App() {
       }}>
         {showLayerPanel && (
           <div style={{
-            width: '250px',
+            width: `${sidebarWidth}px`,
             background: '#f5f5f5',
             borderRight: '1px solid #ddd',
-            overflowY: 'auto'
+            overflowY: 'auto',
+            position: 'relative'
           }}>
             <LayerPanel />
+            <div
+              onMouseDown={handleResizeStart}
+              style={{
+                position: 'absolute',
+                right: 0,
+                top: 0,
+                bottom: 0,
+                width: '6px',
+                cursor: 'col-resize',
+                background: 'transparent',
+                zIndex: 10
+              }}
+            />
           </div>
         )}
         {showTableListPanel && (
           <div style={{
-            width: '250px',
+            width: `${sidebarWidth}px`,
             background: '#f5f5f5',
             borderRight: '1px solid #ddd',
-            overflowY: 'auto'
+            overflowY: 'auto',
+            position: 'relative'
           }}>
-            <TableListPanel />
+            <TableListPanel inputRef={tableListInputRef} />
+            <div
+              onMouseDown={handleResizeStart}
+              style={{
+                position: 'absolute',
+                right: 0,
+                top: 0,
+                bottom: 0,
+                width: '6px',
+                cursor: 'col-resize',
+                background: 'transparent',
+                zIndex: 10
+              }}
+            />
           </div>
         )}
         <div style={{ 

@@ -28,7 +28,9 @@ function isSubsequence(query: string, target: string): boolean {
  * テーブル一覧パネル
  * ER図に含まれるエンティティの一覧をファジー検索とともに表示する
  */
-export function TableListPanel() {
+export function TableListPanel(props: {
+  inputRef?: React.RefObject<HTMLInputElement>
+}) {
   const { t } = useTranslation()
   const dispatch = useDispatch()
   const { setCenter } = useReactFlow()
@@ -69,6 +71,7 @@ export function TableListPanel() {
         {t('table_list_panel.title')}
       </h3>
       <input
+        ref={props.inputRef}
         type="text"
         value={filterText}
         onChange={(e) => setFilterText(e.target.value)}
@@ -108,6 +111,9 @@ export function TableListPanel() {
               cursor: 'pointer',
               fontSize: '13px',
               userSelect: 'none',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.backgroundColor = '#e3f2fd'
