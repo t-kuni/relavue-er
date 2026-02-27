@@ -1,107 +1,70 @@
-# テーブル一覧パネル実装タスク
+# タスク一覧
 
-仕様書: [spec/table_list_panel.md](spec/table_list_panel.md)
+仕様書の更新（直前のコミット）に基づく実装タスク。
 
-## 事前修正提案
-
-なし（現時点でテストはすべてパス）
-
----
-
-## フェーズ1: 型定義・Action層・テスト
-
-### [x] scheme/main.tsp の更新
-
-- 編集対象: `scheme/main.tsp`
-- `GlobalUIState` モデルに以下のフィールドを追加する
-  ```
-  showTableListPanel: boolean; // テーブル一覧パネル表示フラグ
-  ```
-
-### [x] 型の再生成
-
-- `npm run generate` を実行し、フロントエンド用・バックエンド用の型を再生成する
-  - 出力先: `lib/generated/api-types.ts`, `public/src/api/client/models/GlobalUIState.ts`
-
-### [x] getInitialViewModelValues.ts の更新
-
-- 編集対象: `public/src/utils/getInitialViewModelValues.ts`
-- `getInitialGlobalUIState()` の戻り値に `showTableListPanel: false` を追加する
-
-### [x] actionToggleTableListPanel の実装
-
-- 編集対象: `public/src/actions/globalUIActions.ts`
-- 以下の関数を追加する
-  - `actionToggleTableListPanel(vm: ViewModel): ViewModel`
-    - `vm.ui.showTableListPanel` をトグルする
-    - **パネルを開く場合**（`showTableListPanel` が `false → true`）: `showLayerPanel` を `false` にする（排他表示）
-    - **パネルを閉じる場合**: `showLayerPanel` は変更しない
-    - 変化がない場合は同一参照を返す
-
-### [x] actionToggleLayerPanel の修正（排他表示対応）
-
-- 編集対象: `public/src/actions/layerActions.ts`
-- 既存の `actionToggleLayerPanel` を修正する
-  - **パネルを開く場合**（`showLayerPanel` が `false → true`）: `showTableListPanel` を `false` にする（排他表示）
-  - **パネルを閉じる場合**: `showTableListPanel` は変更しない
-- 参照: [spec/layer_management.md](spec/layer_management.md)
-
-### [x] テストコードの追加
-
-- 編集対象: `public/tests/actions/globalUIActions.test.ts`
-- 追加するテストケース:
-  - `actionToggleLock`
-    - `isLocked` が `false → true` に切り替わること
-    - `isLocked` が `true → false` に切り替わること
-    - 変化がない場合は同一参照を返すこと（`false → false` はあり得ないが、ロジック上の確認）
-  - `actionToggleTableListPanel`
-    - `showTableListPanel` が `false → true` に切り替わること
-    - `showTableListPanel` が `true → false` に切り替わること
-    - パネルを開く場合（`false → true`）、`showLayerPanel` が `false` になること（排他表示）
-    - パネルを閉じる場合（`true → false`）、`showLayerPanel` は変更されないこと
-
-- 編集対象: `public/tests/actions/layerActions.test.ts`
-- 追加するテストケース:
-  - `actionToggleLayerPanel`
-    - パネルを開く場合（`false → true`）、`showTableListPanel` が `false` になること（排他表示）
-    - パネルを閉じる場合（`true → false`）、`showTableListPanel` は変更されないこと
-
-### [x] フェーズ1 ビルド確認・テスト実行
-
-- `npm run generate` → TypeScriptコンパイルエラーがないことを確認
-- `npm run test` → テストがすべてパスすること（269 passed、ReverseEngineerUsecase は Docker未起動のため既存のスキップ）
+対象仕様書：
+- [table_list_panel.md](./spec/table_list_panel.md)
+- [shortcut_help.md](./spec/shortcut_help.md)
+- [layer_management.md](./spec/layer_management.md)
 
 ---
 
-## フェーズ2: UIコンポーネント・翻訳
+## フェーズ 1: Ctrl+F ショートカット実装
 
-### [x] ReactFlowProvider を App.tsx に移動
+### ショートカット実装
 
-- 編集対象: `public/src/components/ERCanvas.tsx`
-  - `ERCanvas`（外側ラッパー）から `<ReactFlowProvider>` と `</ReactFlowProvider>` を削除する
-  - `ReactFlowProvider` の import 削除
+- [ ] **`public/src/components/App.tsx`** に Ctrl+F（Cmd+F）キーボードショートカットを追加する
+  - 仕様：[table_list_panel.md § キーボードショートカット](./spec/table_list_panel.md)
+  - 実装方針：既存の Ctrl+S ショートカット（`handleKeyDown` の `useEffect`）と同じパターンで追加
+  - 挙動の詳細：
+    - パネルが閉じている場合：`actionToggleTableListPanel` をdispatchしてパネルを開き、入力欄にフォーカスする。`event.preventDefault()` でブラウザのデフォルト検索を抑止する
+    - パネルが開いていて入力欄にフォーカスが当たっていない場合：入力欄にフォーカスする。`event.preventDefault()` でブラウザのデフォルト検索を抑止する
+    - パネルが開いていて入力欄にフォーカスが当たっている場合：何もせず、ブラウザのデフォルト動作（ブラウザ検索）を許可する（`event.preventDefault()` を呼ばない）
+  - 入力欄へのフォーカスには `useRef` と `ref.current.focus()` を使用する
+  - `App.tsx` から `TableListPanel` の入力欄 ref を受け渡す必要があるため、`TableListPanel` コンポーネントに `inputRef` プロパティ（`React.RefObject<HTMLInputElement>`）を追加する
 
-- 編集対象: `public/src/components/App.tsx`
-  - `@xyflow/react` から `ReactFlowProvider` をインポートする
-  - `<div className="app">` の内側全体を `<ReactFlowProvider>` でラップする
+- [ ] **`public/src/components/TableListPanel.tsx`** に `inputRef` プロパティを追加する
+  - `inputRef?: React.RefObject<HTMLInputElement>` を props に追加
+  - `<input>` 要素に `ref={inputRef}` を付与する
 
-### [x] TableListPanel コンポーネントの新規作成
+- [ ] **`public/src/components/ERCanvas.tsx`** のショートカットヘルプに Ctrl+F の表示が反映済みか確認する（翻訳キー `shortcut_help.open_table_list` を使用。翻訳ファイルは既に追加済み）
 
-- 新規作成: `public/src/components/TableListPanel.tsx`
-- ファジーマッチング（subsequence方式）・setCenter によるパン・アルファベット順ソートを実装
+### ビルド確認・テスト実行
 
-### [x] 翻訳ファイルの更新
+- [ ] `npm run generate`（型に変更がないため省略可）
+- [ ] `npm run test` でテストが通ることを確認する
+- [ ] `npm run build`（または開発サーバーで動作確認できるビルドコマンド）でビルドが通ることを確認する
 
-- 編集対象: `public/locales/ja/translation.json`, `public/locales/en/translation.json`, `public/locales/zh/translation.json`
-- `header.table_list` と `table_list_panel` セクションを追加
+---
 
-### [x] App.tsx の更新
+## フェーズ 2: サイドバーのドラッグリサイズ実装
 
-- `actionToggleTableListPanel` のインポートと `showTableListPanel` の購読を追加
-- ヘッダーにテーブル一覧ボタンを追加（レイヤーボタンの直後）
-- 左サイドバーに `<TableListPanel />` の条件付き表示を追加
+### サイドバーリサイズ実装
 
-### [x] フェーズ2 ビルド確認・テスト実行
+- [ ] **`public/src/components/App.tsx`** の左サイドバー（`showLayerPanel` / `showTableListPanel` の div）をドラッグリサイズに対応させる
+  - 仕様：[table_list_panel.md § サイドバー幅の変更](./spec/table_list_panel.md)
+  - 幅は `useState` でローカル管理する（ViewModelには持たない）。初期値は 250px 程度
+  - 最小幅 150px、最大幅 600px を設ける
+  - レイヤーパネルとテーブル一覧パネルは同じ左サイドバーを共有するため、同一の幅変数を使用する
+  - サイドバー div の `width: '250px'` を動的な状態変数に置き換える
+  - サイドバーの右縁にリサイズハンドル要素を配置する（縦線など視覚的に分かる要素）
+    - `position: absolute; right: 0; top: 0; bottom: 0; width: 6px; cursor: col-resize;` 相当のスタイル
+    - `onMouseDown` でドラッグ開始、`window.addEventListener('mousemove')` でリサイズ、`window.addEventListener('mouseup')` でドラッグ終了
+    - ドラッグ中は `event.preventDefault()` でテキスト選択を防ぐ
+    - コンポーネントのアンマウント時に `removeEventListener` でクリーンアップする
 
-- `npm run generate` → 正常に完了（TypeScriptエラーなし）
-- `npm run test` → 269 passed、ReverseEngineerUsecase は Docker未起動のため既存のスキップ
+### テーブル名の省略表示
+
+- [ ] **`public/src/components/TableListPanel.tsx`** のテーブル名リスト項目に省略表示スタイルを追加する
+  - 仕様：[table_list_panel.md § テーブル一覧の表示](./spec/table_list_panel.md)
+  - 各テーブル名 div に以下のスタイルを追加する：
+    ```
+    overflow: 'hidden'
+    textOverflow: 'ellipsis'
+    whiteSpace: 'nowrap'
+    ```
+
+### ビルド確認・テスト実行
+
+- [ ] `npm run test` でテストが通ることを確認する
+- [ ] `npm run build`（または開発サーバーで動作確認できるビルドコマンド）でビルドが通ることを確認する
