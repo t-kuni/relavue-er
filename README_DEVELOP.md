@@ -40,6 +40,10 @@ npm run test
 
 # 🟦 開発支援プロンプト
 
+```
+claude --model claude-4.5-sonnet --dangerously-skip-permissions
+```
+
 ## 🟠 外部のLLMに投げる時の要件整理プロンプト
 
 ```
