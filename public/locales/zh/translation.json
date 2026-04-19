@@ -71,7 +71,8 @@
     "load_sample_description": "加载开发用示例ER图（无需数据库连接）",
     "loading": "处理中...",
     "existing_nodes_warning": "※ 存在现有节点。反向工程将执行增量合并。",
-    "warning_privileges": "⚠️ 需要root用户（或具有足够权限的用户）访问information_schema"
+    "warning_privileges": "⚠️ 需要root用户（或具有足够权限的用户）访问information_schema",
+    "host_callout": "如果作为Docker容器运行\n表示宿主机的连接地址是 `host.docker.internal`\n（不是`localhost`。在Linux上可能是 `172.17.0.1`）"
   },
   "build_info_modal": {
     "title": "构建信息",

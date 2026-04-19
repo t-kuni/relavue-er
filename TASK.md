@@ -2,37 +2,56 @@
 
 ## 概要
 
-仕様追加：履歴パネルの差分表示内テーブル名クリック機能の実装。
+仕様追加：DBからリバースモーダルのHost欄にDockerコンテナ向けコールアウトを追加。
 
-仕様書: `spec/reverse_engineering_history.md` の「差分表示内のテーブル名クリック」節
+仕様書: `spec/database_connection_settings.md`
+
+---
+
+## 変更内容
+
+- Hostフィールドの下にDockerコンテナ向けの情報コールアウトを追加
+- Hostフィールドのplaceholderを `localhost` → `host.docker.internal` に変更
 
 ---
 
 ## タスク
 
-### 1. HistoryPanel.tsx にテーブル名クリック機能を実装する
+### 1. `DatabaseConnectionModal.tsx` を修正する
 
-**対象ファイル**: `public/src/components/HistoryPanel.tsx`
+**対象ファイル**: `public/src/components/DatabaseConnectionModal.tsx`
 
 **実装内容**:
 
-- `useReactFlow`, `useViewport`, `useDispatch`, `useViewModel` を import する
-- ER図に現在存在するノード一覧（`vm.erDiagram.nodes`）を取得する
-- テーブル名クリック時に以下を実行するハンドラを実装する（TableListPanel と同じ挙動）
-  - `actionSelectItem` でエンティティを選択状態にする
-  - `setCenter()` で対象エンティティが画面中央に来るようにパンする（アニメーションあり）
-- クリック対象の箇所（5箇所）にクリック可否を判定してスタイルと onClick を適用する
-  - 追加されたテーブル名のリスト
-  - 削除されたテーブル名のリスト（テーブル名部分）
-  - 追加されたカラムの `tableName` 部分
-  - 削除されたカラムの `tableName` 部分
-  - 変更されたカラムの `tableName` 部分
-- clickable 判定: クリック時点で `nodes` に存在するテーブル名のみ clickable とする
-- スタイル区別:
-  - clickable: `cursor: pointer`, 下線, 色付き（例: `#1976d2`）
-  - non-clickable: `cursor: default`, 装飾なし, グレー系
+- Host inputの `placeholder` を `localhost` から `host.docker.internal` に変更する
+- Host inputの直後に以下の情報コールアウトを追加する
+  - 背景色: 薄い青系（info系）
+  - テキスト: i18nキー `database_modal.host_callout` を使用
+  - 内容（日本語）:
+    ```
+    Dockerコンテナとして起動している場合
+    ホストマシンを表す接続先は `host.docker.internal` です
+    （localhostではありません。またLinuxの場合は `172.17.0.1` の可能性があります）
+    ```
 
-### 2. ビルド確認
+### 2. i18nファイルを更新する
+
+**対象ファイル**: 以下3ファイルの `database_modal` セクションに `host_callout` キーを追加する
+
+- `public/locales/ja/translation.json`
+  ```
+  "host_callout": "Dockerコンテナとして起動している場合\nホストマシンを表す接続先は host.docker.internal です\n（localhostではありません。またLinuxの場合は 172.17.0.1 の可能性があります）"
+  ```
+- `public/locales/en/translation.json`
+  ```
+  "host_callout": "If running as a Docker container\nThe host address for the host machine is host.docker.internal\n(Not localhost. On Linux, it may be 172.17.0.1)"
+  ```
+- `public/locales/zh/translation.json`
+  ```
+  "host_callout": "如果作为Docker容器运行\n表示宿主机的连接地址是 host.docker.internal\n（不是localhost。在Linux上可能是 172.17.0.1）"
+  ```
+
+### 3. ビルド確認
 
 ```bash
 npm run generate
@@ -43,7 +62,6 @@ npm run test
 
 ## 現状
 
-- [x] タスク1: HistoryPanel.tsx にテーブル名クリック機能を実装（完了）
-- [ ] タスク2: ビルド確認（テストエラーあり）
-
-`npm run generate` は成功。`npm run test` は `tests/usecases/ReverseEngineerUsecase.test.ts` がDocker ComposeのMySQL接続エラー（`ECONNREFUSED 127.0.0.1:30177`）で失敗。本実装とは無関係の環境依存エラー。詳細はALERT.mdを参照。
+- [x] タスク1: DatabaseConnectionModal.tsx を修正
+- [x] タスク2: i18nファイルを更新
+- [x] タスク3: ビルド確認

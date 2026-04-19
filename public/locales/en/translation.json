@@ -71,7 +71,8 @@
     "load_sample_description": "Load a sample ER diagram for development (no database connection required)",
     "loading": "Processing...",
     "existing_nodes_warning": "※ Existing nodes found. Reverse engineering will perform incremental merge.",
-    "warning_privileges": "⚠️ Requires root user (or user with sufficient privileges) to access information_schema"
+    "warning_privileges": "⚠️ Requires root user (or user with sufficient privileges) to access information_schema",
+    "host_callout": "If running as a Docker container\nThe host address for the host machine is `host.docker.internal`\n(Not `localhost`. On Linux, it may be `172.17.0.1`)"
   },
   "build_info_modal": {
     "title": "Build Information",

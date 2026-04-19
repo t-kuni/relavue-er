@@ -12,6 +12,27 @@ interface DatabaseConnectionModalProps {
   loading: boolean;
 }
 
+// バッククォート囲み文字列をインラインコードスタイルでレンダリングする
+const renderWithCode = (text: string) => {
+  const parts = text.split(/(`[^`]+`)/)
+  return parts.map((part, i) => {
+    if (part.startsWith('`') && part.endsWith('`')) {
+      return (
+        <code key={i} style={{
+          background: '#c8ddf0',
+          borderRadius: '3px',
+          padding: '0 3px',
+          fontFamily: 'monospace',
+          fontSize: '0.9em'
+        }}>
+          {part.slice(1, -1)}
+        </code>
+      )
+    }
+    return part
+  })
+}
+
 function DatabaseConnectionModal({ onExecute, onCancel, onLoadSample, initialValues, errorMessage, hasExistingNodes, loading }: DatabaseConnectionModalProps) {
   const { t } = useTranslation()
   
@@ -194,11 +215,23 @@ function DatabaseConnectionModal({ onExecute, onCancel, onLoadSample, initialVal
           <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
             {t('database_modal.host')}
           </label>
-          <input 
-            type="text" 
+          <div style={{
+            padding: '0.75rem',
+            marginBottom: '0.5rem',
+            background: '#e3f2fd',
+            border: '1px solid #90caf9',
+            borderRadius: '4px',
+            color: '#1565c0',
+            fontSize: '0.85rem',
+            whiteSpace: 'pre-line'
+          }}>
+            {renderWithCode(t('database_modal.host_callout'))}
+          </div>
+          <input
+            type="text"
             value={host}
             onChange={(e) => setHost(e.target.value)}
-            placeholder="localhost"
+            placeholder="host.docker.internal"
             disabled={loading}
             style={{
               width: '100%',

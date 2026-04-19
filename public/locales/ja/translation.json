@@ -71,7 +71,8 @@
     "load_sample_description": "開発用のサンプルER図を読み込みます（データベース接続不要）",
     "loading": "処理中...",
     "existing_nodes_warning": "※既存のノードが存在します。リバースエンジニアリングを実行すると、増分マージが行われます。",
-    "warning_privileges": "⚠️ information_schemaを参照するためルートユーザ（または十分な権限を持つユーザ）での実行を推奨します"
+    "warning_privileges": "⚠️ information_schemaを参照するためルートユーザ（または十分な権限を持つユーザ）での実行を推奨します",
+    "host_callout": "Dockerコンテナとして起動している場合\nホストマシンを表す接続先は `host.docker.internal` です\n（`localhost`ではありません。またLinuxの場合は `172.17.0.1` の可能性があります）"
   },
   "build_info_modal": {
     "title": "ビルド情報",
