@@ -1,3 +1,19 @@
+# 🟥 4. テスト実行時のMySQL接続エラー
+
+分類： 環境依存エラー
+
+`npm run test` 実行時に `tests/usecases/ReverseEngineerUsecase.test.ts` が以下エラーで失敗する。
+
+```
+Error: MySQL DBに接続できません。Docker Composeが起動していることを確認してください: Error: connect ECONNREFUSED 127.0.0.1:30177
+```
+
+本実装（HistoryPanel.txsのテーブル名クリック機能）とは無関係。Docker Composeが起動していない環境固有の問題。
+
+**対応**: Docker Composeを起動してからテストを実行すること。
+
+---
+
 # 🟦 1. レイヤーパネルとテーブル一覧パネルの共存方法
 
 分類： 要意思決定問題

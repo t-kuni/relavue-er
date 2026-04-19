@@ -38,3 +38,12 @@
 npm run generate
 npm run test
 ```
+
+---
+
+## 現状
+
+- [x] タスク1: HistoryPanel.tsx にテーブル名クリック機能を実装（完了）
+- [ ] タスク2: ビルド確認（テストエラーあり）
+
+`npm run generate` は成功。`npm run test` は `tests/usecases/ReverseEngineerUsecase.test.ts` がDocker ComposeのMySQL接続エラー（`ECONNREFUSED 127.0.0.1:30177`）で失敗。本実装とは無関係の環境依存エラー。詳細はALERT.mdを参照。
