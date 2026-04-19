@@ -18,6 +18,12 @@
 
 - **Database Type**: ドロップダウン選択（`mysql` / `postgresql`）
 - **Host**: テキスト入力（例: `localhost`）
+  - Hostフィールドの下に情報コールアウトを表示:
+    ```
+    Dockerコンテナとして起動している場合
+    ホストマシンを表す接続先は `host.docker.internal` です
+    （localhostではありません。またLinuxの場合は `172.17.0.1` の可能性があります）
+    ```
 - **Port**: 数値入力（Database Type選択時に自動調整）
   - MySQL: `3306`
   - PostgreSQL: `5432`
@@ -58,12 +64,12 @@
 - 入力欄が空の場合、placeholderとして一般的な値を表示
 - Database Typeに応じて変更
   - MySQL:
-    - Host: `localhost`
+    - Host: `host.docker.internal`
     - Port: `3306`
     - User: `root`
     - Database: `test`
   - PostgreSQL:
-    - Host: `localhost`
+    - Host: `host.docker.internal`
     - Port: `5432`
     - User: `postgres`
     - Database: `erviewer`
